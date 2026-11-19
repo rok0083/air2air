@@ -2411,7 +2411,7 @@
         var sc = Math.max(W / iw, H / ih);
         var dw = iw * sc, dh = ih * sc;
         ctx.save();
-        ctx.globalAlpha = 0.26;
+        ctx.globalAlpha = 0.24;
         ctx.drawImage(im, (W - dw) / 2, (H - dh) / 2, dw, dh);
         ctx.restore();
 
@@ -2615,7 +2615,7 @@
         ctx.stroke();
         ctx.restore();
 
-        var badgeR = Math.max(4.5, Math.min(7, g.h * 0.18));
+        var badgeR = Math.max(4.5, Math.min(7.5, g.h * 0.2));
         var bx = r.x + r.w - badgeR - 1.5;
         var by = r.y + badgeR + 1.5;
         ctx.save();
@@ -2625,7 +2625,7 @@
         ctx.arc(bx, by, badgeR, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
-        drawItemIcon(b.item, bx, by, badgeR * 0.6, def.color);
+        drawItemIcon(b.item, bx, by, badgeR * 0.68, def.color);
       }
 
       // 이름
