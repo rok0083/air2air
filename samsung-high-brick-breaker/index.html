@@ -854,8 +854,254 @@
     try { window.localStorage.setItem(key, String(val)); } catch (e) { /* 무시 */ }
   }
 
+
   /* =========================================================
-     Top 6 랭킹 (이 기기 브라우저에 저장)
+     Firebase Realtime Database (실시간 전체 랭킹)
+     https://samsung-brick-breaker-default-rtdb.asia-southeast1.firebasedatabase.app
+     ========================================================= */
+  var FB_ROOT = 'https://samsung-brick-breaker-default-rtdb.asia-southeast1.firebasedatabase.app';
+  var FB_PATH = '/leaderboard';
+
+  var FB = {
+    live: false,        // 스트림 연결됨 (EventSource open)
+    raw: {},            // 서버 원본 스냅샷 (key -> {name, score, ts})
+    entries: {},        // key -> {name, score} (이름별 최고 점수)
+    src: null,
+    pollId: 0,
+    timer: 0,           // 쓰기 스로틀 예약
+    lastPush: 0,
+    fails: 0,
+    silentFails: 0
+  };
+
+  function fbHas(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+
+  // 이름 -> Firebase 키 (경로에 쓸 수 없는 문자 제거, 5자)
+  function fbKey(name) {
+    var n = String(name || '').replace(/[\s.#$\[\]\/~]/g, '').slice(0, 5);
+    return n || '나';
+  }
+
+  function fbPathParts(path) {
+    var out = [];
+    var parts = String(path || '/').split('/');
+    for (var i = 0; i < parts.length; i++) {
+      if (!parts[i]) continue;
+      try { out.push(decodeURIComponent(parts[i])); } catch (e) { out.push(parts[i]); }
+    }
+    return out;
+  }
+
+  function fbNodeAt(root, path, create) {
+    var parts = fbPathParts(path), node = root;
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      if (!node[p] || typeof node[p] !== 'object') {
+        if (!create) return null;
+        node[p] = {};
+      }
+      node = node[p];
+    }
+    return node;
+  }
+
+  // 스트림 이벤트 put: 해당 경로 노드를 통째로 교체
+  function fbApplyPut(root, path, data) {
+    var parts = fbPathParts(path);
+    if (!parts.length) return (data && typeof data === 'object') ? data : {};
+    var parent = fbNodeAt(root, '/' + parts.slice(0, -1).join('/'), true);
+    var last = parts[parts.length - 1];
+    if (data === null || data === undefined) delete parent[last];
+    else parent[last] = data;
+    return root;
+  }
+
+  // 스트림 이벤트 patch: 해당 경로 노드에 병합
+  function fbApplyPatch(root, path, data) {
+    if (!data || typeof data !== 'object') return root;
+    var node = fbNodeAt(root, path, true);
+    if (!node) return root;
+    for (var k in data) {
+      if (!fbHas(data, k)) continue;
+      if (data[k] === null || data[k] === undefined) delete node[k];
+      else node[k] = data[k];
+    }
+    return root;
+  }
+
+  function fbScoreOf(e) {
+    var raw = (e && typeof e === 'object') ? e.score : e;
+    var n = Number(raw);
+    if (!isFinite(n) || n <= 0) return 0;
+    return Math.max(1, Math.min(9999999, Math.round(n)));
+  }
+
+  function fbNameOf(key, e) {
+    if (e && typeof e === 'object' && typeof e.name === 'string' && e.name) {
+      return e.name.replace(/\s+/g, '').slice(0, 5);
+    }
+    return String(key).replace(/\s+/g, '').slice(0, 5);
+  }
+
+  // 서버 스냅샷 -> 로컬 Top 6 / HUD BEST 반영
+  function fbRefresh() {
+    var raw = FB.raw || {}, entries = {}, key, list = [];
+    for (key in raw) {
+      if (!fbHas(raw, key)) continue;
+      var e = raw[key];
+      if (!e) continue;
+      var name = fbNameOf(key, e);
+      var k = fbKey(name);
+      var score = fbScoreOf(e);
+      if (!score) continue;
+      if (!entries[k] || score > entries[k].score) entries[k] = { name: name, score: score };
+    }
+    FB.entries = entries;
+    for (key in entries) {
+      if (!fbHas(entries, key)) continue;
+      list.push(entries[key]);
+    }
+    var prevTop = S.board.length ? S.board[0].score : 0;
+    S.board = normalizeBoard(list);
+    var top = S.board.length ? S.board[0].score : 0;
+    S.best = Math.max(top, S.score || 0);
+    var json = JSON.stringify(S.board);
+    if (json !== storeGet(STORE_BOARD, '')) {
+      storeSet(STORE_BOARD, json);
+      storeSet(STORE_BEST, top);
+    }
+    updateHud();
+    fbRefreshOverlay();
+    // 다른 동문이 1위를 갈아치웠다 (게임 중이 아닌 화면에서만 알린다)
+    if (top > prevTop && prevTop > 0 && S.board.length && S.board[0].name !== playerName() &&
+        overlayEl && !overlayEl.hidden) {
+      showToast('🌐 ' + S.board[0].name + '님이 1위! ' + top.toLocaleString('ko-KR') + '점', 2600);
+    }
+  }
+
+  // 랭킹 표 상태 문구
+  function fbStatusNote() {
+    if (FB.live) return '🌐 실시간 전체 랭킹';
+    if (FB.raw && Object.keys(FB.raw).length) return '🌐 전체 랭킹 · 연결 중…';
+    return '📴 오프라인 · 이 기기 기준 랭킹';
+  }
+
+  // 열려 있는 오버레이의 TOP 6 표만 다시 그린다
+  function fbRefreshOverlay() {
+    if (!overlayEl || overlayEl.hidden) return;
+    var blocks = overlayEl.querySelectorAll('.rankblock');
+    for (var i = 0; i < blocks.length; i++) {
+      blocks[i].innerHTML = '<p class="rank-title">🏆 TOP 6</p>' + rankTable();
+    }
+  }
+
+  // 내 최고 점수를 Firebase 에 올린다 (스로틀: 기본 4초)
+  function fbPush(score, force) {
+    score = Math.round(score);
+    if (!(score > 0) || score > 9999999) return;
+    var name = playerName();
+    var key = fbKey(name);
+    var mine = FB.entries[key];
+    if (mine && score <= mine.score) return;      // 이미 같거나 높은 기록이 있다
+    var wait = 4000;
+    var since = Date.now() - FB.lastPush;
+    if (!force && since < wait) {
+      if (FB.timer) window.clearTimeout(FB.timer);
+      FB.timer = window.setTimeout(function () { FB.timer = 0; fbPush(S.score, false); }, wait - since);
+      return;
+    }
+    if (FB.timer) { window.clearTimeout(FB.timer); FB.timer = 0; }
+    FB.lastPush = Date.now();
+
+    FB.entries[key] = { name: name, score: score };            // 낙관적 반영
+    FB.raw[key] = { name: name, score: score, ts: Date.now() };
+
+    var body = {};
+    body[key] = { name: name, score: score, ts: Date.now() };
+    try {
+      window.fetch(FB_ROOT + FB_PATH + '.json', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
+        keepalive: true,
+        body: JSON.stringify(body)
+      }).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        FB.saved = FB.saved || {};
+        FB.saved[key] = score;
+      }).catch(function () {
+        // 전송 실패: 캐시를 비워 다음 기록 때 다시 시도한다
+        if (FB.entries[key] && FB.entries[key].score === score) delete FB.entries[key];
+      });
+    } catch (e) { /* fetch 미지원: 로컬만 */ }
+  }
+
+  function fbParse(text) {
+    try { return JSON.parse(text); } catch (e) { return null; }
+  }
+
+  function fbFetchOnce() {
+    try {
+      window.fetch(FB_ROOT + FB_PATH + '.json', { cache: 'no-store' })
+        .then(function (r) { if (r.ok) return r.json(); throw new Error('HTTP ' + r.status); })
+        .then(function (data) {
+          FB.raw = (data && typeof data === 'object') ? data : {};
+          FB.fails = 0;
+          fbRefresh();
+        })
+        .catch(function () { FB.fails += 1; fbRefreshOverlay(); });
+    } catch (e) { FB.fails += 1; fbRefreshOverlay(); }
+  }
+
+  // 스트림이 계속 끊길 때만 도는 보조 동기화 (12초 간격)
+  function fbPollStart() {
+    if (FB.pollId) return;
+    FB.pollId = window.setInterval(function () {
+      if (FB.live || document.hidden) return;
+      fbFetchOnce();
+    }, 12000);
+  }
+
+  function fbConnect() {
+    fbFetchOnce();                       // 첫 화면을 바로 채운다
+    if (typeof window.EventSource !== 'function') { fbPollStart(); return; }
+    var es;
+    try { es = new window.EventSource(FB_ROOT + FB_PATH + '.json'); } catch (e) { fbPollStart(); return; }
+    FB.src = es;
+    es.addEventListener('open', function () {
+      FB.live = true;
+      FB.fails = 0;
+      FB.silentFails = 0;
+      fbRefreshOverlay();
+    });
+    es.addEventListener('put', function (ev) {
+      var msg = fbParse(ev.data);
+      if (!msg) return;
+      FB.raw = fbApplyPut(FB.raw || {}, msg.path, msg.data);
+      FB.live = true;
+      fbRefresh();
+    });
+    es.addEventListener('patch', function (ev) {
+      var msg = fbParse(ev.data);
+      if (!msg) return;
+      FB.raw = fbApplyPatch(FB.raw || {}, msg.path, msg.data);
+      FB.live = true;
+      fbRefresh();
+    });
+    es.addEventListener('error', function () {
+      FB.live = false;
+      FB.silentFails = (FB.silentFails || 0) + 1;
+      fbRefreshOverlay();
+      if (FB.silentFails >= 3) fbPollStart();   // 자동 재연결이 계속 실패하면 보조 동기화
+    });
+    // 탭으로 돌아오면 상태를 다시 확인
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && !FB.live) fbFetchOnce();
+    });
+  }
+
+  /* =========================================================
+     Top 6 랭킹 (Firebase 실시간 + 이 기기 캐시)
      ========================================================= */
   function normalizeBoard(list) {
     list.sort(function (a, b) { return b.score - a.score; });
@@ -870,6 +1116,7 @@
     return out;
   }
 
+  // 오프라인일 때 쓰는 이 기기 캐시 (없으면 동문 씨앗 점수)
   function loadBoard() {
     var list = [];
     var raw = storeGet(STORE_BOARD, '');
@@ -903,8 +1150,8 @@
     return n || '나';
   }
 
-  // 현재 점수를 Top 6에 반영하고 저장
-  function commitScore(score) {
+  // 현재 점수를 Top 6에 반영하고 저장 (이 기기 + Firebase)
+  function commitScore(score, force) {
     if (!(score > 0)) return;
     var name = playerName();
     var list = S.board.slice(0);
@@ -918,9 +1165,13 @@
     }
     if (!found) list.push({ name: name, score: score });
     S.board = normalizeBoard(list);
-    S.best = S.board.length ? S.board[0].score : score;
-    storeSet(STORE_BOARD, JSON.stringify(S.board));
-    storeSet(STORE_BEST, S.best);
+    S.best = Math.max(S.board.length ? S.board[0].score : 0, score);
+    var json = JSON.stringify(S.board);
+    if (json !== storeGet(STORE_BOARD, '')) {
+      storeSet(STORE_BOARD, json);
+      storeSet(STORE_BEST, S.best);
+    }
+    fbPush(score, force);
   }
 
   function topScore() {
@@ -928,15 +1179,18 @@
     return Math.max(t, S.score || 0);
   }
 
+  // 내 기록은 빼고 몇 위인지
   function currentRank(score) {
+    var me = playerName();
     var r = 1;
     for (var i = 0; i < S.board.length; i++) {
+      if (S.board[i].name === me) continue;
       if (S.board[i].score >= score) r += 1;
     }
     return r;
   }
 
-  // 실시간 순위 알림 (1위 갱신 / 순위 진입)
+  // 실시간 순위 알림 (1위 갱신 / 순위 진입) — Firebase 랭킹과 비교한다
   function checkRank(score) {
     var top = S.board.length ? S.board[0].score : 0;
     if (score > top) {
@@ -945,8 +1199,8 @@
         S.flags.rank = 1;
         showToast('🏆 최고 점수 갱신! ' + score.toLocaleString('ko-KR') + '점', 3000);
         Sfx.rankUp();
-        commitScore(score);
       }
+      commitScore(score);
       return;
     }
     var rank = currentRank(score);
@@ -957,6 +1211,7 @@
       commitScore(score);
     }
   }
+
 
   /* =========================================================
      소리 (Web Audio 합성, 외부 파일 없음)
@@ -1853,7 +2108,7 @@
 
   function gameOver() {
     S.state = 'over';
-    saveBest();
+    saveBest(true);
     Sfx.over();
     showOverlay('over');
   }
@@ -1867,7 +2122,7 @@
     commitScore(S.score);
     if (S.stage >= MAX_STAGE) {
       S.state = 'win';
-      saveBest();
+      saveBest(true);
       showOverlay('win');
     } else {
       S.state = 'clear';
@@ -1875,8 +2130,8 @@
     }
   }
 
-  function saveBest() {
-    commitScore(S.score);
+  function saveBest(force) {
+    commitScore(S.score, force);
     updateHud();
   }
 
@@ -1920,7 +2175,7 @@
               '</li>';
     }
     return '<ol class="ranklist">' + rows + '</ol>' +
-           '<p class="rank-note">이 기기 기준 랭킹</p>';
+           '<p class="rank-note">' + fbStatusNote() + '</p>';
   }
 
   function boardRows(rows) {
@@ -2125,7 +2380,7 @@
           '<p class="ov-sub">이택형 · 성승현 · 우상봉 · 강현수 · 황진석 · 강동균<br><b>99 스테이지</b>에 도전하라!</p>' +
           '<div class="namefield">' +
             '<input id="nameInput" type="text" maxlength="5" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="이름 (최대 5자)" value="' + esc(S.playerName) + '" aria-label="플레이어 이름">' +
-            '<span class="nf-cap">한글 5자까지 · 이 기기에 저장됩니다</span>' +
+            '<span class="nf-cap">한글 5자까지 · 전체 랭킹에 실시간 공유</span>' +
           '</div>' +
           '<button class="btn primary" type="button" data-action="start">시작하기</button>' +
           '<div class="rankblock">' +
@@ -3506,6 +3761,7 @@
     updateHud();
     hideOverlay();
     showOverlay('start');
+    fbConnect();                 // 실시간 전체 랭킹 연결
     window.requestAnimationFrame(frame);
   }
 
