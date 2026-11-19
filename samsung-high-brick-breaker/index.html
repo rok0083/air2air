@@ -1172,6 +1172,7 @@
       storeSet(STORE_BEST, S.best);
     }
     fbPush(score, force);
+    updateHud();
   }
 
   function topScore() {
@@ -3791,6 +3792,8 @@
       damageBrick: damageBrick,
       updateWeapon: updateWeapon,
       setName: function (n) { S.playerName = String(n || '').slice(0, 5); storeSet(STORE_NAME, S.playerName); return S.playerName; },
+      addScore: addScore,
+      checkRank: checkRank,
       commitScore: function (v, force) { commitScore(v, !!force); return S.board; },
       board: function () { return S.board; },
       firebase: function () { return { live: FB.live, entries: FB.entries, note: fbStatusNote() }; },
