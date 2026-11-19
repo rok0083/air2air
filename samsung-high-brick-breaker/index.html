@@ -653,7 +653,7 @@
     capsules: [],
     stars: [],
 
-    weapon: { type: null, until: 0, total: 0, fireIn: 0 },
+    weapon: { type: null, remaining: 0, total: 0, fireIn: 0 },
 
     paddle: { x: 0, y: 0, w: 90, h: 12, target: null, drag: null },
     ball: { x: 0, y: 0, vx: 0, vy: 0, r: 8, stuck: true, trail: [] },
@@ -862,7 +862,7 @@
 
     var w = S.weapon;
     if (w.type) {
-      var left = Math.max(0, w.until - S.time);
+      var left = Math.max(0, w.remaining);
       var pct = w.total > 0 ? Math.max(0, Math.min(100, (left / w.total) * 100)) : 0;
       var txt = ITEMS[w.type].label + ' ' + left.toFixed(1) + 's';
       itemCellEl.classList.add('on');
@@ -961,7 +961,7 @@
 
   function equip(type) {
     var def = ITEMS[type];
-    S.weapon = { type: type, until: S.time + def.duration, total: def.duration, fireIn: 0.12 };
+    S.weapon = { type: type, remaining: def.duration, total: def.duration, fireIn: 0.12 };
     spawnFloater(S.W / 2, S.H * 0.58, def.label + ' 장착!', def.color, 22, 'item');
     spawnParticles(S.paddle.x, S.paddle.y, def.color, 16, { speed: 180 });
     Sfx.equip();
@@ -1008,12 +1008,13 @@
   function updateWeapon(dt) {
     var w = S.weapon;
     if (!w.type) return;
-    if (S.time >= w.until) {
-      S.weapon = { type: null, until: 0, total: 0, fireIn: 0 };
+    if (S.state !== 'play') return;      // 대기·일시정지 중에는 남은 시간이 줄지 않는다
+    w.remaining -= dt;
+    if (w.remaining <= 0) {
+      S.weapon = { type: null, remaining: 0, total: 0, fireIn: 0 };
       updateHud();
       return;
     }
-    if (S.state !== 'play') return;
     w.fireIn -= dt;
     if (w.fireIn <= 0) {
       if (w.type === 'bullet') fireBullet();
@@ -1089,7 +1090,7 @@
     S.bullets = [];
     S.beams = [];
     S.capsules = [];
-    S.weapon = { type: null, until: 0, total: 0, fireIn: 0 };
+    S.weapon = { type: null, remaining: 0, total: 0, fireIn: 0 };
     S.cols = colsForWidth(S.W);
     S.rows = rowsForCols(S.cols, S.H);
     computeGeometry();
@@ -1114,7 +1115,7 @@
     S.bullets = [];
     S.beams = [];
     S.capsules = [];
-    S.weapon = { type: null, until: 0, total: 0, fireIn: 0 };
+    S.weapon = { type: null, remaining: 0, total: 0, fireIn: 0 };
     resetBall();
     S.state = 'ready';
     hideOverlay();
@@ -2310,7 +2311,7 @@
           state: S.state, score: S.score, best: S.best, stage: S.stage,
           lives: S.lives, combo: S.combo, broken: S.broken,
           cols: S.cols, rows: S.rows, alive: alive, itemBricks: items,
-          names: names, weapon: S.weapon.type, weaponLeft: Math.max(0, S.weapon.until - S.time),
+          names: names, weapon: S.weapon.type, weaponLeft: Math.max(0, S.weapon.remaining),
           bullets: S.bullets.length, beams: S.beams.length, capsules: S.capsules.length,
           brickW: Math.round(S.geo.w * 10) / 10, brickH: Math.round(S.geo.h * 10) / 10,
           font: Math.round(S.geo.font * 10) / 10,
