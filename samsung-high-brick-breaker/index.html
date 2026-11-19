@@ -375,6 +375,79 @@
   }
   .itemlist b { color: #e2ecff; font-weight: 900; }
 
+  /* 플레이어 이름 입력 */
+  .namefield {
+    width: 100%;
+    max-width: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .namefield input {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(140, 180, 255, 0.35);
+    background: rgba(10, 16, 32, 0.78);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-align: center;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-user-select: text;
+    user-select: text;
+    touch-action: manipulation;
+  }
+  .namefield input::placeholder {
+    color: #6b7ba0;
+    font-weight: 700;
+    letter-spacing: 0;
+    font-size: 13px;
+  }
+  .namefield input:focus {
+    border-color: #ffe08a;
+    box-shadow: 0 0 0 3px rgba(255, 215, 110, 0.18);
+  }
+  .nf-cap { font-size: 10px; color: #7f8fb8; font-weight: 700; }
+
+  /* Top 6 랭킹 */
+  .rankblock {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .rank-title { font-size: 10px; font-weight: 900; letter-spacing: 1.6px; color: #9fb0d6; }
+  .ranklist { list-style: none; width: 100%; display: flex; flex-direction: column; gap: 3px; }
+  .rank-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 12px;
+    font-weight: 800;
+    color: #dbe6ff;
+  }
+  .rank-row em { font-style: normal; width: 15px; text-align: center; color: #8b9ac2; font-size: 10.5px; }
+  .rank-row span { flex: 1 1 auto; text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .rank-row b { font-variant-numeric: tabular-nums; color: #eef3ff; }
+  .rank-row:nth-child(1) em { color: #ffd76e; }
+  .rank-row.me { border-color: rgba(255, 215, 110, 0.55); background: rgba(255, 215, 110, 0.1); }
+  .rank-row.me span { color: #ffe08a; }
+  .rank-note { font-size: 9.5px; color: #6f81a6; font-weight: 700; }
+  .clear-card .rank-row { padding: 2px 8px; font-size: 11px; }
+  .clear-card .rank-title { font-size: 9.5px; }
+
   /* ---------- 스테이지 클리어: 동문 사진 배경 ---------- */
   #overlay.ov-photo:not([hidden]) {
     display: block;
@@ -457,7 +530,7 @@
     z-index: 4;
     padding: 22px 10px calc(9px + env(safe-area-inset-bottom, 0px));
     background: linear-gradient(180deg, rgba(5, 8, 16, 0) 0%, rgba(5, 8, 16, 0.46) 32%, rgba(5, 8, 16, 0.86) 100%);
-    transition: opacity 0.22s ease, transform 0.22s ease;
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0s linear 0s;
     animation: cardUp 0.36s ease-out;
   }
   @keyframes cardUp {
@@ -534,6 +607,8 @@
     opacity: 0;
     transform: translateY(14px);
     pointer-events: none;
+    visibility: hidden;
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0s linear 0.22s;
   }
   #overlay.photo-only .photo-shade {
     background: linear-gradient(180deg, rgba(4, 7, 14, 0.3) 0%, rgba(4, 7, 14, 0) 26%, rgba(4, 7, 14, 0) 72%, rgba(4, 7, 14, 0.34) 100%);
@@ -628,6 +703,7 @@
     <div class="hud-top">
       <h1>삼성고동문회 벽돌깨기</h1>
       <div class="hud-actions">
+        <button id="btnRank" class="icon-btn" type="button" aria-label="게임현황판" title="게임현황판">🏆</button>
         <button id="btnPause" class="icon-btn" type="button" aria-label="일시정지" title="일시정지">❙❙</button>
         <button id="btnSound" class="icon-btn" type="button" aria-label="소리 끄기" title="소리 끄기">🔊</button>
       </div>
@@ -660,7 +736,7 @@
      기본 상수
      ========================================================= */
   var NAMES = ['이택형', '성승현', '우상봉', '강현수', '황진석', '강동균'];
-  var MAX_STAGE = 3;
+  var MAX_STAGE = 99;
   var FONT = '"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic","Nanum Gothic",system-ui,-apple-system,sans-serif';
 
   // 스테이지별 이름 배치 순서 (같은 6명을 매번 다른 조합으로)
@@ -702,6 +778,19 @@
 
   var STORE_SOUND = 'sbb.sound';
   var STORE_BEST = 'sbb.best';
+  var STORE_NAME = 'sbb.name';
+  var STORE_BOARD = 'sbb.board';
+
+  // Top 6 랭킹 씨앗 (처음 실행할 때 한 번만)
+  var BOARD_SEED = [
+    { name: '이택형', score: 3940 },
+    { name: '성승현', score: 3610 },
+    { name: '우상봉', score: 3280 },
+    { name: '강현수', score: 2950 },
+    { name: '황진석', score: 2570 },
+    { name: '강동균', score: 2180 }
+  ];
+  var BOARD_MAX = 6;
 
   /* =========================================================
      DOM
@@ -721,6 +810,7 @@
   var itemBarEl = document.getElementById('itemBar');
   var btnPause = document.getElementById('btnPause');
   var btnSound = document.getElementById('btnSound');
+  var btnRank = document.getElementById('btnRank');
 
   /* =========================================================
      스테이지 사진 (동문 모임 사진) — 미리 받아 둔다
@@ -742,7 +832,8 @@
   })();
 
   function stagePhotoIndex(stage) {
-    return Math.max(0, Math.min(STAGE_PHOTOS.length - 1, (stage || 1) - 1));
+    var n = STAGE_PHOTOS.length;
+    return (((stage || 1) - 1) % n + n) % n;
   }
   function stagePhotoUrl(stage) { return STAGE_PHOTOS[stagePhotoIndex(stage)]; }
   function stagePhoto(stage) {
@@ -761,6 +852,110 @@
   }
   function storeSet(key, val) {
     try { window.localStorage.setItem(key, String(val)); } catch (e) { /* 무시 */ }
+  }
+
+  /* =========================================================
+     Top 6 랭킹 (이 기기 브라우저에 저장)
+     ========================================================= */
+  function normalizeBoard(list) {
+    list.sort(function (a, b) { return b.score - a.score; });
+    var seen = {}, out = [];
+    for (var i = 0; i < list.length; i++) {
+      var n = list[i].name;
+      if (seen[n]) continue;
+      seen[n] = 1;
+      out.push(list[i]);
+      if (out.length >= BOARD_MAX) break;
+    }
+    return out;
+  }
+
+  function loadBoard() {
+    var list = [];
+    var raw = storeGet(STORE_BOARD, '');
+    if (raw) {
+      try {
+        var arr = JSON.parse(raw);
+        if (arr && arr.length) {
+          for (var i = 0; i < arr.length; i++) {
+            var e = arr[i];
+            if (e && typeof e.name === 'string' && isFinite(e.score)) {
+              list.push({ name: String(e.name).slice(0, 5), score: Math.max(0, Math.round(e.score)) });
+            }
+          }
+        }
+      } catch (err) { list = []; }
+    }
+    if (!list.length) {
+      for (var k = 0; k < BOARD_SEED.length; k++) {
+        list.push({ name: BOARD_SEED[k].name, score: BOARD_SEED[k].score });
+      }
+      // 예전 버전의 최고 점수도 이어받는다
+      var legacy = parseInt(storeGet(STORE_BEST, '0'), 10) || 0;
+      var lname = (storeGet(STORE_NAME, '') || '우상봉').slice(0, 5);
+      if (legacy > 0) list.push({ name: lname, score: legacy });
+    }
+    return normalizeBoard(list);
+  }
+
+  function playerName() {
+    var n = (S.playerName || '').slice(0, 5);
+    return n || '나';
+  }
+
+  // 현재 점수를 Top 6에 반영하고 저장
+  function commitScore(score) {
+    if (!(score > 0)) return;
+    var name = playerName();
+    var list = S.board.slice(0);
+    var found = false;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].name === name) {
+        found = true;
+        if (score > list[i].score) list[i].score = score;
+        break;
+      }
+    }
+    if (!found) list.push({ name: name, score: score });
+    S.board = normalizeBoard(list);
+    S.best = S.board.length ? S.board[0].score : score;
+    storeSet(STORE_BOARD, JSON.stringify(S.board));
+    storeSet(STORE_BEST, S.best);
+  }
+
+  function topScore() {
+    var t = S.board.length ? S.board[0].score : 0;
+    return Math.max(t, S.score || 0);
+  }
+
+  function currentRank(score) {
+    var r = 1;
+    for (var i = 0; i < S.board.length; i++) {
+      if (S.board[i].score >= score) r += 1;
+    }
+    return r;
+  }
+
+  // 실시간 순위 알림 (1위 갱신 / 순위 진입)
+  function checkRank(score) {
+    var top = S.board.length ? S.board[0].score : 0;
+    if (score > top) {
+      if (!S.flags.record) {
+        S.flags.record = true;
+        S.flags.rank = 1;
+        showToast('🏆 최고 점수 갱신! ' + score.toLocaleString('ko-KR') + '점', 3000);
+        Sfx.rankUp();
+        commitScore(score);
+      }
+      return;
+    }
+    var rank = currentRank(score);
+    if (rank <= BOARD_MAX && rank < (S.flags.rank || 99)) {
+      S.flags.rank = rank;
+      showToast('🔥 ' + rank + '위 등극!', 2200);
+      Sfx.rankUp();
+      commitScore(score);
+    }
   }
 
   /* =========================================================
@@ -865,6 +1060,16 @@
     },
     bounce: function () { this.tone(300, 0.08, 'square', 640, 0.24); },
 
+    rankUp: function () {
+      var self = this;
+      [784, 988, 1319, 1568].forEach(function (f, i) { self.tone(f, 0.12, 'triangle', 0, 0.26, i * 0.07); });
+    },
+    bonusOn: function () { this.tone(1180, 0.09, 'square', 1600, 0.14); },
+    multiplier: function () {
+      var self = this;
+      [880, 1320, 1760].forEach(function (f, i) { self.tone(f, 0.14, 'triangle', f * 1.4, 0.26, i * 0.05); });
+    },
+
     lose: function () {
       var self = this;
       this.tone(400, 0.16, 'sawtooth', 180, 0.34);
@@ -895,7 +1100,10 @@
     W: 0, H: 0, dpr: 1,
 
     score: 0,
-    best: parseInt(storeGet(STORE_BEST, '0'), 10) || 0,
+    best: 0,                 // HUD BEST (1위 점수, 실시간)
+    startBest: 0,            // 이번 판 시작 시점의 최고 점수
+    board: [],               // Top 6 랭킹 [{name, score}] 내림차순
+    playerName: '',
     stage: 1,
     lives: 3,
     combo: 0,
@@ -918,7 +1126,9 @@
 
     weapon: { type: null, remaining: 0, total: 0, fireIn: 0 },
     wide: 0,            // 패들 확장 남은 시간
-    shield: 0,          // 바닥 실드 남은 시간,
+    shield: 0,          // 바닥 실드 남은 시간
+    bonus: { timer: 0, next: 0.9 },   // 보너스 스테이지: 다음 배수 벽돌 등장
+    flags: { record: false, rank: 0 },
 
     paddle: { x: 0, y: 0, w: 90, h: 12, target: null, drag: null },
     ball: { x: 0, y: 0, vx: 0, vy: 0, r: 8, stuck: true, trail: [] },
@@ -1000,8 +1210,9 @@
 
     var base = Math.min(W, H * 0.9) * 0.72;
     base = Math.max(275, Math.min(470, base));
-    // 스테이지가 올라갈수록 공이 빠르다 (3스테이지는 확실히 더 빠르게)
-    var boost = [1, 1.08, 1.22][Math.max(0, Math.min(2, S.stage - 1))];
+    // 99스테이지: 단계가 오를수록 공이 조금씩 빨라진다 (최대 1.42배)
+    var boost = 1 + 0.06 * Math.min(2, S.stage - 1) + 0.004 * Math.max(0, S.stage - 3);
+    boost = Math.min(1.42, boost);
     S.speed = base * boost;
   }
 
@@ -1094,12 +1305,16 @@
         var hp;
         if (stage === 1) hp = (r === 0) ? 2 : 1;
         else if (stage === 2) hp = (r <= 1) ? 2 : 1;
-        else hp = (r <= 1) ? 3 : (r <= 5 ? 2 : 1);   // 3스테이지: 단단한 벽돌이 크게 늘어난다
+        else {
+          // 20스테이지마다 단단한 벽돌이 늘어난다 (최대 5타)
+          var extra = Math.min(2, Math.floor((stage - 3) / 20));
+          hp = (r <= 1) ? 3 + extra : (r <= 5 ? 2 + (extra > 0 ? 1 : 0) : 1 + extra);
+        }
 
         var it = planAt(r, c);
         if (it) hp = Math.max(hp, 2);
 
-        var col = ROW_COLORS[r % ROW_COLORS.length];
+        var col = ROW_COLORS[(r + (stage - 1) * 3) % ROW_COLORS.length];
         list.push({
           col: c,
           row: r,
@@ -1138,8 +1353,8 @@
 
   function updateHud() {
     scoreEl.textContent = String(S.score);
-    bestEl.textContent = String(S.best);
-    stageNumEl.textContent = S.stage + '/' + MAX_STAGE;
+    bestEl.textContent = topScore().toLocaleString('ko-KR');
+    stageNumEl.textContent = S.stage + '/' + MAX_STAGE + (S.stage % 2 === 0 ? ' ★' : '');
 
     var hearts = '';
     for (var i = 0; i < 3; i++) {
@@ -1200,6 +1415,7 @@
     scoreEl.classList.remove('pop');
     void scoreEl.offsetWidth;
     scoreEl.classList.add('pop');
+    checkRank(S.score);
   }
 
   /* =========================================================
@@ -1459,6 +1675,68 @@
   function capsuleH() { return Math.max(18, Math.min(24, S.W * 0.05)); }
 
   /* =========================================================
+     보너스 스테이지 (짝수 스테이지): 10초 동안 열리는 배수 벽돌
+     ========================================================= */
+  var MULT_OPTIONS = [2, 2, 3, 3, 4, 10];
+
+  function activeMultBricks() {
+    var n = 0;
+    for (var i = 0; i < S.bricks.length; i++) {
+      if (S.bricks[i].alive && S.bricks[i].mult > 0) n++;
+    }
+    return n;
+  }
+
+  function transformBonusBrick() {
+    if (activeMultBricks() >= 2) return;
+    var pool = [];
+    for (var i = 0; i < S.bricks.length; i++) {
+      var b = S.bricks[i];
+      if (b.alive && !b.item && !(b.mult > 0)) pool.push(b);
+    }
+    if (!pool.length) return;
+    var b = pool[(Math.random() * pool.length) | 0];
+    b.mult = MULT_OPTIONS[(Math.random() * MULT_OPTIONS.length) | 0];
+    b.multT = 10;
+    b.flash = 0.5;
+    var r = brickRect(b);
+    spawnParticles(r.x + r.w / 2, r.y + r.h / 2, '#ffd76e', 10, { speed: 170 });
+    Sfx.bonusOn();
+  }
+
+  function updateBonus(dt) {
+    if (S.stage % 2 !== 0) return;
+    var active = 0;
+    for (var i = 0; i < S.bricks.length; i++) {
+      var b = S.bricks[i];
+      if (!b.alive || !(b.mult > 0)) continue;
+      b.multT -= dt;
+      if (b.multT <= 0) {
+        // 10초가 지나면 원래 벽돌로 돌아간다
+        b.mult = 0;
+        b.multT = 0;
+        var r = brickRect(b);
+        spawnParticles(r.x + r.w / 2, r.y + r.h / 2, '#8b9ac2', 6, { speed: 90 });
+      } else {
+        active++;
+      }
+    }
+    if (active >= 2) { S.bonus.timer = 0; return; }
+    S.bonus.timer += dt;
+    if (S.bonus.timer >= S.bonus.next) {
+      S.bonus.timer = 0;
+      S.bonus.next = 1.0 + Math.random() * 0.9;
+      transformBonusBrick();
+    }
+  }
+
+  function announceBonus() {
+    if (S.stage % 2 !== 0) return;
+    showToast('★ BONUS STAGE ★ 10초 안에 황금 배수 벽돌을 깨라!', 3600);
+    spawnFloater(S.W / 2, S.H * 0.42, '★ BONUS STAGE ★', '#ffd76e', 26, 'combo');
+  }
+
+  /* =========================================================
      게임 흐름
      ========================================================= */
   function resetEffectsAndBalls() {
@@ -1477,6 +1755,9 @@
     S.combo = 0;
     S.bestCombo = 0;
     S.broken = 0;
+    S.startBest = topScore();
+    S.flags = { record: false, rank: 0 };
+    S.bonus = { timer: 0, next: 0.9 };
     S.particles = [];
     S.floaters = [];
     S.bullets = [];
@@ -1494,7 +1775,6 @@
     updateHud();
     Sfx.tone(523, 0.1, 'triangle', 784, 0.3);
   }
-
   function nextStage() {
     Sfx.resume();
     S.stage += 1;
@@ -1504,6 +1784,7 @@
     computeGeometry();
     buildBricks(S.stage);
     S.combo = 0;
+    S.bonus = { timer: 0, next: 0.9 };
     S.particles = [];
     S.floaters = [];
     S.bullets = [];
@@ -1514,6 +1795,7 @@
     S.state = 'ready';
     hideOverlay();
     updateHud();
+    announceBonus();
     Sfx.tone(660, 0.12, 'triangle', 990, 0.32);
   }
 
@@ -1581,6 +1863,8 @@
     S.bullets = [];
     S.beams = [];
     S.capsules = [];
+    S.extraBalls = [];
+    commitScore(S.score);
     if (S.stage >= MAX_STAGE) {
       S.state = 'win';
       saveBest();
@@ -1592,10 +1876,7 @@
   }
 
   function saveBest() {
-    if (S.score > S.best) {
-      S.best = S.score;
-      storeSet(STORE_BEST, S.best);
-    }
+    commitScore(S.score);
     updateHud();
   }
 
@@ -1619,6 +1900,28 @@
      ========================================================= */
   var shareable = (typeof navigator !== 'undefined' && !!navigator.share);
   var PAGE_URL = 'https://rok0083.github.io/air2air/samsung-high-brick-breaker/';
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // Top 6 랭킹 표
+  function rankTable() {
+    var rows = '';
+    var me = playerName();
+    for (var i = 0; i < S.board.length; i++) {
+      var e = S.board[i];
+      rows += '<li class="rank-row' + (e.name === me ? ' me' : '') + '">' +
+                '<em>' + (i + 1) + '</em>' +
+                '<span>' + esc(e.name) + '</span>' +
+                '<b>' + e.score.toLocaleString('ko-KR') + '</b>' +
+              '</li>';
+    }
+    return '<ol class="ranklist">' + rows + '</ol>' +
+           '<p class="rank-note">이 기기 기준 랭킹</p>';
+  }
 
   function boardRows(rows) {
     var html = '<div class="board">';
@@ -1816,23 +2119,29 @@
     overlayEl.className = celebrate ? 'ov-photo' : '';
 
     if (kind === 'start') {
-      var chips = NAMES.map(function (n) { return '<span class="chip">' + n + '</span>'; }).join('');
       html =
         '<div class="ov-inner">' +
           '<h2 class="ov-title">삼성고동문회<br><span>벽돌깨기</span></h2>' +
-          '<p class="ov-sub">이택형 · 성승현 · 우상봉<br>강현수 · 황진석 · 강동균<br>벽돌을 깨라!</p>' +
-          '<div class="chips">' + chips + '</div>' +
+          '<p class="ov-sub">이택형 · 성승현 · 우상봉 · 강현수 · 황진석 · 강동균<br><b>99 스테이지</b>에 도전하라!</p>' +
+          '<div class="namefield">' +
+            '<input id="nameInput" type="text" maxlength="5" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="이름 (최대 5자)" value="' + esc(S.playerName) + '" aria-label="플레이어 이름">' +
+            '<span class="nf-cap">한글 5자까지 · 이 기기에 저장됩니다</span>' +
+          '</div>' +
+          '<button class="btn primary" type="button" data-action="start">시작하기</button>' +
+          '<div class="rankblock">' +
+            '<p class="rank-title">🏆 TOP 6</p>' +
+            rankTable() +
+          '</div>' +
           '<div class="itemlist">' +
             '<p><b>🔫 총알</b> 10초 연사 · <b>⚡ 레이저</b> 8초 관통</p>' +
             '<p><b>🔥 불</b> 붉은 벽돌만 · <b>💧 물</b> 파란 벽돌만</p>' +
-            '<p><b>🎱 멀티볼</b> 공 3개 · <b>🛸 와이드</b> 패들 1.5배 · <b>🛡️ 실드</b> 바닥 방어' + '</p>' +
+            '<p><b>🎱 멀티볼</b> 공 3개 · <b>🛸 와이드</b> 패들 1.5배 · <b>🛡️ 실드</b> 바닥 방어</p>' +
+            '<p><b>★ 보너스</b> 짝수 스테이지 · 10초 배수 벽돌(×2~×10)</p>' +
           '</div>' +
-          '<button class="btn primary" type="button" data-action="start">시작하기</button>' +
           '<div class="ov-row">' +
             '<button class="btn ghost" type="button" data-action="copy">🔗 링크 복사</button>' +
             (shareable ? '<button class="btn ghost" type="button" data-action="share">공유하기</button>' : '') +
           '</div>' +
-          (S.best > 0 ? '<p class="ov-best">최고 점수 ' + bestStr + '점</p>' : '') +
           '<p class="ov-hint">화면을 드래그해 패들을 움직이고, 화면을 탭해 공을 발사하세요.<br>' +
           '빛나는 <b>아이템 벽돌</b>을 깨서 떨어지는 캡슐을 받으면 무기가 발동합니다.</p>' +
         '</div>';
@@ -1851,7 +2160,9 @@
         ],
         body:
           '<button class="btn primary" type="button" data-action="next">다음 스테이지 (' + (S.stage + 1) + ')</button>' +
-          '<p class="ov-hint">' + (S.stage + 1 === MAX_STAGE ? '마지막 스테이지! 위쪽 벽돌이 더 단단합니다.' : '이름 순서가 바뀌고 벽돌이 더 단단해집니다.') + '</p>'
+          '<p class="ov-hint">' + ((S.stage + 1) % 2 === 0
+            ? '★ BONUS STAGE ★ 다음 판은 10초 배수 벽돌이 열립니다!'
+            : '이름 순서와 색이 바뀌고 벽돌이 더 단단해집니다.') + '</p>'
       });
     } else if (kind === 'over') {
       html =
@@ -1865,6 +2176,10 @@
             { k: '깬 벽돌', v: S.broken + '개' },
             { k: '도달 스테이지', v: S.stage + ' / ' + MAX_STAGE }
           ]) +
+          '<div class="rankblock">' +
+            '<p class="rank-title">🏆 TOP 6</p>' +
+            rankTable() +
+          '</div>' +
           '<button class="btn primary" type="button" data-action="restart">다시 하기</button>' +
           '<div class="ov-row">' +
             '<button class="btn ghost" type="button" data-action="copy">🔗 링크 복사</button>' +
@@ -1884,12 +2199,29 @@
           { k: '벽돌', v: S.broken + '개' }
         ],
         body:
+          '<div class="rankblock">' +
+            '<p class="rank-title">🏆 TOP 6</p>' +
+            rankTable() +
+          '</div>' +
           '<div class="ov-row">' +
             '<button class="btn primary" type="button" data-action="restart">다시 하기</button>' +
             '<button class="btn ghost" type="button" data-action="copy">🔗 링크</button>' +
             (shareable ? '<button class="btn ghost" type="button" data-action="share">공유</button>' : '') +
           '</div>'
       });
+    } else if (kind === 'rank') {
+      html =
+        '<div class="ov-inner">' +
+          '<div class="badge">게임현황판</div>' +
+          '<h2 class="ov-title">TOP <span>6</span></h2>' +
+          '<p class="ov-sub">현재 점수 <b>' + scoreStr + '</b> · 스테이지 <b>' + S.stage + '/' + MAX_STAGE + '</b></p>' +
+          '<div class="rankblock">' +
+            '<p class="rank-title">🏆 TOP 6</p>' +
+            rankTable() +
+          '</div>' +
+          '<button class="btn primary" type="button" data-action="resume">계속하기</button>' +
+          '<button class="btn ghost" type="button" data-action="restart">처음부터 다시</button>' +
+        '</div>';
     } else if (kind === 'pause') {
       html =
         '<div class="ov-inner">' +
@@ -1904,6 +2236,19 @@
     overlayEl.innerHTML = html;
     overlayEl.hidden = false;
     if (celebrate) startFx();
+
+    var nin = overlayEl.querySelector('#nameInput');
+    if (nin) {
+      nin.addEventListener('input', function () {
+        var v = nin.value.replace(/\s+/g, '').slice(0, 5);
+        if (v !== nin.value) nin.value = v;
+        S.playerName = v;
+        storeSet(STORE_NAME, v);
+      });
+      nin.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); startGame(); }
+      });
+    }
   }
 
   function togglePhotoOnly(force) {
@@ -1932,13 +2277,13 @@
      클립보드 / 공유
      ========================================================= */
   var toastTimer = 0;
-  function showToast(msg) {
+  function showToast(msg, ms) {
     toastEl.textContent = msg;
     toastEl.classList.add('show');
     window.clearTimeout(toastTimer);
     toastTimer = window.setTimeout(function () {
       toastEl.classList.remove('show');
-    }, 2000);
+    }, ms || 2000);
   }
 
   function shareUrl() {
@@ -2030,6 +2375,7 @@
   }
 
   function onKeyDown(e) {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
     var k = e.key;
     if (k === 'ArrowLeft' || k === 'a' || k === 'A') { S.keys.left = true; e.preventDefault(); }
     else if (k === 'ArrowRight' || k === 'd' || k === 'D') { S.keys.right = true; e.preventDefault(); }
@@ -2158,14 +2504,24 @@
     if (S.combo > S.bestCombo) S.bestCombo = S.combo;
 
     var mult = comboMult();
-    var gain = Math.round((30 + (S.rows - br.row) * 10) * mult * (source === 'ball' ? 1 : 0.8));
+    var bmult = (br.mult > 0) ? br.mult : 1;
+    var gain = Math.round((30 + (S.rows - br.row) * 10) * mult * (source === 'ball' ? 1 : 0.8)) * bmult;
 
     addScore(gain);
 
     spawnParticles(c1x, c1y, br.top, 12);
     spawnParticles(c1x, c1y, '#ffe08a', 4);
     spawnSparks(c1x, c1y, '#fff6cf', 5, -Math.PI / 2);
-    spawnFloater(c1x, c1y, '+' + gain, mult > 1 ? '#ffe08a' : '#ffffff', mult > 1 ? 18 : 15, 'score');
+    if (bmult > 1) {
+      spawnParticles(c1x, c1y, '#ffd76e', 16, { speed: 330 });
+      spawnParticles(c1x, c1y, '#ff9ee0', 8, { speed: 250 });
+      spawnFloater(c1x, c1y - 6, '+' + gain.toLocaleString('ko-KR') + ' (×' + bmult + '!)', '#ffe08a', 24, 'combo');
+      Sfx.multiplier();
+      br.mult = 0;
+      br.multT = 0;
+    } else {
+      spawnFloater(c1x, c1y, '+' + gain, mult > 1 ? '#ffe08a' : '#ffffff', mult > 1 ? 18 : 15, 'score');
+    }
     if (S.combo >= 4 && S.combo % 2 === 0) {
       spawnFloater(S.W / 2, S.H * 0.42, 'COMBO x' + mult + '!', '#ffd76e', 26, 'combo');
     }
@@ -2348,6 +2704,7 @@
       if (S.sinceBrick > 7) { S.sinceBrick = 0; steerToBricks(); }
       updateWeapon(dt);
       updateEffects(dt);
+      updateBonus(dt);
       updateWaves(dt);
       updateBullets(dt);
       updateBeams(dt);
@@ -2637,13 +2994,54 @@
       }
 
       // 이름
-      ctx.font = '800 ' + fontSize + 'px ' + FONT;
+      var nfs = (b.mult > 0) ? fontSize * 0.86 : fontSize;
+      ctx.font = '800 ' + Math.round(nfs * 10) / 10 + 'px ' + FONT;
       var cx = r.x + r.w / 2;
       var cy = r.y + r.h / 2 + 0.4;
       ctx.fillStyle = 'rgba(0,0,0,0.45)';
       ctx.fillText(b.name, cx + 0.7, cy + 1.1);
       ctx.fillStyle = '#ffffff';
       ctx.fillText(b.name, cx, cy);
+
+      // 보너스 스테이지: 배수 벽돌 (무지개 테두리 + ×N + 남은 시간 바)
+      if (b.mult > 0) {
+        var hue = (S.time * 80 + b.seed * 3) % 360;
+        ctx.save();
+        ctx.shadowColor = 'hsl(' + hue.toFixed(0) + ',100%,62%)';
+        ctx.shadowBlur = 14;
+        ctx.strokeStyle = 'hsl(' + hue.toFixed(0) + ',100%,68%)';
+        ctx.lineWidth = 2.4;
+        roundRect(ctx, r.x + 0.8, r.y + 0.8, r.w - 1.6, r.h - 1.6, rad);
+        ctx.stroke();
+        ctx.restore();
+
+        // 10초 카운트다운 바
+        var prog = Math.max(0, Math.min(1, b.multT / 10));
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(r.x + 3, r.y + r.h - 4.5, r.w - 6, 2.6);
+        ctx.fillStyle = prog > 0.35 ? '#ffe08a' : '#ff8f6b';
+        ctx.fillRect(r.x + 3, r.y + r.h - 4.5, (r.w - 6) * prog, 2.6);
+
+        // ×N 배지
+        var mfs = Math.max(8, Math.min(12, g.h * 0.36));
+        ctx.font = '900 ' + mfs.toFixed(1) + 'px ' + FONT;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        var mlabel = '×' + b.mult;
+        var mtw = ctx.measureText(mlabel).width;
+        var mpw = mtw + 7, mph = mfs + 4;
+        var mpx = r.x + r.w - mpw - 1.5;
+        var mpy = r.y + 1.5;
+        ctx.save();
+        ctx.fillStyle = 'rgba(255,214,92,0.96)';
+        ctx.shadowColor = '#ffd76e';
+        ctx.shadowBlur = 9;
+        roundRect(ctx, mpx, mpy, mpw, mph, mph / 2);
+        ctx.fill();
+        ctx.restore();
+        ctx.fillStyle = '#2a1a04';
+        ctx.fillText(mlabel, mpx + mpw / 2, mpy + mph / 2 + 0.4);
+      }
 
       // 맞은 순간 번쩍
       if (b.flash > 0) {
@@ -3040,6 +3438,7 @@
 
     overlayEl.addEventListener('click', function (e) {
       var target = e.target;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'LABEL')) return;
       var actionEl = null;
       while (target && target !== overlayEl) {
         if (target.getAttribute && target.getAttribute('data-action')) {
@@ -3071,6 +3470,17 @@
     btnPause.addEventListener('click', function () {
       togglePause();
     });
+
+    btnRank.addEventListener('click', function () {
+      Sfx.resume();
+      if (S.state === 'play' || S.state === 'ready') {
+        S.prevState = S.state;
+        S.state = 'pause';
+        showOverlay('rank');
+      } else if (S.state === 'pause') {
+        showOverlay('rank');
+      }
+    });
   }
 
   /* =========================================================
@@ -3079,6 +3489,9 @@
   function init() {
     makeStars();
     bindEvents();
+    S.playerName = (storeGet(STORE_NAME, '') || '').slice(0, 5);
+    S.board = loadBoard();
+    S.best = S.board.length ? S.board[0].score : 0;
     var g0 = gridForStage(1, window.innerWidth || 390, Math.max(320, (window.innerHeight || 700) - 96));
     S.cols = g0.cols;
     S.rows = g0.rows;
