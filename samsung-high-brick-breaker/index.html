@@ -687,6 +687,14 @@
     var sidePad = Math.max(5, Math.min(12, Math.round(W * 0.022)));
     var gap = Math.max(3, Math.min(8, Math.round(W * 0.0105)));
     var availW = W - sidePad * 2;
+
+    // 넓은 화면에서는 벽돌 벽 폭을 제한하고 가운데로 모아 벽돌이 지나치게 길쭉해지지 않게 한다
+    var maxWallW = 1080;
+    if (availW > maxWallW) {
+      sidePad = (W - maxWallW) / 2;
+      availW = maxWallW;
+    }
+
     var bw = (availW - gap * (cols - 1)) / cols;
 
     var top = Math.max(8, Math.min(28, Math.round(H * 0.028)));
