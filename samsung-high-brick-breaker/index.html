@@ -2604,7 +2604,6 @@
   function showOverlay(kind) {
     var html = '';
     var scoreStr = S.score.toLocaleString('ko-KR');
-    var bestStr = S.best.toLocaleString('ko-KR');
     var myStatNow = myStat();
     var myBestStr = (myStatNow ? myStatNow.score : 0).toLocaleString('ko-KR');
     var celebrate = (kind === 'clear' || kind === 'win');
@@ -2736,6 +2735,7 @@
         if (v !== nin.value) nin.value = v;
         S.playerName = v;
         storeSet(STORE_NAME, v);
+        fbRefreshOverlay();     // 이름을 바꾸면 '내 기록' 줄도 바로 따라온다
       });
       nin.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') { e.preventDefault(); startGame(); }
