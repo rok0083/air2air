@@ -732,6 +732,15 @@
 (function () {
   'use strict';
 
+  // 실행 중 오류를 모아 두는 진단용 수집기 (전송하지 않음, 콘솔에서 window.__SBB_ERR 확인)
+  window.__SBB_ERR = [];
+  window.addEventListener('error', function (e) {
+    window.__SBB_ERR.push(String((e && e.message) || e));
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    window.__SBB_ERR.push('rejection: ' + String((e && e.reason) || e));
+  });
+
   /* =========================================================
      기본 상수
      ========================================================= */
