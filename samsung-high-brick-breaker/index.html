@@ -6,6 +6,11 @@
 <title>삼성고동문회 벽돌깨기</title>
 <meta name="description" content="이택형·성승현·우상봉·강현수·황진석·강동균 벽돌을 깨라! 총알·레이저 아이템으로 벽돌을 쓸어버리는 모바일 벽돌깨기.">
 
+<!-- 스테이지 클리어 사진 미리 받아두기 -->
+<link rel="preload" as="image" href="assets/stage1.jpg">
+<link rel="preload" as="image" href="assets/stage2.jpg">
+<link rel="preload" as="image" href="assets/stage3.jpg">
+
 <!-- 카카오톡 공유용 Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="삼성고동문회 벽돌깨기">
@@ -358,6 +363,180 @@
   .ov-hint b { color: #ffd76e; }
   .ov-best { font-size: 12px; color: #ffd76e; font-weight: 800; }
 
+  /* ---------- 스테이지 클리어: 동문 사진 배경 ---------- */
+  #overlay.ov-photo:not([hidden]) {
+    display: block;
+    padding: 0;
+    background: #05070f;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    overflow: hidden;
+  }
+  .photo-stage { position: absolute; inset: 0; overflow: hidden; }
+  .photo-bg {
+    position: absolute;
+    inset: -8%;
+    background-size: cover;
+    background-position: center;
+    filter: blur(26px) saturate(1.3) brightness(0.55);
+    transform: scale(1.08);
+  }
+  .photo-img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center 42%;
+    animation: photoIn 0.55s ease-out;
+  }
+  @keyframes photoIn {
+    from { opacity: 0; transform: scale(1.03); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .photo-shade {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(4, 7, 14, 0.44) 0%, rgba(4, 7, 14, 0) 24%, rgba(4, 7, 14, 0) 52%, rgba(4, 7, 14, 0.72) 100%);
+    transition: background 0.22s ease;
+  }
+  .fx-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .photo-toggle {
+    position: absolute;
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    right: 8px;
+    z-index: 6;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    background: rgba(10, 16, 32, 0.62);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: #f2f6ff;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  }
+  .photo-toggle:active { transform: scale(0.96); }
+
+  .clear-card {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 4;
+    padding: 22px 10px calc(9px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(180deg, rgba(5, 8, 16, 0) 0%, rgba(5, 8, 16, 0.46) 32%, rgba(5, 8, 16, 0.86) 100%);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+    animation: cardUp 0.36s ease-out;
+  }
+  @keyframes cardUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .clear-card .inner {
+    width: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 10px 12px;
+    border-radius: 15px;
+    border: 1px solid rgba(150, 190, 255, 0.22);
+    background: rgba(9, 15, 30, 0.56);
+    -webkit-backdrop-filter: blur(12px) saturate(1.3);
+    backdrop-filter: blur(12px) saturate(1.3);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  .cc-head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+  }
+  .cc-title {
+    font-size: clamp(17px, 4.9vw, 22px);
+    font-weight: 900;
+    letter-spacing: -0.8px;
+    line-height: 1.15;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+  }
+  .cc-title span {
+    background: linear-gradient(180deg, #ffe08a 0%, #ff9a5c 55%, #ff6f91 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .statbar { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+  .stat {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.13);
+  }
+  .stat i {
+    font-style: normal;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    color: #93a3c8;
+  }
+  .stat b {
+    font-size: 13px;
+    font-weight: 900;
+    color: #eef3ff;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2px;
+  }
+  .stat.hl b { color: #ffe08a; font-size: 15px; }
+  .clear-card .btn { min-height: 42px; font-size: 14.5px; padding: 9px 14px; border-radius: 11px; }
+  .clear-card .btn.ghost { min-height: 36px; font-size: 12.5px; }
+  .clear-card .ov-hint { font-size: 11px; }
+
+  /* 사진만 보기: 스코어 카드를 숨겨 사진을 온전히 본다 */
+  #overlay.photo-only .clear-card {
+    opacity: 0;
+    transform: translateY(14px);
+    pointer-events: none;
+  }
+  #overlay.photo-only .photo-shade {
+    background: linear-gradient(180deg, rgba(4, 7, 14, 0.3) 0%, rgba(4, 7, 14, 0) 26%, rgba(4, 7, 14, 0) 72%, rgba(4, 7, 14, 0.34) 100%);
+  }
+
+  @media (max-height: 620px) {
+    .clear-card { padding-top: 14px; }
+    .clear-card .inner { gap: 5px; padding: 8px 10px; }
+    .cc-title { font-size: 16px; }
+    .stat { padding: 2px 7px; }
+    .stat b { font-size: 12px; }
+    .stat.hl b { font-size: 13px; }
+    .clear-card .btn { min-height: 38px; font-size: 13.5px; }
+  }
+
   /* 아이템 범례 */
   .legend {
     display: flex;
@@ -525,6 +704,34 @@
   var itemBarEl = document.getElementById('itemBar');
   var btnPause = document.getElementById('btnPause');
   var btnSound = document.getElementById('btnSound');
+
+  /* =========================================================
+     스테이지 사진 (동문 모임 사진) — 미리 받아 둔다
+     ========================================================= */
+  var STAGE_PHOTOS = ['assets/stage1.jpg', 'assets/stage2.jpg', 'assets/stage3.jpg'];
+  var stageImgs = [];
+
+  (function preloadStagePhotos() {
+    for (var i = 0; i < STAGE_PHOTOS.length; i++) {
+      var im = new Image();
+      im.decoding = 'async';
+      im.alt = '';
+      im.src = STAGE_PHOTOS[i];
+      stageImgs.push(im);
+      if (im.decode) {
+        try { im.decode().catch(function () { /* 무시 */ }); } catch (e) { /* 무시 */ }
+      }
+    }
+  })();
+
+  function stagePhotoIndex(stage) {
+    return Math.max(0, Math.min(STAGE_PHOTOS.length - 1, (stage || 1) - 1));
+  }
+  function stagePhotoUrl(stage) { return STAGE_PHOTOS[stagePhotoIndex(stage)]; }
+  function stagePhoto(stage) {
+    var im = stageImgs[stagePhotoIndex(stage)];
+    return (im && im.complete && im.naturalWidth > 0) ? im : null;
+  }
 
   /* =========================================================
      저장소 (프라이빗 모드 등 실패해도 게임은 계속)
@@ -1244,10 +1451,190 @@
     return html + '</div>';
   }
 
+  /* =========================================================
+     축하 연출 (색종이 + 불꽃놀이, 클리어 화면 전용)
+     ========================================================= */
+  var FX = {
+    raf: 0, cv: null, cx: null, w: 0, h: 0, dpr: 1,
+    t: 0, last: 0, spawn: 0, conf: [], spark: [], bursts: []
+  };
+  var FX_COLORS = ['#ffd76e', '#ff8fb1', '#7cf6ff', '#8ef2b6', '#ffffff', '#ffb347', '#c9adff'];
+
+  function fxSize() {
+    if (!FX.cv || !FX.cx) return;
+    var r = FX.cv.getBoundingClientRect();
+    FX.w = Math.max(1, Math.round(r.width));
+    FX.h = Math.max(1, Math.round(r.height));
+    FX.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    FX.cv.width = Math.round(FX.w * FX.dpr);
+    FX.cv.height = Math.round(FX.h * FX.dpr);
+    FX.cx.setTransform(FX.dpr, 0, 0, FX.dpr, 0, 0);
+  }
+
+  function spawnConfetti(n) {
+    for (var i = 0; i < n; i++) {
+      FX.conf.push({
+        x: Math.random() * FX.w,
+        y: -14 - Math.random() * 40,
+        vx: (Math.random() - 0.5) * 70,
+        vy: 70 + Math.random() * 130,
+        w: 4 + Math.random() * 6,
+        h: 7 + Math.random() * 8,
+        rot: Math.random() * Math.PI * 2,
+        vr: (Math.random() - 0.5) * 9,
+        sway: 14 + Math.random() * 26,
+        ph: Math.random() * 6.28,
+        c: FX_COLORS[(Math.random() * FX_COLORS.length) | 0]
+      });
+    }
+  }
+
+  function spawnBurst() {
+    var cx = FX.w * (0.18 + Math.random() * 0.64);
+    var cy = FX.h * (0.12 + Math.random() * 0.3);
+    var color = FX_COLORS[(Math.random() * FX_COLORS.length) | 0];
+    var n = 24 + ((Math.random() * 12) | 0);
+    for (var i = 0; i < n; i++) {
+      var a = (i / n) * Math.PI * 2 + Math.random() * 0.2;
+      var sp = 90 + Math.random() * 180;
+      FX.spark.push({
+        x: cx, y: cy,
+        vx: Math.cos(a) * sp,
+        vy: Math.sin(a) * sp,
+        life: 0.9 + Math.random() * 0.5,
+        max: 1.4,
+        c: Math.random() < 0.72 ? color : '#ffffff',
+        r: 1.4 + Math.random() * 1.6
+      });
+    }
+    Sfx.tone(1000 + Math.random() * 500, 0.14, 'triangle', 240, 0.10);
+  }
+
+  function fxFrame(now) {
+    if (!FX.cx) return;
+    FX.raf = window.requestAnimationFrame(fxFrame);
+    var dt = FX.last ? Math.min(0.05, (now - FX.last) / 1000) : 1 / 60;
+    FX.last = now;
+    FX.t += dt;
+
+    if (FX.t < 5.5) {
+      FX.spawn += dt * (FX.t < 2.4 ? 130 : 42);
+      var n = Math.min(6, Math.floor(FX.spawn));
+      if (n > 0) { FX.spawn -= n; spawnConfetti(n); }
+    }
+    for (var bi = 0; bi < FX.bursts.length; bi++) {
+      if (!FX.bursts[bi].done && FX.t >= FX.bursts[bi].at) {
+        FX.bursts[bi].done = true;
+        spawnBurst();
+      }
+    }
+
+    var c = FX.cx;
+    c.clearRect(0, 0, FX.w, FX.h);
+
+    // 색종이
+    for (var i = FX.conf.length - 1; i >= 0; i--) {
+      var p = FX.conf[i];
+      p.x += (p.vx + Math.sin(FX.t * 2.4 + p.ph) * p.sway) * dt;
+      p.y += p.vy * dt;
+      p.rot += p.vr * dt;
+      if (p.y > FX.h + 30 || p.x < -40 || p.x > FX.w + 40) { FX.conf.splice(i, 1); continue; }
+      c.save();
+      c.translate(p.x, p.y);
+      c.rotate(p.rot);
+      c.globalAlpha = 0.92;
+      c.fillStyle = p.c;
+      c.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.max(0.25, Math.abs(Math.cos(p.rot * 1.7))));
+      c.restore();
+    }
+
+    // 불꽃
+    for (var j = FX.spark.length - 1; j >= 0; j--) {
+      var s = FX.spark[j];
+      s.life -= dt;
+      if (s.life <= 0) { FX.spark.splice(j, 1); continue; }
+      s.vy += 210 * dt;
+      s.vx *= (1 - 1.1 * dt);
+      s.vy *= (1 - 1.1 * dt);
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+      c.globalAlpha = Math.max(0, Math.min(1, s.life / s.max)) * 0.95;
+      c.fillStyle = s.c;
+      c.beginPath();
+      c.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.globalAlpha = 1;
+
+    if (FX.t > 11 && FX.conf.length === 0 && FX.spark.length === 0) stopFx();
+  }
+
+  function startFx() {
+    stopFx();
+    var cv = overlayEl.querySelector('.fx-canvas');
+    if (!cv) return;
+    FX.cv = cv;
+    FX.cx = cv.getContext('2d');
+    if (!FX.cx) { FX.cv = null; return; }
+    fxSize();
+    FX.t = 0;
+    FX.last = 0;
+    FX.spawn = 0;
+    FX.conf = [];
+    FX.spark = [];
+    FX.bursts = [{ at: 0.15, done: false }, { at: 0.85, done: false }, { at: 1.6, done: false }];
+    FX.raf = window.requestAnimationFrame(fxFrame);
+  }
+
+  function stopFx() {
+    if (FX.raf) window.cancelAnimationFrame(FX.raf);
+    FX.raf = 0;
+    if (FX.cx) FX.cx.clearRect(0, 0, FX.w, FX.h);
+    FX.cv = null;
+    FX.cx = null;
+    FX.conf = [];
+    FX.spark = [];
+    FX.bursts = [];
+  }
+
+  /* 스테이지 클리어/올클리어: 사진을 크게 띄우고 스코어는 아래 유리 카드로 */
+  function statChips(rows) {
+    var h = '<div class="statbar">';
+    for (var i = 0; i < rows.length; i++) {
+      h += '<span class="stat' + (rows[i].hl ? ' hl' : '') + '">' +
+             '<i>' + rows[i].k + '</i><b>' + rows[i].v + '</b>' +
+           '</span>';
+    }
+    return h + '</div>';
+  }
+
+  function photoOverlay(o) {
+    var url = o.photo;
+    return '<div class="photo-stage">' +
+             '<div class="photo-bg" style="background-image:url(' + url + ')"></div>' +
+             '<img class="photo-img" src="' + url + '" alt="' + o.alt + '">' +
+             '<div class="photo-shade"></div>' +
+           '</div>' +
+           '<canvas class="fx-canvas"></canvas>' +
+           '<button class="photo-toggle" type="button" data-action="togglephoto" aria-pressed="false">🖼️ 사진 보기</button>' +
+           '<div class="clear-card">' +
+             '<div class="inner">' +
+               '<div class="cc-head">' +
+                 '<span class="badge">' + o.badge + '</span>' +
+                 '<h2 class="cc-title">' + o.title + '</h2>' +
+               '</div>' +
+               statChips(o.stats) +
+               o.body +
+             '</div>' +
+           '</div>';
+  }
+
   function showOverlay(kind) {
     var html = '';
     var scoreStr = S.score.toLocaleString('ko-KR');
     var bestStr = S.best.toLocaleString('ko-KR');
+    var celebrate = (kind === 'clear' || kind === 'win');
+    overlayEl.className = celebrate ? 'ov-photo' : '';
 
     if (kind === 'start') {
       var chips = NAMES.map(function (n) { return '<span class="chip">' + n + '</span>'; }).join('');
@@ -1270,20 +1657,22 @@
           '빛나는 <b>아이템 벽돌</b>을 깨서 떨어지는 캡슐을 받으면 <b>총알·레이저</b>가 자동 발사됩니다.</p>' +
         '</div>';
     } else if (kind === 'clear') {
-      html =
-        '<div class="ov-inner">' +
-          '<div class="badge">STAGE ' + S.stage + ' CLEAR</div>' +
-          '<h2 class="ov-title">스테이지 <span>' + S.stage + '</span> 클리어!</h2>' +
-          boardRows([
-            { k: '점수', v: scoreStr, hl: true },
-            { k: '최고 점수', v: bestStr },
-            { k: '최대 콤보', v: 'x' + comboMultAt(S.bestCombo) + ' (' + S.bestCombo + '연속)' },
-            { k: '깬 벽돌', v: S.broken + '개' },
-            { k: '남은 생명', v: S.lives + ' / 3' }
-          ]) +
+      html = photoOverlay({
+        photo: stagePhotoUrl(S.stage),
+        alt: '스테이지 ' + S.stage + ' 클리어 기념 동문 사진',
+        badge: 'STAGE ' + S.stage + ' CLEAR',
+        title: '스테이지 <span>' + S.stage + '</span> 클리어!',
+        stats: [
+          { k: '점수', v: scoreStr, hl: true },
+          { k: '최고', v: bestStr },
+          { k: '콤보', v: 'x' + comboMultAt(S.bestCombo) + ' (' + S.bestCombo + ')' },
+          { k: '벽돌', v: S.broken + '개' },
+          { k: '생명', v: S.lives + '/3' }
+        ],
+        body:
           '<button class="btn primary" type="button" data-action="next">다음 스테이지 (' + (S.stage + 1) + ')</button>' +
-          '<p class="ov-hint">' + (S.stage + 1 === MAX_STAGE ? '마지막 스테이지! 위쪽 벽돌이 더 단단합니다.' : '이름 순서가 바뀌고 벽돌이 더 단단해집니다.') + '</p>' +
-        '</div>';
+          '<p class="ov-hint">' + (S.stage + 1 === MAX_STAGE ? '마지막 스테이지! 위쪽 벽돌이 더 단단합니다.' : '이름 순서가 바뀌고 벽돌이 더 단단해집니다.') + '</p>'
+      });
     } else if (kind === 'over') {
       html =
         '<div class="ov-inner">' +
@@ -1303,22 +1692,24 @@
           '</div>' +
         '</div>';
     } else if (kind === 'win') {
-      html =
-        '<div class="ov-inner">' +
-          '<div class="badge">ALL CLEAR</div>' +
-          '<h2 class="ov-title">모든 스테이지<br><span>클리어!</span></h2>' +
-          boardRows([
-            { k: '최종 점수', v: scoreStr, hl: true },
-            { k: '최고 점수', v: bestStr },
-            { k: '최대 콤보', v: 'x' + comboMultAt(S.bestCombo) + ' (' + S.bestCombo + '연속)' },
-            { k: '깬 벽돌', v: S.broken + '개' }
-          ]) +
-          '<button class="btn primary" type="button" data-action="restart">다시 하기</button>' +
+      html = photoOverlay({
+        photo: stagePhotoUrl(MAX_STAGE),
+        alt: '모든 스테이지 클리어 기념 동문 사진',
+        badge: 'ALL CLEAR',
+        title: '모든 스테이지 <span>클리어!</span>',
+        stats: [
+          { k: '최종 점수', v: scoreStr, hl: true },
+          { k: '최고', v: bestStr },
+          { k: '콤보', v: 'x' + comboMultAt(S.bestCombo) + ' (' + S.bestCombo + ')' },
+          { k: '벽돌', v: S.broken + '개' }
+        ],
+        body:
           '<div class="ov-row">' +
-            '<button class="btn ghost" type="button" data-action="copy">🔗 링크 복사</button>' +
-            (shareable ? '<button class="btn ghost" type="button" data-action="share">공유하기</button>' : '') +
-          '</div>' +
-        '</div>';
+            '<button class="btn primary" type="button" data-action="restart">다시 하기</button>' +
+            '<button class="btn ghost" type="button" data-action="copy">🔗 링크</button>' +
+            (shareable ? '<button class="btn ghost" type="button" data-action="share">공유</button>' : '') +
+          '</div>'
+      });
     } else if (kind === 'pause') {
       html =
         '<div class="ov-inner">' +
@@ -1332,6 +1723,18 @@
 
     overlayEl.innerHTML = html;
     overlayEl.hidden = false;
+    if (celebrate) startFx();
+  }
+
+  function togglePhotoOnly(force) {
+    var on = (force === undefined) ? !overlayEl.classList.contains('photo-only') : !!force;
+    overlayEl.classList.toggle('photo-only', on);
+    var b = overlayEl.querySelector('.photo-toggle');
+    if (b) {
+      b.textContent = on ? '📊 스코어 보기' : '🖼️ 사진 보기';
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    Sfx.tone(on ? 320 : 520, 0.06, 'triangle', on ? 460 : 700, 0.18);
   }
 
   function comboMultAt(n) {
@@ -1341,6 +1744,8 @@
   function hideOverlay() {
     overlayEl.hidden = true;
     overlayEl.innerHTML = '';
+    overlayEl.className = '';
+    stopFx();
   }
 
   /* =========================================================
@@ -1761,6 +2166,28 @@
     g.addColorStop(1, '#05070f');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
+
+    // 게임 중: 지금 스테이지의 동문 사진을 은은하게 깔아 둔다 (벽돌·공·아이템은 또렷하게)
+    if (S.state !== 'start') {
+      var im = stagePhoto(S.stage);
+      if (im && im.naturalWidth > 0) {
+        var iw = im.naturalWidth, ih = im.naturalHeight;
+        var sc = Math.max(W / iw, H / ih);
+        var dw = iw * sc, dh = ih * sc;
+        ctx.save();
+        ctx.globalAlpha = 0.26;
+        ctx.drawImage(im, (W - dw) / 2, (H - dh) / 2, dw, dh);
+        ctx.restore();
+
+        // 벽돌판 뒤는 살짝 눌러 두고 아래쪽은 어둡게 (사진은 은은하게, 글자는 선명하게)
+        var dk = ctx.createLinearGradient(0, 0, 0, H);
+        dk.addColorStop(0, 'rgba(6, 10, 22, 0.30)');
+        dk.addColorStop(0.5, 'rgba(6, 10, 22, 0.10)');
+        dk.addColorStop(1, 'rgba(6, 10, 22, 0.42)');
+        ctx.fillStyle = dk;
+        ctx.fillRect(0, 0, W, H);
+      }
+    }
 
     for (var i = 0; i < S.stars.length; i++) {
       var s = S.stars[i];
@@ -2213,7 +2640,10 @@
 
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', function () {
+      resize();
+      if (FX.cx) fxSize();
+    });
     window.addEventListener('orientationchange', function () {
       window.setTimeout(resize, 120);
     });
@@ -2249,6 +2679,7 @@
       if (action === 'resume') { togglePause(); return; }
       if (action === 'copy') { copyLink(); return; }
       if (action === 'share') { shareLink(); return; }
+      if (action === 'togglephoto') { togglePhotoOnly(); return; }
 
       if (S.state === 'start') startGame();
     });
