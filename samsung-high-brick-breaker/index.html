@@ -363,6 +363,18 @@
   .ov-hint b { color: #ffd76e; }
   .ov-best { font-size: 12px; color: #ffd76e; font-weight: 800; }
 
+  /* 아이템 소개 (시작 화면) */
+  .itemlist {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 10.5px;
+    line-height: 1.55;
+    font-weight: 700;
+    color: #9fb0d6;
+  }
+  .itemlist b { color: #e2ecff; font-weight: 900; }
+
   /* ---------- 스테이지 클리어: 동문 사진 배경 ---------- */
   #overlay.ov-photo:not([hidden]) {
     display: block;
@@ -658,29 +670,34 @@
     [5, 2, 4, 0, 3, 1]
   ];
 
-  // 줄별 색 (위 → 아래)
+  // 줄별 색 (위 → 아래) + 계열 (불·물 아이템이 노리는 벽돌)
   var ROW_COLORS = [
-    ['#f4687a', '#bf2643'],
-    ['#f9a94a', '#d4700f'],
-    ['#57b0f0', '#1f6cbb'],
-    ['#41cf8d', '#12825a'],
-    ['#ab8bfb', '#6338d1'],
-    ['#f47ab8', '#bd1f78'],
-    ['#5ad0e0', '#1c7f96'],
-    ['#c8c2ff', '#6a5bd6']
+    ['#f4687a', '#bf2643', 'red'],
+    ['#f9a94a', '#d4700f', 'other'],
+    ['#57b0f0', '#1f6cbb', 'blue'],
+    ['#41cf8d', '#12825a', 'other'],
+    ['#ab8bfb', '#6338d1', 'other'],
+    ['#f47ab8', '#bd1f78', 'red'],
+    ['#5ad0e0', '#1c7f96', 'blue'],
+    ['#c8c2ff', '#6a5bd6', 'other']
   ];
 
   // 아이템 정의
   var ITEMS = {
     bullet: { key: 'bullet', label: '총알', color: '#ffd45c', duration: 10, interval: 0.25 },
-    laser:  { key: 'laser',  label: '레이저', color: '#7cf6ff', duration: 8,  interval: 0.55 }
+    laser:  { key: 'laser',  label: '레이저', color: '#7cf6ff', duration: 8,  interval: 0.55 },
+    fire:   { key: 'fire',   label: '불',    color: '#ff7a3d', instant: true },
+    water:  { key: 'water',  label: '물',    color: '#43b6ff', instant: true },
+    multi:  { key: 'multi',  label: '멀티볼', color: '#ff9ee0', instant: true },
+    wide:   { key: 'wide',   label: '와이드', color: '#a8f0ff', duration: 12 },
+    shield: { key: 'shield', label: '실드',  color: '#8ef2b6', duration: 10 }
   };
 
-  // 스테이지별 아이템 벽돌 위치 (row, col, 종류)
-  var ITEM_PLAN = [
-    [{ r: 2, c: 1, t: 'bullet' }, { r: 4, c: 4, t: 'laser' }],
-    [{ r: 1, c: 5, t: 'bullet' }, { r: 3, c: 2, t: 'laser' }, { r: 5, c: 0, t: 'bullet' }],
-    [{ r: 2, c: 3, t: 'laser' }, { r: 4, c: 6, t: 'bullet' }, { r: 6, c: 1, t: 'laser' }]
+  // 스테이지별 아이템 벽돌 종류·개수 (위치는 벽돌판 크기에 맞춰 자동 배치)
+  var ITEM_SEQ = [
+    ['bullet', 'fire', 'laser', 'water', 'wide'],
+    ['shield', 'fire', 'multi', 'water', 'bullet', 'laser'],
+    ['multi', 'water', 'shield', 'fire', 'bullet', 'laser', 'wide']
   ];
 
   var STORE_SOUND = 'sbb.sound';
@@ -822,6 +839,32 @@
     },
     capsule: function () { this.tone(880, 0.1, 'sine', 1320, 0.2); },
 
+    fire: function () {
+      var self = this;
+      this.tone(240, 0.5, 'sawtooth', 60, 0.3);
+      this.tone(90, 0.75, 'triangle', 38, 0.32, 0.04);
+      for (var i = 0; i < 5; i++) {
+        window.setTimeout(function () { self.tone(620 + Math.random() * 900, 0.07, 'triangle', 200, 0.1); }, 60 + i * 75);
+      }
+    },
+    water: function () {
+      var self = this;
+      this.tone(920, 0.36, 'sine', 170, 0.26);
+      this.tone(1500, 0.22, 'sine', 520, 0.14, 0.05);
+      for (var i = 0; i < 4; i++) {
+        window.setTimeout(function () { self.tone(520 + Math.random() * 700, 0.09, 'sine', 230, 0.09); }, 90 + i * 85);
+      }
+    },
+    multi: function () {
+      var self = this;
+      [660, 880, 1120].forEach(function (f, i) { self.tone(f, 0.1, 'square', f * 1.5, 0.16, i * 0.05); });
+    },
+    power: function () {
+      var self = this;
+      [520, 780, 1040].forEach(function (f, i) { self.tone(f, 0.11, 'triangle', 0, 0.22, i * 0.06); });
+    },
+    bounce: function () { this.tone(300, 0.08, 'square', 640, 0.24); },
+
     lose: function () {
       var self = this;
       this.tone(400, 0.16, 'sawtooth', 180, 0.34);
@@ -869,9 +912,13 @@
     bullets: [],
     beams: [],
     capsules: [],
+    waves: [],
+    extraBalls: [],
     stars: [],
 
     weapon: { type: null, remaining: 0, total: 0, fireIn: 0 },
+    wide: 0,            // 패들 확장 남은 시간
+    shield: 0,          // 바닥 실드 남은 시간,
 
     paddle: { x: 0, y: 0, w: 90, h: 12, target: null, drag: null },
     ball: { x: 0, y: 0, vx: 0, vy: 0, r: 8, stuck: true, trail: [] },
@@ -897,6 +944,17 @@
     if (h < 560) return 6;
     if (h < 700) return 7;
     return 8;
+  }
+
+  // 스테이지별 격자: 3스테이지는 벽돌이 더 작고 촘촘하다
+  function gridForStage(stage, w, h) {
+    var baseCols = colsForWidth(w);
+    var baseRows = rowsForCols(baseCols, h);
+    if (stage <= 1) return { cols: baseCols, rows: baseRows };
+    if (stage === 2) return { cols: Math.min(9, baseCols + 1), rows: Math.min(9, baseRows + 1) };
+    var cols3 = w < 420 ? 8 : (w < 700 ? 9 : 10);   // 모바일 세로 8열, 넓은 화면 10열
+    var rows3 = Math.max(8, Math.min(10, baseRows + 3));
+    return { cols: cols3, rows: rows3 };
   }
 
   function computeGeometry() {
@@ -930,7 +988,10 @@
 
     S.geo = { sidePad: sidePad, gap: gap, top: top, w: bw, h: bh, font: font };
 
-    S.paddle.w = Math.max(76, Math.min(210, W * 0.27));
+    S.paddle.w = (function () {
+      var pw = Math.max(76, Math.min(210, W * 0.27));
+      return S.wide > 0 ? pw * 1.5 : pw;
+    })();
     S.paddle.h = Math.max(9, Math.min(14, Math.round(W * 0.024)));
     var bottomGap = Math.max(22, Math.min(44, H * 0.055));
     S.paddle.y = Math.round(H - bottomGap - S.paddle.h);
@@ -939,7 +1000,9 @@
 
     var base = Math.min(W, H * 0.9) * 0.72;
     base = Math.max(275, Math.min(470, base));
-    S.speed = base * (1 + 0.07 * (S.stage - 1));
+    // 스테이지가 올라갈수록 공이 빠르다 (3스테이지는 확실히 더 빠르게)
+    var boost = [1, 1.08, 1.22][Math.max(0, Math.min(2, S.stage - 1))];
+    S.speed = base * boost;
   }
 
   function resize() {
@@ -957,8 +1020,9 @@
     ctx.setTransform(S.dpr, 0, 0, S.dpr, 0, 0);
 
     if (S.state === 'start') {
-      S.cols = colsForWidth(W);
-      S.rows = rowsForCols(S.cols, H);
+      var gs = gridForStage(S.stage, W, H);
+      S.cols = gs.cols;
+      S.rows = gs.rows;
     }
     computeGeometry();
 
@@ -984,12 +1048,29 @@
      벽돌 생성 (아이템 벽돌 포함)
      ========================================================= */
   function itemPlanFor(stage) {
-    var plan = ITEM_PLAN[(stage - 1) % ITEM_PLAN.length];
+    var types = ITEM_SEQ[(stage - 1) % ITEM_SEQ.length];
+    var rows = S.rows, cols = S.cols;
     var out = [];
-    for (var i = 0; i < plan.length; i++) {
-      var r = Math.min(S.rows - 1, plan[i].r);
-      var c = Math.min(S.cols - 1, plan[i].c);
-      out.push({ r: r, c: c, t: plan[i].t });
+    var used = {};
+    var seed = (stage * 7919 + rows * 131 + cols * 17 + 12345) % 2147483647;
+    function rnd() {
+      seed = (seed * 1103515245 + 12345) % 2147483648;
+      return seed / 2147483648;
+    }
+    var guard = 0;
+    while (out.length < types.length && guard < 600) {
+      guard += 1;
+      var r = Math.floor(rnd() * rows);
+      var c = Math.floor(rnd() * cols);
+      var key = r + ':' + c;
+      if (used[key]) continue;
+      var clash = false;
+      for (var i = 0; i < out.length; i++) {
+        if (out[i].r === r && Math.abs(out[i].c - c) <= 1) { clash = true; break; }
+      }
+      if (clash) continue;
+      used[key] = 1;
+      out.push({ r: r, c: c, t: types[out.length] });
     }
     return out;
   }
@@ -1013,7 +1094,7 @@
         var hp;
         if (stage === 1) hp = (r === 0) ? 2 : 1;
         else if (stage === 2) hp = (r <= 1) ? 2 : 1;
-        else hp = Math.max(1, 3 - Math.floor(r / 2));
+        else hp = (r <= 1) ? 3 : (r <= 5 ? 2 : 1);   // 3스테이지: 단단한 벽돌이 크게 늘어난다
 
         var it = planAt(r, c);
         if (it) hp = Math.max(hp, 2);
@@ -1027,6 +1108,7 @@
           maxHp: hp,
           alive: true,
           item: it,
+          fam: col[2] || 'other',
           top: col[0],
           bottom: col[1],
           seed: (r * 7 + c * 13 + stage * 3) % 97,
@@ -1072,20 +1154,28 @@
     updateHudLive(true);
   }
 
+  function activeItem() {
+    var w = S.weapon;
+    if (w.type && w.remaining > 0) return { type: w.type, left: w.remaining, total: w.total };
+    if (S.wide > 0) return { type: 'wide', left: S.wide, total: ITEMS.wide.duration };
+    if (S.shield > 0) return { type: 'shield', left: S.shield, total: ITEMS.shield.duration };
+    return null;
+  }
+
   var lastItemText = '';
   function updateHudLive(force) {
     comboEl.textContent = 'x' + comboMult();
     if (S.combo >= 2) comboEl.classList.add('hot');
     else comboEl.classList.remove('hot');
 
-    var w = S.weapon;
-    if (w.type) {
-      var left = Math.max(0, w.remaining);
-      var pct = w.total > 0 ? Math.max(0, Math.min(100, (left / w.total) * 100)) : 0;
-      var txt = ITEMS[w.type].label + ' ' + left.toFixed(1) + 's';
+    var act = activeItem();
+    if (act) {
+      var left = Math.max(0, act.left);
+      var pct = act.total > 0 ? Math.max(0, Math.min(100, (left / act.total) * 100)) : 0;
+      var txt = ITEMS[act.type].label + ' ' + left.toFixed(1) + 's';
       itemCellEl.classList.add('on');
-      if (w.type === 'laser') itemCellEl.classList.add('laser');
-      else itemCellEl.classList.remove('laser');
+      if (act.type === 'bullet' || act.type === 'fire' || act.type === 'multi') itemCellEl.classList.remove('laser');
+      else itemCellEl.classList.add('laser');
       if (force || txt !== lastItemText) {
         itemNameEl.textContent = txt;
         lastItemText = txt;
@@ -1179,12 +1269,88 @@
 
   function equip(type) {
     var def = ITEMS[type];
-    S.weapon = { type: type, remaining: def.duration, total: def.duration, fireIn: 0.12 };
-    spawnFloater(S.W / 2, S.H * 0.58, def.label + ' 장착!', def.color, 22, 'item');
-    spawnParticles(S.paddle.x, S.paddle.y, def.color, 16, { speed: 180 });
-    Sfx.equip();
+    if (!def) return;
+
+    if (type === 'fire' || type === 'water') {
+      var fam = (type === 'fire') ? 'red' : 'blue';
+      S.waves.push({ type: type, t: 0, life: 1.15 });
+      S.shake = Math.max(S.shake, 0.5);
+      spawnFloater(S.W / 2, S.H * 0.5, def.label + ' 웨이브!', def.color, 24, 'item');
+      if (type === 'fire') Sfx.fire(); else Sfx.water();
+      destroyFamily(fam, type);
+    } else if (type === 'multi') {
+      multiBall();
+    } else if (type === 'wide') {
+      S.wide = def.duration;
+      computeGeometry();
+      clampPaddle();
+      if (S.ball.stuck) stickBall();
+      spawnFloater(S.W / 2, S.H * 0.58, def.label + ' 장착!', def.color, 22, 'item');
+      spawnParticles(S.paddle.x, S.paddle.y, def.color, 16, { speed: 200 });
+      Sfx.power();
+    } else if (type === 'shield') {
+      S.shield = def.duration;
+      spawnFloater(S.W / 2, S.H * 0.58, def.label + ' 장착!', def.color, 22, 'item');
+      spawnParticles(S.paddle.x, S.H - 8, def.color, 20, { speed: 180, dir: -Math.PI / 2 });
+      Sfx.power();
+    } else {
+      S.weapon = { type: type, remaining: def.duration, total: def.duration, fireIn: 0.12 };
+      spawnFloater(S.W / 2, S.H * 0.58, def.label + ' 장착!', def.color, 22, 'item');
+      spawnParticles(S.paddle.x, S.paddle.y, def.color, 16, { speed: 180 });
+      Sfx.equip();
+    }
+
     updateHud();
     if (navigator.vibrate) { try { navigator.vibrate([10, 30, 12]); } catch (e) { /* 무시 */ } }
+  }
+
+  // 불·물 웨이브: 해당 계통(붉은/파란) 벽돌만 골라 부순다
+  function destroyFamily(fam, type) {
+    var list = [];
+    for (var i = 0; i < S.bricks.length; i++) {
+      var br = S.bricks[i];
+      if (br.alive && br.fam === fam) list.push(br);
+    }
+    list.sort(function (a, b) { return (a.col - b.col) || (a.row - b.row); });
+
+    for (var k = 0; k < list.length; k++) {
+      var b = list[k];
+      if (!b.alive) continue;
+      var r = brickRect(b);
+      var cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+      if (type === 'fire') {
+        spawnParticles(cx, cy, '#ff8a3d', 10, { speed: 260 });
+        spawnParticles(cx, cy, '#ffd166', 4, { speed: 190 });
+        spawnSparks(cx, cy, '#fff0c0', 5);
+      } else {
+        spawnParticles(cx, cy, '#43b6ff', 10, { speed: 230 });
+        spawnParticles(cx, cy, '#d6f2ff', 5, { speed: 170 });
+        spawnSparks(cx, cy, '#eaf9ff', 4);
+      }
+      damageBrick(b, b.hp + 1, type);
+      if (S.state !== 'play' && S.state !== 'ready') break;
+    }
+    return list.length;
+  }
+
+  function multiBall() {
+    var b = S.ball;
+    if (b.stuck && S.state === 'ready') launch();
+    var sp = Math.sqrt(b.vx * b.vx + b.vy * b.vy) || S.speed;
+    var base = (b.vx === 0 && b.vy === 0) ? -Math.PI / 2 : Math.atan2(b.vy, b.vx);
+    var angles = [base - 0.55, base + 0.55];
+    for (var i = 0; i < angles.length; i++) {
+      S.extraBalls.push({
+        x: b.x, y: b.y,
+        vx: Math.cos(angles[i]) * sp,
+        vy: Math.sin(angles[i]) * sp,
+        r: b.r, stuck: false, saved: false, trail: [], t: 0
+      });
+    }
+    b.saved = false;
+    spawnFloater(S.W / 2, S.H * 0.58, '멀티볼 x3!', ITEMS.multi.color, 24, 'item');
+    spawnParticles(b.x, b.y, ITEMS.multi.color, 18, { speed: 220 });
+    Sfx.multi();
   }
 
   function fireBullet() {
@@ -1295,6 +1461,14 @@
   /* =========================================================
      게임 흐름
      ========================================================= */
+  function resetEffectsAndBalls() {
+    S.weapon = { type: null, remaining: 0, total: 0, fireIn: 0 };
+    S.wide = 0;
+    S.shield = 0;
+    S.waves = [];
+    S.extraBalls = [];
+  }
+
   function startGame() {
     Sfx.resume();
     S.score = 0;
@@ -1308,9 +1482,10 @@
     S.bullets = [];
     S.beams = [];
     S.capsules = [];
-    S.weapon = { type: null, remaining: 0, total: 0, fireIn: 0 };
-    S.cols = colsForWidth(S.W);
-    S.rows = rowsForCols(S.cols, S.H);
+    resetEffectsAndBalls();
+    var g1 = gridForStage(S.stage, S.W, S.H);
+    S.cols = g1.cols;
+    S.rows = g1.rows;
     computeGeometry();
     buildBricks(S.stage);
     resetBall();
@@ -1323,8 +1498,9 @@
   function nextStage() {
     Sfx.resume();
     S.stage += 1;
-    S.cols = colsForWidth(S.W);
-    S.rows = rowsForCols(S.cols, S.H);
+    var g2 = gridForStage(S.stage, S.W, S.H);
+    S.cols = g2.cols;
+    S.rows = g2.rows;
     computeGeometry();
     buildBricks(S.stage);
     S.combo = 0;
@@ -1333,7 +1509,7 @@
     S.bullets = [];
     S.beams = [];
     S.capsules = [];
-    S.weapon = { type: null, remaining: 0, total: 0, fireIn: 0 };
+    resetEffectsAndBalls();
     resetBall();
     S.state = 'ready';
     hideOverlay();
@@ -1346,9 +1522,11 @@
     var b = S.ball;
     b.vx = 0; b.vy = 0;
     b.stuck = true;
+    b.saved = false;
     b.trail = [];
     b.x = p.x;
     b.y = p.y - b.r - 2;
+    S.extraBalls = [];
     S.sinceBrick = 0;
     S.paddle.target = null;
   }
@@ -1377,6 +1555,7 @@
     S.combo = 0;
     S.shake = 1;
     S.capsules = [];
+    S.extraBalls = [];
     Sfx.lose();
     spawnParticles(S.ball.x, S.H - 6, '#ff6b81', 16);
     if (S.lives <= 0) {
@@ -1643,9 +1822,10 @@
           '<h2 class="ov-title">삼성고동문회<br><span>벽돌깨기</span></h2>' +
           '<p class="ov-sub">이택형 · 성승현 · 우상봉<br>강현수 · 황진석 · 강동균<br>벽돌을 깨라!</p>' +
           '<div class="chips">' + chips + '</div>' +
-          '<div class="legend">' +
-            '<i class="b"><span class="dot"></span>총알 아이템</i>' +
-            '<i class="l"><span class="dot"></span>레이저 아이템</i>' +
+          '<div class="itemlist">' +
+            '<p><b>🔫 총알</b> 10초 연사 · <b>⚡ 레이저</b> 8초 관통</p>' +
+            '<p><b>🔥 불</b> 붉은 벽돌만 · <b>💧 물</b> 파란 벽돌만</p>' +
+            '<p><b>🎱 멀티볼</b> 공 3개 · <b>🛸 와이드</b> 패들 1.5배 · <b>🛡️ 실드</b> 바닥 방어' + '</p>' +
           '</div>' +
           '<button class="btn primary" type="button" data-action="start">시작하기</button>' +
           '<div class="ov-row">' +
@@ -1654,7 +1834,7 @@
           '</div>' +
           (S.best > 0 ? '<p class="ov-best">최고 점수 ' + bestStr + '점</p>' : '') +
           '<p class="ov-hint">화면을 드래그해 패들을 움직이고, 화면을 탭해 공을 발사하세요.<br>' +
-          '빛나는 <b>아이템 벽돌</b>을 깨서 떨어지는 캡슐을 받으면 <b>총알·레이저</b>가 자동 발사됩니다.</p>' +
+          '빛나는 <b>아이템 벽돌</b>을 깨서 떨어지는 캡슐을 받으면 무기가 발동합니다.</p>' +
         '</div>';
     } else if (kind === 'clear') {
       html = photoOverlay({
@@ -1891,8 +2071,8 @@
     clampPaddle();
   }
 
-  function fixBallAngle() {
-    var b = S.ball;
+  function fixBallAngle(b) {
+    b = b || S.ball;
     var sp = Math.sqrt(b.vx * b.vx + b.vy * b.vy) || S.speed;
     var minX = sp * 0.22;
     var minY = sp * 0.32;
@@ -1927,8 +2107,8 @@
     fixBallAngle();
   }
 
-  function collidePaddle() {
-    var b = S.ball, p = S.paddle;
+  function collidePaddle(b) {
+    var p = S.paddle;
     if (b.vy <= 0) return;
 
     var cx = Math.max(p.x - p.w / 2, Math.min(b.x, p.x + p.w / 2));
@@ -1944,7 +2124,8 @@
     b.vx = Math.sin(angle) * sp;
     b.vy = -Math.cos(angle) * sp;
     b.y = p.y - b.r - 0.6;
-    fixBallAngle();
+    b.saved = false;
+    fixBallAngle(b);
 
     if (S.combo > S.bestCombo) S.bestCombo = S.combo;
     S.combo = 0;
@@ -1998,8 +2179,7 @@
     return true;
   }
 
-  function collideBricks() {
-    var b = S.ball;
+  function collideBricks(b) {
     for (var i = 0; i < S.bricks.length; i++) {
       var br = S.bricks[i];
       if (!br.alive) continue;
@@ -2033,7 +2213,7 @@
         b.vy -= 2 * dot * ny;
       }
 
-      fixBallAngle();
+      fixBallAngle(b);
       damageBrick(br, 1, 'ball');
       return;
     }
@@ -2046,8 +2226,59 @@
     if (S.state === 'play' || S.state === 'ready') stageClear();
   }
 
-  function stepBall(dt) {
-    var b = S.ball;
+  // 공을 하나 잃었을 때 (실드 → 보조 공 → 생명 순으로 처리)
+  function ballLost(b, primary) {
+    if (S.shield > 0 && !b.saved) {
+      b.saved = true;
+      b.y = S.H - b.r - 14;
+      b.vy = -Math.abs(b.vy || S.speed * 0.6);
+      fixBallAngle(b);
+      spawnParticles(b.x, S.H - 10, ITEMS.shield.color, 18, { speed: 210, dir: -Math.PI / 2 });
+      spawnFloater(b.x, S.H - 46, '실드!', ITEMS.shield.color, 18, 'item');
+      Sfx.bounce();
+      return;
+    }
+    if (!primary) {
+      var idx = S.extraBalls.indexOf(b);
+      if (idx >= 0) S.extraBalls.splice(idx, 1);
+      spawnParticles(b.x, S.H - 6, '#9fd0ff', 8, { speed: 150 });
+      return;
+    }
+    if (S.extraBalls.length > 0) {
+      var nb = S.extraBalls.shift();
+      S.ball.x = nb.x; S.ball.y = nb.y;
+      S.ball.vx = nb.vx; S.ball.vy = nb.vy;
+      S.ball.trail = nb.trail || [];
+      S.ball.stuck = false; S.ball.saved = false;
+      Sfx.bounce();
+      return;
+    }
+    loseLife();
+  }
+
+  function updateEffects(dt) {
+    if (S.state !== 'play') return;
+    if (S.wide > 0) {
+      S.wide -= dt;
+      if (S.wide <= 0) {
+        S.wide = 0;
+        computeGeometry();
+        clampPaddle();
+        if (S.ball.stuck) stickBall();
+        updateHud();
+      }
+    }
+    if (S.shield > 0) S.shield = Math.max(0, S.shield - dt);
+  }
+
+  function updateWaves(dt) {
+    for (var i = S.waves.length - 1; i >= 0; i--) {
+      S.waves[i].t += dt;
+      if (S.waves[i].t >= S.waves[i].life) S.waves.splice(i, 1);
+    }
+  }
+
+  function stepBall(b, dt, primary) {
     var W = S.W, H = S.H;
     var dist = Math.sqrt(b.vx * b.vx + b.vy * b.vy) * dt;
     var steps = Math.max(1, Math.min(8, Math.ceil(dist / 3)));
@@ -2057,16 +2288,16 @@
       b.x += b.vx * sdt;
       b.y += b.vy * sdt;
 
-      if (b.x - b.r < 0) { b.x = b.r; b.vx = Math.abs(b.vx); Sfx.wall(); fixBallAngle(); }
-      else if (b.x + b.r > W) { b.x = W - b.r; b.vx = -Math.abs(b.vx); Sfx.wall(); fixBallAngle(); }
+      if (b.x - b.r < 0) { b.x = b.r; b.vx = Math.abs(b.vx); Sfx.wall(); fixBallAngle(b); }
+      else if (b.x + b.r > W) { b.x = W - b.r; b.vx = -Math.abs(b.vx); Sfx.wall(); fixBallAngle(b); }
       if (b.y - b.r < 0) { b.y = b.r; b.vy = Math.abs(b.vy); Sfx.wall(); }
 
-      collidePaddle();
-      collideBricks();
+      collidePaddle(b);
+      collideBricks(b);
       if (S.state !== 'play') return;
 
       if (b.y - b.r > H) {
-        loseLife();
+        ballLost(b, primary);
         return;
       }
     }
@@ -2109,10 +2340,15 @@
     if (S.state === 'ready' || S.state === 'play') updatePaddle(dt);
     if (S.state === 'ready') stickBall();
     if (S.state === 'play') {
-      stepBall(dt);
+      stepBall(S.ball, dt, true);
+      for (var bi = S.extraBalls.length - 1; bi >= 0 && S.state === 'play'; bi--) {
+        stepBall(S.extraBalls[bi], dt, false);
+      }
       S.sinceBrick += dt;
       if (S.sinceBrick > 7) { S.sinceBrick = 0; steerToBricks(); }
       updateWeapon(dt);
+      updateEffects(dt);
+      updateWaves(dt);
       updateBullets(dt);
       updateBeams(dt);
     }
@@ -2216,6 +2452,7 @@
     ctx.fillStyle = color;
     ctx.lineWidth = Math.max(1, size * 0.22);
     ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     if (type === 'bullet') {
       // 총알 모양
       ctx.beginPath();
@@ -2226,7 +2463,7 @@
       ctx.lineTo(cx - size * 0.55, cy - size * 0.15);
       ctx.closePath();
       ctx.fill();
-    } else {
+    } else if (type === 'laser') {
       // 번개 모양 (레이저)
       ctx.beginPath();
       ctx.moveTo(cx + size * 0.2, cy - size);
@@ -2235,6 +2472,70 @@
       ctx.lineTo(cx - size * 0.2, cy + size);
       ctx.lineTo(cx + size * 0.6, cy - size * 0.2);
       ctx.lineTo(cx + size * 0.05, cy - size * 0.2);
+      ctx.closePath();
+      ctx.fill();
+    } else if (type === 'fire') {
+      // 불꽃
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - size * 1.05);
+      ctx.bezierCurveTo(cx + size * 0.9, cy - size * 0.15, cx + size * 0.62, cy + size * 0.95, cx, cy + size * 0.95);
+      ctx.bezierCurveTo(cx - size * 0.62, cy + size * 0.95, cx - size * 0.9, cy - size * 0.15, cx, cy - size * 1.05);
+      ctx.closePath();
+      ctx.fill();
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = '#fff3cf';
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - size * 0.15);
+      ctx.bezierCurveTo(cx + size * 0.4, cy + size * 0.25, cx + size * 0.25, cy + size * 0.85, cx, cy + size * 0.85);
+      ctx.bezierCurveTo(cx - size * 0.25, cy + size * 0.85, cx - size * 0.4, cy + size * 0.25, cx, cy - size * 0.15);
+      ctx.fill();
+    } else if (type === 'water') {
+      // 물방울
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - size);
+      ctx.quadraticCurveTo(cx + size, cy + size * 0.18, cx, cy + size * 0.95);
+      ctx.quadraticCurveTo(cx - size, cy + size * 0.18, cx, cy - size);
+      ctx.closePath();
+      ctx.fill();
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(cx - size * 0.28, cy + size * 0.25, size * 0.22, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (type === 'multi') {
+      // 공 3개
+      var rr = size * 0.4;
+      var pts = [[0, -size * 0.55], [-size * 0.62, size * 0.5], [size * 0.62, size * 0.5]];
+      for (var q = 0; q < pts.length; q++) {
+        ctx.beginPath();
+        ctx.arc(cx + pts[q][0], cy + pts[q][1], rr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (type === 'wide') {
+      // 넓은 패들 + 양쪽 화살표
+      roundRect(ctx, cx - size, cy - size * 0.1, size * 2, size * 0.42, size * 0.2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(cx - size * 1.3, cy - size * 0.75);
+      ctx.lineTo(cx - size * 0.75, cy - size * 0.45);
+      ctx.lineTo(cx - size * 1.3, cy - size * 0.15);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(cx + size * 1.3, cy - size * 0.75);
+      ctx.lineTo(cx + size * 0.75, cy - size * 0.45);
+      ctx.lineTo(cx + size * 1.3, cy - size * 0.15);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      // 실드
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - size);
+      ctx.lineTo(cx + size * 0.85, cy - size * 0.5);
+      ctx.lineTo(cx + size * 0.85, cy + size * 0.25);
+      ctx.quadraticCurveTo(cx + size * 0.8, cy + size * 0.95, cx, cy + size);
+      ctx.quadraticCurveTo(cx - size * 0.8, cy + size * 0.95, cx - size * 0.85, cy + size * 0.25);
+      ctx.lineTo(cx - size * 0.85, cy - size * 0.5);
       ctx.closePath();
       ctx.fill();
     }
@@ -2348,10 +2649,14 @@
   }
 
   function drawCapsules() {
-    var cw = capsuleW(), ch = capsuleH();
+    var ch = capsuleH();
     for (var i = 0; i < S.capsules.length; i++) {
       var c = S.capsules[i];
       var def = ITEMS[c.type];
+      var labelFont = Math.max(8, Math.round(ch * 0.44));
+      ctx.font = '900 ' + labelFont + 'px ' + FONT;
+      var tw = ctx.measureText(def.label).width;
+      var cw = Math.min(80, Math.max(30, ch * 0.72 + tw + ch * 0.52));
       var wob = Math.sin(c.t * 7) * 2.2;
       var x = c.x - cw / 2 + wob;
       var y = c.y - ch / 2;
@@ -2371,13 +2676,13 @@
       ctx.stroke();
       ctx.restore();
 
-      drawItemIcon(c.type, x + ch * 0.62, y + ch / 2, ch * 0.32, def.color);
+      drawItemIcon(c.type, x + ch * 0.5, y + ch / 2, ch * 0.3, def.color);
 
-      ctx.font = '900 ' + Math.round(ch * 0.44) + 'px ' + FONT;
+      ctx.font = '900 ' + labelFont + 'px ' + FONT;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = def.color;
-      ctx.fillText(def.label, x + ch * 0.95, y + ch / 2 + 0.5);
+      ctx.fillText(def.label, x + ch * 0.9, y + ch / 2 + 0.5);
       ctx.textAlign = 'center';
     }
   }
@@ -2480,14 +2785,14 @@
     ctx.fill();
   }
 
-  function drawBall() {
-    var b = S.ball;
+  function drawBall(b, alt) {
+    b = b || S.ball;
     // 잔상 (공 궤적)
     for (var i = 0; i < b.trail.length; i++) {
       var t = b.trail[i];
       var a = (i + 1) / b.trail.length;
       ctx.globalAlpha = a * 0.28;
-      ctx.fillStyle = '#ffd166';
+      ctx.fillStyle = alt ? '#8fe8ff' : '#ffd166';
       ctx.beginPath();
       ctx.arc(t.x, t.y, b.r * (0.25 + 0.6 * a), 0, Math.PI * 2);
       ctx.fill();
@@ -2495,17 +2800,78 @@
     ctx.globalAlpha = 1;
 
     ctx.save();
-    ctx.shadowColor = 'rgba(255,200,80,0.9)';
+    ctx.shadowColor = alt ? 'rgba(120,220,255,0.9)' : 'rgba(255,200,80,0.9)';
     ctx.shadowBlur = 16;
     var g = ctx.createRadialGradient(b.x - b.r * 0.35, b.y - b.r * 0.35, b.r * 0.15, b.x, b.y, b.r * 1.05);
     g.addColorStop(0, '#ffffff');
-    g.addColorStop(0.55, '#ffe28a');
-    g.addColorStop(1, '#ff9b3d');
+    g.addColorStop(0.55, alt ? '#c8f4ff' : '#ffe28a');
+    g.addColorStop(1, alt ? '#3ab6ff' : '#ff9b3d');
     ctx.fillStyle = g;
     ctx.beginPath();
     ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
+  }
+
+  // 바닥 실드 막
+  function drawShield() {
+    if (S.shield <= 0) return;
+    var W = S.W, H = S.H;
+    var y = H - 9;
+    var pulse = 0.65 + 0.35 * Math.sin(S.time * 7);
+    var fade = S.shield < 2 ? (S.shield / 2) : 1;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, fade);
+    ctx.shadowColor = ITEMS.shield.color;
+    ctx.shadowBlur = 20;
+    var g = ctx.createLinearGradient(0, y - 14, 0, H);
+    g.addColorStop(0, 'rgba(142,242,182,0)');
+    g.addColorStop(0.55, 'rgba(142,242,182,' + (0.42 * pulse).toFixed(3) + ')');
+    g.addColorStop(1, 'rgba(220,255,235,0.92)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, y - 14, W, H - (y - 14));
+    ctx.strokeStyle = 'rgba(235,255,245,' + (0.9 * pulse).toFixed(3) + ')';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (var x = 0; x <= W; x += 6) {
+      var yy = y + Math.sin(x * 0.05 + S.time * 5) * 2.4;
+      if (x === 0) ctx.moveTo(x, yy); else ctx.lineTo(x, yy);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // 불·물 웨이브 (아래에서 위로 솟는 파도)
+  function drawWaves() {
+    for (var i = 0; i < S.waves.length; i++) {
+      var wv = S.waves[i];
+      var p = Math.min(1, wv.t / wv.life);
+      var hot = wv.type === 'fire';
+      var base = hot ? '255,130,50' : '70,175,255';
+      var bright = hot ? '255,225,140' : '210,245,255';
+      var top = S.H * (1 - p * 1.05);
+      var alpha = Math.max(0, Math.sin(Math.PI * Math.min(1, p * 1.05)));
+
+      ctx.save();
+      ctx.globalAlpha = alpha * 0.6;
+      var g = ctx.createLinearGradient(0, top - 100, 0, top + 26);
+      g.addColorStop(0, 'rgba(' + base + ',0)');
+      g.addColorStop(0.72, 'rgba(' + base + ',0.55)');
+      g.addColorStop(1, 'rgba(' + bright + ',0.92)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, top - 100, S.W, 128);
+
+      ctx.globalAlpha = alpha * 0.92;
+      ctx.strokeStyle = 'rgba(' + bright + ',0.92)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (var x = 0; x <= S.W; x += 8) {
+        var yy = top + Math.sin(x * 0.045 + wv.t * 12) * 9;
+        if (x === 0) ctx.moveTo(x, yy); else ctx.lineTo(x, yy);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 
   function drawParticles() {
@@ -2594,12 +2960,15 @@
 
     drawBackground();
     drawBricks();
+    drawWaves();
     drawCapsules();
     drawParticles();
     drawBeams();
+    drawShield();
     drawPaddle();
     drawBullets();
-    drawBall();
+    drawBall(S.ball, false);
+    for (var ei = 0; ei < S.extraBalls.length; ei++) drawBall(S.extraBalls[ei], true);
     drawFloaters();
     drawHints();
 
@@ -2702,8 +3071,9 @@
   function init() {
     makeStars();
     bindEvents();
-    S.cols = colsForWidth(window.innerWidth || 390);
-    S.rows = rowsForCols(S.cols, Math.max(320, (window.innerHeight || 700) - 96));
+    var g0 = gridForStage(1, window.innerWidth || 390, Math.max(320, (window.innerHeight || 700) - 96));
+    S.cols = g0.cols;
+    S.rows = g0.rows;
     resize();
     S.W = S.W || 390;
     S.H = S.H || 600;
@@ -2734,6 +3104,10 @@
       update: update,
       draw: draw,
       equip: equip,
+      multiBall: multiBall,
+      destroyFamily: destroyFamily,
+      itemPlanFor: itemPlanFor,
+      gridForStage: gridForStage,
       fireBullet: fireBullet,
       fireLaser: fireLaser,
       dropCapsule: dropCapsule,
@@ -2741,22 +3115,26 @@
       updateWeapon: updateWeapon,
       state: function () {
         var alive = 0, items = 0, names = {};
+        var aliveItems = [], fams = { red: 0, blue: 0, other: 0 };
         for (var i = 0; i < S.bricks.length; i++) {
           var b = S.bricks[i];
           if (b.alive) {
             alive++;
             names[b.name] = (names[b.name] || 0) + 1;
-            if (b.item) items++;
+            if (b.item) { items++; aliveItems.push(b.item); }
+            fams[b.fam] = (fams[b.fam] || 0) + 1;
           }
         }
         return {
           state: S.state, score: S.score, best: S.best, stage: S.stage,
           lives: S.lives, combo: S.combo, broken: S.broken,
-          cols: S.cols, rows: S.rows, alive: alive, itemBricks: items,
-          names: names, weapon: S.weapon.type, weaponLeft: Math.max(0, S.weapon.remaining),
+          cols: S.cols, rows: S.rows, alive: alive, itemBricks: items, itemTypes: aliveItems,
+          fams: fams, names: names, weapon: S.weapon.type, weaponLeft: Math.max(0, S.weapon.remaining),
+          wide: Math.max(0, S.wide), shield: Math.max(0, S.shield),
+          extraBalls: S.extraBalls.length, waves: S.waves.length, speed: Math.round(S.speed),
           bullets: S.bullets.length, beams: S.beams.length, capsules: S.capsules.length,
           brickW: Math.round(S.geo.w * 10) / 10, brickH: Math.round(S.geo.h * 10) / 10,
-          font: Math.round(S.geo.font * 10) / 10,
+          font: Math.round(S.geo.font * 10) / 10, paddleW: Math.round(S.paddle.w),
           hudScore: scoreEl.textContent, hudItem: itemNameEl.textContent
         };
       }
