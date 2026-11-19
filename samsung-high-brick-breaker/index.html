@@ -3790,6 +3790,10 @@
       dropCapsule: dropCapsule,
       damageBrick: damageBrick,
       updateWeapon: updateWeapon,
+      setName: function (n) { S.playerName = String(n || '').slice(0, 5); storeSet(STORE_NAME, S.playerName); return S.playerName; },
+      commitScore: function (v, force) { commitScore(v, !!force); return S.board; },
+      board: function () { return S.board; },
+      firebase: function () { return { live: FB.live, entries: FB.entries, note: fbStatusNote() }; },
       state: function () {
         var alive = 0, items = 0, names = {};
         var aliveItems = [], fams = { red: 0, blue: 0, other: 0 };
