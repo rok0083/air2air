@@ -1202,17 +1202,31 @@
     return Math.max(t, S.score || 0);
   }
 
+  // 전체 기록에서 나를 뺀 6위 점수 (이게 6위 커트라인)
+  function rankCut() {
+    var me = playerName(), arr = [], k;
+    var src = [];
+    for (k in FB.entries) {
+      if (fbHas(FB.entries, k)) src.push(FB.entries[k]);
+    }
+    if (!src.length) src = S.board.slice(0);
+    for (var i = 0; i < src.length; i++) {
+      if (src[i].name === me) continue;
+      arr.push(src[i].score);
+    }
+    arr.sort(function (a, b) { return b - a; });
+    return arr.length >= BOARD_MAX ? arr[BOARD_MAX - 1] : 0;
+  }
+
   // 내 기록은 빼고 몇 위인지 (순위권 밖이면 99)
   function currentRank(score) {
     var me = playerName();
-    var r = 1, others = 0, sixth = 0;
+    var r = 1;
     for (var i = 0; i < S.board.length; i++) {
       if (S.board[i].name === me) continue;
-      others += 1;
-      if (others === BOARD_MAX) sixth = S.board[i].score;
       if (S.board[i].score >= score) r += 1;
     }
-    if (others >= BOARD_MAX && score <= sixth) return 99;   // 6위 점수도 못 넘었다
+    if (score <= rankCut()) return 99;      // 6위 점수도 넘지 못했다
     return r;
   }
 
