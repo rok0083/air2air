@@ -445,6 +445,12 @@
   .rank-row.me { border-color: rgba(255, 215, 110, 0.55); background: rgba(255, 215, 110, 0.1); }
   .rank-row.me span { color: #ffe08a; }
   .rank-note { font-size: 9.5px; color: #6f81a6; font-weight: 700; }
+  .myrank {
+    margin-top: 2px; padding: 4px 8px; width: 100%; border-radius: 8px;
+    font-size: 10.5px; font-weight: 800; color: #dfe7fa; text-align: left;
+    background: rgba(120, 150, 240, 0.12); border: 1px dashed rgba(150, 175, 255, 0.45);
+  }
+  .myrank b { color: #ffe08a; font-variant-numeric: tabular-nums; }
   .clear-card .rank-row { padding: 2px 8px; font-size: 11px; }
   .clear-card .rank-title { font-size: 9.5px; }
 
@@ -710,7 +716,7 @@
     </div>
     <div class="sb">
       <div class="cell"><span class="lbl">SCORE</span><span class="val big" id="score">0</span></div>
-      <div class="cell"><span class="lbl">BEST</span><span class="val dim" id="best">0</span></div>
+      <div class="cell"><span class="lbl">1위</span><span class="val dim" id="best">0</span></div>
       <div class="cell"><span class="lbl">STAGE</span><span class="val dim" id="stageNum">1/3</span></div>
       <div class="cell"><span class="lbl">COMBO</span><span class="val dim" id="combo">x1</span></div>
       <div class="cell"><span class="lbl">LIVES</span><span class="val" id="lives"></span></div>
@@ -790,6 +796,8 @@
   var STORE_NAME = 'sbb.name';
   var STORE_BOARD = 'sbb.board';
   var STORE_GUEST = 'sbb.guest';
+  var STORE_PENDING = 'sbb.pending';   // 아직 서버 저장이 확인되지 않은 기록 (새로고침해도 이어서 전송)
+  var STORE_MINE = 'sbb.mine';         // { 이름: 내 최고 점수 } 이 기기 기준 (Top 6 밖이어도 내 기록은 계속 보인다)
 
   // Top 6 랭킹 씨앗 (처음 실행할 때 한 번만)
   var BOARD_SEED = [
@@ -875,11 +883,17 @@
   var FB = {
     live: false,        // 스트림 연결됨 (EventSource open)
     raw: {},            // 서버 원본 스냅샷 (key -> {name, score, ts})
-    entries: {},        // key -> {name, score} (이름별 최고 점수)
+    entries: {},        // key -> {name, score} (이름별 최고 점수, 대기 중인 내 기록 포함)
+    confirmed: {},      // key -> 서버가 확인해 준 점수
+    saved: {},          // key -> 저장 성공 응답으로 확인된 점수
+    pending: {},        // key -> {name, score, ts} 아직 저장 확인 안 된 내 기록
     src: null,
     pollId: 0,
     timer: 0,           // 쓰기 스로틀 예약
     lastPush: 0,
+    retryId: 0,         // 저장 실패 재시도 예약
+    inflight: false,
+    flushAgain: false,
     fails: 0,
     silentFails: 0
   };
@@ -953,9 +967,9 @@
     return String(key).replace(/\s+/g, '').slice(0, 5);
   }
 
-  // 서버 스냅샷 -> 로컬 Top 6 / HUD BEST 반영
+  // 서버 스냅샷 -> 로컬 Top 6 / HUD 1위 반영
   function fbRefresh() {
-    var raw = FB.raw || {}, entries = {}, key, list = [];
+    var raw = FB.raw || {}, entries = {}, key, list = [], confirmed = {};
     for (key in raw) {
       if (!fbHas(raw, key)) continue;
       var e = raw[key];
@@ -965,7 +979,22 @@
       var score = fbScoreOf(e);
       if (!score) continue;
       if (!entries[k] || score > entries[k].score) entries[k] = { name: name, score: score };
+      if (!confirmed[k] || score > confirmed[k]) confirmed[k] = score;
     }
+    FB.confirmed = confirmed;
+    // 아직 저장이 확인되지 않은 내 기록은 랭킹에서 지우지 않는다.
+    // (서버에 이미 같거나 더 높은 값이 있으면 대기열에서만 정리)
+    var pend = [];
+    for (key in FB.pending) {
+      if (!fbHas(FB.pending, key)) continue;
+      var p = FB.pending[key];
+      if (!p) continue;
+      if ((confirmed[key] || 0) >= p.score) { delete FB.pending[key]; continue; }
+      if (!entries[key] || p.score > entries[key].score) entries[key] = { name: p.name, score: p.score };
+      pend.push(key);
+    }
+    if (pend.length) fbScheduleRetry();
+    fbSavePending();
     FB.entries = entries;
     for (key in entries) {
       if (!fbHas(entries, key)) continue;
@@ -1005,45 +1034,191 @@
     }
   }
 
-  // 내 최고 점수를 Firebase 에 올린다 (스로틀: 기본 4초)
-  function fbPush(score, force) {
-    score = Math.round(score);
-    if (!(score > 0) || score > 9999999) return;
-    var name = playerName();
+  /* ---------------------------------------------------------
+     저장 진행 상황
+     - 내 기록은 먼저 대기열(FB.pending)에 넣고, 서버가 확인(r.ok)해야 '저장됨'
+     - 실패하면 다시 보낸다(간격을 늘려가며), 탭을 떠날 때는 keepalive 로 즉시 전송
+     - 대기 중인 기록도 화면 랭킹에는 그대로 보인다 (새로고침해도 걱정 없이)
+     --------------------------------------------------------- */
+  function fbLoadPending() {
+    FB.pending = {};
+    var raw = storeGet(STORE_PENDING, '');
+    if (!raw) return;
+    try {
+      var o = JSON.parse(raw);
+      if (!o || typeof o !== 'object') return;
+      for (var k in o) {
+        if (!fbHas(o, k)) continue;
+        var e = o[k];
+        var s = e ? Number(e.score) : 0;
+        if (!isFinite(s) || s <= 0) continue;
+        FB.pending[k] = {
+          name: String(e.name || k).replace(/\s+/g, '').slice(0, 5),
+          score: Math.max(1, Math.min(9999999, Math.round(s))),
+          ts: Number(e.ts) || Date.now()
+        };
+      }
+    } catch (err) { /* 무시 */ }
+  }
+
+  function fbSavePending() {
+    try { storeSet(STORE_PENDING, JSON.stringify(FB.pending)); } catch (e) { /* 무시 */ }
+  }
+
+  // 서버가 확인해 준 최고 점수 (스트림 스냅샷 + 저장 성공 응답)
+  function fbConfirmed(key) {
+    var a = (FB.confirmed && FB.confirmed[key]) || 0;
+    var b = (FB.saved && FB.saved[key]) || 0;
+    return Math.max(a, b);
+  }
+
+  // 내 최고 점수 (서버 확인 + 대기 중 + 이 기기 기록 중 가장 높은 값)
+  function myBestScore(name) {
+    name = name || playerName();
     var key = fbKey(name);
-    var mine = FB.entries[key];
-    if (mine && score <= mine.score) return;      // 이미 같거나 높은 기록이 있다
-    var wait = 4000;
-    var since = Date.now() - FB.lastPush;
-    if (!force && since < wait) {
-      if (FB.timer) window.clearTimeout(FB.timer);
-      FB.timer = window.setTimeout(function () { FB.timer = 0; fbPush(S.score, false); }, wait - since);
-      return;
+    var best = fbConfirmed(key);
+    if (FB.pending[key] && FB.pending[key].score > best) best = FB.pending[key].score;
+    if (S.mine && S.mine[name] && S.mine[name] > best) best = S.mine[name];
+    return best;
+  }
+
+  // 내 기록과 전체 순위 (Top 6 밖이어도 항상 보이게)
+  function myStat() {
+    var name = playerName(), key = fbKey(name), k, i;
+    var arr = [];
+    for (k in FB.entries) {
+      if (!fbHas(FB.entries, k)) continue;
+      arr.push(FB.entries[k]);
     }
-    if (FB.timer) { window.clearTimeout(FB.timer); FB.timer = 0; }
-    FB.lastPush = Date.now();
+    var best = myBestScore(name);
+    if (!best) return null;
+    var rank = 1;
+    for (i = 0; i < arr.length; i++) {
+      if (arr[i].name === name) continue;
+      if (arr[i].score > best) rank += 1;
+    }
+    return {
+      name: name,
+      score: best,
+      rank: rank,
+      total: Math.max(arr.length, rank),
+      pending: !!FB.pending[key]
+    };
+  }
 
-    FB.entries[key] = { name: name, score: score };            // 낙관적 반영
-    FB.raw[key] = { name: name, score: score, ts: Date.now() };
+  // 그 점수가 전체에서 몇 위인지 (이름이 같은 내 기록 제외)
+  function myRankFor(score, name) {
+    name = name || playerName();
+    var rank = 1, k;
+    for (k in FB.entries) {
+      if (!fbHas(FB.entries, k)) continue;
+      if (FB.entries[k].name === name) continue;
+      if (FB.entries[k].score > score) rank += 1;
+    }
+    return rank;
+  }
 
-    var body = {};
-    body[key] = { name: name, score: score, ts: Date.now() };
+  // 대기 중인 기록을 서버로 보낸다 (실패하면 재시도 예약)
+  function fbFlush(useKeepalive) {
+    if (FB.inflight) { FB.flushAgain = true; return; }
+    var body = {}, keys = [], k;
+    for (k in FB.pending) {
+      if (!fbHas(FB.pending, k)) continue;
+      keys.push(k);
+      body[k] = { name: FB.pending[k].name, score: FB.pending[k].score, ts: FB.pending[k].ts };
+    }
+    if (!keys.length) return;
+    FB.inflight = true;
+    FB.flushAgain = false;
+    var sent = JSON.parse(JSON.stringify(body));
     try {
       window.fetch(FB_ROOT + FB_PATH + '.json', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         cache: 'no-store',
-        keepalive: true,
+        keepalive: !!useKeepalive,
         body: JSON.stringify(body)
       }).then(function (r) {
+        FB.inflight = false;
         if (!r.ok) throw new Error('HTTP ' + r.status);
         FB.saved = FB.saved || {};
-        FB.saved[key] = score;
+        var left = 0;
+        for (var i = 0; i < keys.length; i++) {
+          var kk = keys[i], p = FB.pending[kk];
+          if (!p) continue;
+          if (p.score > sent[kk].score) { left += 1; continue; }   // 그새 더 높은 점수가 들어왔다
+          FB.saved[kk] = Math.max(FB.saved[kk] || 0, p.score);
+          delete FB.pending[kk];
+        }
+        for (k in FB.pending) { if (fbHas(FB.pending, k)) left += 1; }
+        FB.fails = 0;
+        fbSavePending();
+        fbRefreshOverlay();
+        if (left) fbScheduleRetry();
+        else if (FB.flushAgain) { FB.flushAgain = false; fbFlush(false); }
       }).catch(function () {
-        // 전송 실패: 캐시를 비워 다음 기록 때 다시 시도한다
-        if (FB.entries[key] && FB.entries[key].score === score) delete FB.entries[key];
+        FB.inflight = false;
+        fbScheduleRetry();
+        fbRefreshOverlay();
       });
-    } catch (e) { /* fetch 미지원: 로컬만 */ }
+    } catch (e) {
+      FB.inflight = false;
+      fbScheduleRetry();
+    }
+  }
+
+  function fbScheduleRetry() {
+    if (FB.retryId) return;
+    FB.fails = (FB.fails || 0) + 1;
+    var wait = Math.min(30000, 1500 * Math.pow(2, Math.min(4, FB.fails - 1)));
+    FB.retryId = window.setTimeout(function () {
+      FB.retryId = 0;
+      var k, any = false;
+      for (k in FB.pending) { if (fbHas(FB.pending, k)) { any = true; break; } }
+      if (any) fbFlush(false);
+    }, wait);
+  }
+
+  // 내 최고 점수를 Firebase 에 올린다 (스로틀: 기본 4초, 종료·페이지 이탈 시 즉시)
+  function fbPush(score, force) {
+    score = Math.round(score);
+    if (!(score > 0) || score > 9999999) return;
+    var name = playerName();
+    var key = fbKey(name);
+    // 대기열·서버 확인값하고만 비교한다 (이 기기 캐시 S.mine 은 표시용)
+    var known = Math.max(fbConfirmed(key), FB.pending[key] ? FB.pending[key].score : 0);
+    if (score <= known) return;      // 이미 같거나 높은 기록이 서버에 있다
+    var ts = Date.now();
+    FB.pending[key] = { name: name, score: score, ts: ts };   // 대기열에 넣고
+    FB.raw[key] = { name: name, score: score, ts: ts };
+    FB.entries[key] = { name: name, score: score };           // 화면에는 바로 반영
+    fbSavePending();
+
+    var wait = 4000;
+    var since = Date.now() - FB.lastPush;
+    if (!force && since < wait) {
+      if (FB.timer) window.clearTimeout(FB.timer);
+      FB.timer = window.setTimeout(function () { FB.timer = 0; fbFlush(true); }, wait - since);
+      return;
+    }
+    if (FB.timer) { window.clearTimeout(FB.timer); FB.timer = 0; }
+    FB.lastPush = Date.now();
+    fbFlush(false);
+  }
+
+  // 탭을 떠나거나 네트워크가 돌아올 때: 남은 기록을 바로 보낸다
+  function fbBindLifecycle() {
+    function flushOnLeave() {
+      fbPush(S.score, true);      // 아직 보내지 않은 이번 판 점수까지
+      fbFlush(true);              // keepalive 로 즉시 전송
+    }
+    window.addEventListener('pagehide', flushOnLeave);
+    window.addEventListener('beforeunload', flushOnLeave);
+    window.addEventListener('online', function () { FB.fails = 0; fbFlush(false); });
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { fbPush(S.score, true); fbFlush(true); }
+      else fbFlush(false);
+    });
   }
 
   function fbParse(text) {
@@ -1058,6 +1233,7 @@
           FB.raw = (data && typeof data === 'object') ? data : {};
           FB.fails = 0;
           fbRefresh();
+          fbFlush(false);          // 이전 화면에서 못 보낸 기록이 있으면 지금 보낸다
         })
         .catch(function () { FB.fails += 1; fbRefreshOverlay(); });
     } catch (e) { FB.fails += 1; fbRefreshOverlay(); }
@@ -1083,6 +1259,7 @@
       FB.fails = 0;
       FB.silentFails = 0;
       fbRefreshOverlay();
+      fbFlush(false);
     });
     es.addEventListener('put', function (ev) {
       var msg = fbParse(ev.data);
@@ -1155,6 +1332,23 @@
     return normalizeBoard(list);
   }
 
+  // 이 기기에 남긴 내 최고 점수 (이름별)
+  function loadMine() {
+    var out = {};
+    var raw = storeGet(STORE_MINE, '');
+    if (!raw) return out;
+    try {
+      var o = JSON.parse(raw);
+      if (!o || typeof o !== 'object') return out;
+      for (var k in o) {
+        if (!fbHas(o, k)) continue;
+        var v = Number(o[k]);
+        if (isFinite(v) && v > 0) out[String(k).replace(/\s+/g, '').slice(0, 5)] = Math.round(v);
+      }
+    } catch (err) { /* 무시 */ }
+    return out;
+  }
+
   // 이름을 안 적으면 이 기기마다 다른 '동문XXX' 로 기록된다 (모두 같은 칸에 덮어쓰지 않도록)
   function guestName() {
     var g = storeGet(STORE_GUEST, '');
@@ -1188,6 +1382,12 @@
     if (!found) list.push({ name: name, score: score });
     S.board = normalizeBoard(list);
     S.best = Math.max(S.board.length ? S.board[0].score : 0, score);
+    // 내 최고 점수는 이 기기에도 남긴다 (서버 응답 전·오프라인·새로고침 후에도 보이도록)
+    S.mine = S.mine || {};
+    if (!S.mine[name] || score > S.mine[name]) {
+      S.mine[name] = Math.round(score);
+      storeSet(STORE_MINE, JSON.stringify(S.mine));
+    }
     var json = JSON.stringify(S.board);
     if (json !== storeGet(STORE_BOARD, '')) {
       storeSet(STORE_BOARD, json);
@@ -1202,37 +1402,22 @@
     return Math.max(t, S.score || 0);
   }
 
-  // 전체 기록에서 나를 뺀 6위 점수 (이게 6위 커트라인)
-  function rankCut() {
-    var me = playerName(), arr = [], k;
-    var src = [];
-    for (k in FB.entries) {
-      if (fbHas(FB.entries, k)) src.push(FB.entries[k]);
-    }
-    if (!src.length) src = S.board.slice(0);
-    for (var i = 0; i < src.length; i++) {
-      if (src[i].name === me) continue;
-      arr.push(src[i].score);
-    }
-    arr.sort(function (a, b) { return b - a; });
-    return arr.length >= BOARD_MAX ? arr[BOARD_MAX - 1] : 0;
-  }
-
-  // 내 기록은 빼고 몇 위인지 (순위권 밖이면 99)
+  // 내 기록은 빼고 몇 위인지 (전체 기록 기준)
   function currentRank(score) {
-    var me = playerName();
-    var r = 1;
-    for (var i = 0; i < S.board.length; i++) {
-      if (S.board[i].name === me) continue;
-      if (S.board[i].score >= score) r += 1;
-    }
-    if (score <= rankCut()) return 99;      // 6위 점수도 넘지 못했다
-    return r;
+    return myRankFor(score, playerName());
   }
 
-  // 실시간 순위 알림 (1위 갱신 / 순위 진입) — Firebase 랭킹과 비교한다
+  // 실시간 순위 알림 (최고 점수 갱신 / 순위 진입) — Firebase 랭킹과 비교한다
   function checkRank(score) {
-    var top = S.board.length ? S.board[0].score : 0;
+    var name = playerName();
+    // 내가 이미 가진 최고 기록보다 높아야 '새 기록'이다 (같거나 낮으면 표시도 저장도 하지 않는다)
+    if (score <= myBestScore(name)) return;
+    var top = 0, k;
+    for (k in FB.entries) {
+      if (!fbHas(FB.entries, k)) continue;
+      if (FB.entries[k].name === name) continue;
+      if (FB.entries[k].score > top) top = FB.entries[k].score;
+    }
     if (score > top) {
       if (!S.flags.record) {
         S.flags.record = true;
@@ -1395,9 +1580,10 @@
     W: 0, H: 0, dpr: 1,
 
     score: 0,
-    best: 0,                 // HUD BEST (1위 점수, 실시간)
+    best: 0,                 // HUD 1위 점수 (실시간)
     startBest: 0,            // 이번 판 시작 시점의 최고 점수
     board: [],               // Top 6 랭킹 [{name, score}] 내림차순
+    mine: {},                // 이름별 내 최고 점수 (이 기기 캐시)
     playerName: '',
     stage: 1,
     lives: 3,
@@ -2202,19 +2388,28 @@
     });
   }
 
-  // Top 6 랭킹 표
+  // Top 6 랭킹 표 (내 기록은 Top 6 밖이어도 항상 함께 보여 준다)
   function rankTable() {
     var rows = '';
     var me = playerName();
+    var listed = false;
     for (var i = 0; i < S.board.length; i++) {
       var e = S.board[i];
+      if (e.name === me) listed = true;
       rows += '<li class="rank-row' + (e.name === me ? ' me' : '') + '">' +
                 '<em>' + (i + 1) + '</em>' +
                 '<span>' + esc(e.name) + '</span>' +
                 '<b>' + e.score.toLocaleString('ko-KR') + '</b>' +
               '</li>';
     }
-    return '<ol class="ranklist">' + rows + '</ol>' +
+    var stat = myStat();
+    var mine = '';
+    if (stat && (!listed || stat.pending)) {
+      mine = '<p class="myrank">내 기록 <b>' + stat.score.toLocaleString('ko-KR') + '</b>' +
+             ' · 전체 <b>' + stat.rank + '위</b> / ' + stat.total + '명' +
+             (stat.pending ? ' · 저장 중…' : '') + '</p>';
+    }
+    return '<ol class="ranklist">' + rows + '</ol>' + mine +
            '<p class="rank-note">' + fbStatusNote() + '</p>';
   }
 
@@ -2410,6 +2605,8 @@
     var html = '';
     var scoreStr = S.score.toLocaleString('ko-KR');
     var bestStr = S.best.toLocaleString('ko-KR');
+    var myStatNow = myStat();
+    var myBestStr = (myStatNow ? myStatNow.score : 0).toLocaleString('ko-KR');
     var celebrate = (kind === 'clear' || kind === 'win');
     overlayEl.className = celebrate ? 'ov-photo' : '';
 
@@ -2448,7 +2645,7 @@
         title: '스테이지 <span>' + S.stage + '</span> 클리어!',
         stats: [
           { k: '점수', v: scoreStr, hl: true },
-          { k: '최고', v: bestStr },
+          { k: '내 최고', v: myBestStr },
           { k: '콤보', v: 'x' + comboMultAt(S.bestCombo) + ' (' + S.bestCombo + ')' },
           { k: '벽돌', v: S.broken + '개' },
           { k: '생명', v: S.lives + '/3' }
@@ -2466,7 +2663,7 @@
           '<h2 class="ov-title">아쉽습니다!</h2>' +
           boardRows([
             { k: '이번 점수', v: scoreStr, hl: true },
-            { k: '최고 점수', v: bestStr },
+            { k: '내 최고', v: myBestStr },
             { k: '최대 콤보', v: 'x' + comboMultAt(S.bestCombo) + ' (' + S.bestCombo + '연속)' },
             { k: '깬 벽돌', v: S.broken + '개' },
             { k: '도달 스테이지', v: S.stage + ' / ' + MAX_STAGE }
@@ -2489,7 +2686,7 @@
         title: '모든 스테이지 <span>클리어!</span>',
         stats: [
           { k: '최종 점수', v: scoreStr, hl: true },
-          { k: '최고', v: bestStr },
+          { k: '내 최고', v: myBestStr },
           { k: '콤보', v: 'x' + comboMultAt(S.bestCombo) + ' (' + S.bestCombo + ')' },
           { k: '벽돌', v: S.broken + '개' }
         ],
@@ -3786,6 +3983,8 @@
     bindEvents();
     S.playerName = (storeGet(STORE_NAME, '') || '').slice(0, 5);
     S.board = loadBoard();
+    S.mine = loadMine();
+    fbLoadPending();             // 지난번에 못 보낸 기록이 있으면 이어서 전송한다
     S.best = S.board.length ? S.board[0].score : 0;
     var g0 = gridForStage(1, window.innerWidth || 390, Math.max(320, (window.innerHeight || 700) - 96));
     S.cols = g0.cols;
@@ -3802,6 +4001,7 @@
     hideOverlay();
     showOverlay('start');
     fbConnect();                 // 실시간 전체 랭킹 연결
+    fbBindLifecycle();           // 탭 이탈·복귀·온라인 시 남은 기록 전송
     window.requestAnimationFrame(frame);
   }
 
@@ -3835,7 +4035,9 @@
       checkRank: checkRank,
       commitScore: function (v, force) { commitScore(v, !!force); return S.board; },
       board: function () { return S.board; },
-      firebase: function () { return { live: FB.live, entries: FB.entries, note: fbStatusNote() }; },
+      firebase: function () { return { live: FB.live, entries: FB.entries, pending: FB.pending, note: fbStatusNote() }; },
+      myStat: function () { return myStat(); },
+      flush: function () { fbFlush(false); return FB.pending; },
       state: function () {
         var alive = 0, items = 0, names = {};
         var aliveItems = [], fams = { red: 0, blue: 0, other: 0 };
