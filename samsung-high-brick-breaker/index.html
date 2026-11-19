@@ -1742,9 +1742,9 @@
 
     var base = Math.min(W, H * 0.9) * 0.72;
     base = Math.max(275, Math.min(470, base));
-    // 99스테이지: 단계가 오를수록 공이 빨라진다 (1스테이지 1.0배 → 10스테이지 1.29배 → 40스테이지 1.60배 → 99스테이지 1.85배)
-    var boost = 1 + 0.075 * Math.min(3, S.stage - 1) + 0.0105 * Math.max(0, S.stage - 4);
-    boost = Math.min(1.85, boost);
+    // 99스테이지: 단계가 오를수록 공이 계속 빨라진다 (1스테이지 1.0배 → 10스테이지 1.27배 → 40스테이지 1.52배 → 99스테이지 2.0배)
+    var boost = 1 + 0.075 * Math.min(3, S.stage - 1) + 0.00816 * Math.max(0, S.stage - 4);
+    boost = Math.min(2.0, boost);
     var prevSpeed = S.speed;
     S.speed = base * boost;
     // 화면 회전 등으로 기준 속도가 바뀌면 움직이는 공도 같은 비율로 맞춘다 (방향·각도는 그대로)
