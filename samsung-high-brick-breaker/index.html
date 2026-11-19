@@ -116,6 +116,17 @@
     gap: 4px;
     font-variant-numeric: tabular-nums;
   }
+  /* 넓은 화면: 스코어보드를 한 줄 6칸으로 */
+  @media (min-width: 640px) {
+    .sb { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 5px; }
+    .sb .cell { padding: 4px 8px 5px; }
+    .cell .val { font-size: 14px; }
+    .cell .val.big { font-size: 17px; }
+    .cell .val.dim { font-size: 13px; }
+    .cell.item .head .val { font-size: 12px; }
+    .bar { height: 5px; }
+    #lives { font-size: 14px; }
+  }
   .cell {
     display: flex;
     align-items: baseline;
