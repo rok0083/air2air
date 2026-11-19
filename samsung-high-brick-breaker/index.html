@@ -789,6 +789,7 @@
   var STORE_BEST = 'sbb.best';
   var STORE_NAME = 'sbb.name';
   var STORE_BOARD = 'sbb.board';
+  var STORE_GUEST = 'sbb.guest';
 
   // Top 6 랭킹 씨앗 (처음 실행할 때 한 번만)
   var BOARD_SEED = [
@@ -1154,9 +1155,21 @@
     return normalizeBoard(list);
   }
 
+  // 이름을 안 적으면 이 기기마다 다른 '동문XXX' 로 기록된다 (모두 같은 칸에 덮어쓰지 않도록)
+  function guestName() {
+    var g = storeGet(STORE_GUEST, '');
+    if (!/^[A-Z0-9]{3}$/.test(g)) {
+      var abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      g = '';
+      for (var i = 0; i < 3; i++) g += abc.charAt(Math.floor(Math.random() * abc.length));
+      storeSet(STORE_GUEST, g);
+    }
+    return '동문' + g;
+  }
+
   function playerName() {
-    var n = (S.playerName || '').slice(0, 5);
-    return n || '나';
+    var n = (S.playerName || '').replace(/\s+/g, '').slice(0, 5);
+    return n || guestName();
   }
 
   // 현재 점수를 Top 6에 반영하고 저장 (이 기기 + Firebase)
