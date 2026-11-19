@@ -1202,14 +1202,17 @@
     return Math.max(t, S.score || 0);
   }
 
-  // 내 기록은 빼고 몇 위인지
+  // 내 기록은 빼고 몇 위인지 (순위권 밖이면 99)
   function currentRank(score) {
     var me = playerName();
-    var r = 1;
+    var r = 1, others = 0, sixth = 0;
     for (var i = 0; i < S.board.length; i++) {
       if (S.board[i].name === me) continue;
+      others += 1;
+      if (others === BOARD_MAX) sixth = S.board[i].score;
       if (S.board[i].score >= score) r += 1;
     }
+    if (others >= BOARD_MAX && score <= sixth) return 99;   // 6위 점수도 못 넘었다
     return r;
   }
 
