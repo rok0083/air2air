@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>헥사 HEXA — 3개를 맞춰 터뜨리는 체인 콤보 퍼즐</title>
+<meta name="description" content="외국 바다·해변 배경에서 즐기는 6×13 보석 퍼즐. 3개 이상 맞추면 연쇄 콤보, 17종 아이템과 피버로 친구들과 점수 대결!" />
+<meta name="theme-color" content="#061420" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="헥사 HEXA — 체인 콤보 퍼즐" />
+<meta property="og:description" content="3개를 맞춰 터뜨리는 보석 퍼즐. 연쇄 콤보·피버·17종 아이템으로 친구들과 점수 대결!" />
+<meta property="og:image" content="https://rok0083.github.io/air2air/hexa/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://rok0083.github.io/air2air/hexa/" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="헥사 HEXA — 체인 콤보 퍼즐" />
+<meta name="twitter:description" content="3개를 맞춰 터뜨리는 보석 퍼즐. 연쇄 콤보·피버·17종 아이템!" />
+<meta name="twitter:image" content="https://rok0083.github.io/air2air/hexa/og-image.png" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,4 93,27 93,73 50,96 7,73 7,27' fill='%233f8dff' stroke='%23bfe0ff' stroke-width='5'/><polygon points='50,26 74,39 74,63 50,76 26,63 26,39' fill='%238fd0ff' opacity='0.85'/></svg>" />
+<link rel="preload" as="image" href="assets/beach-bg.jpg" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="bg-layer" aria-hidden="true"></div>
+
+<main id="app">
+
+  <!-- ───────────────────────── 시작 화면 ───────────────────────── -->
+  <section id="screen-start" class="screen active">
+    <div class="start-card glass">
+      <div class="logo">
+        <div class="logo-gems" aria-hidden="true">
+          <i class="g1"></i><i class="g2"></i><i class="g3"></i>
+        </div>
+        <h1>헥사</h1>
+        <p class="logo-sub">HEXA · CHAIN COMBO PUZZLE</p>
+      </div>
+
+      <label class="field">
+        <span class="field-label">닉네임</span>
+        <input id="input-name" class="input" type="text" maxlength="12" autocomplete="nickname"
+               inputmode="text" placeholder="2~12자 · 한글/영문/숫자" />
+      </label>
+
+      <div class="field">
+        <span class="field-label">방 코드 <em>(선택)</em></span>
+        <div class="room-row">
+          <input id="input-room" class="input" type="text" maxlength="6" autocapitalize="characters"
+                 placeholder="예: ABC123" />
+          <button id="btn-make-room" class="btn ghost small" type="button">방 만들기</button>
+        </div>
+      </div>
+
+      <p id="start-msg" class="msg" aria-live="polite"></p>
+
+      <button id="btn-start" class="btn primary big" type="button">게임 시작</button>
+      <button id="btn-rank" class="btn ghost" type="button">랭킹 보기</button>
+
+      <p class="hint">← → 이동 · ↑/Space 회전 · ↓ 소프트드롭 · Shift 하드드롭 · 1/2/3 아이템 · P 일시정지</p>
+      <p class="hint mobile-hint">좌우 스와이프 이동 · 탭 회전 · 아래로 스와이프 하드드롭</p>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 게임 화면 ───────────────────────── -->
+  <section id="screen-game" class="screen">
+    <div class="game-top">
+      <button id="btn-home" class="icon-btn" type="button" title="그만하기">✕</button>
+      <div class="hud">
+        <div class="hud-box"><span>점수</span><b id="hud-score">0</b></div>
+        <div class="hud-box"><span>레벨</span><b id="hud-level">1</b></div>
+        <div class="hud-box"><span>연쇄</span><b id="hud-chain">0</b></div>
+        <div class="hud-box"><span>다음 레벨까지</span><b id="hud-remain">30</b></div>
+      </div>
+      <button id="btn-pause" class="icon-btn" type="button" title="일시정지">⏸</button>
+    </div>
+
+    <div class="board-area">
+      <div class="board-panel glass">
+        <canvas id="board"></canvas>
+        <div id="fx-tags" class="fx-tags"></div>
+        <div id="pause-overlay" class="overlay" hidden>
+          <h2>일시정지</h2>
+          <button id="btn-resume" class="btn primary" type="button">계속하기</button>
+          <button id="btn-quit" class="btn ghost" type="button">그만하기</button>
+        </div>
+      </div>
+
+      <aside class="side">
+        <div class="next-panel glass">
+          <span class="panel-label">NEXT</span>
+          <canvas id="next"></canvas>
+        </div>
+        <div class="fever-panel glass">
+          <span class="panel-label">FEVER</span>
+          <div class="fever-bar"><i id="fever-fill"></i></div>
+        </div>
+        <div id="shield-tag" class="shield-tag glass" hidden>🛡️ 쉴드</div>
+      </aside>
+    </div>
+
+    <div class="items">
+      <div class="item-slots" id="item-slots"></div>
+      <p class="items-hint">아이템 3칸 · 가득 차면 가장 오래된 것이 자동 발동</p>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 게임 오버 ───────────────────────── -->
+  <section id="screen-over" class="screen">
+    <div class="over-card glass">
+      <p class="over-kicker">GAME OVER</p>
+      <h2 id="over-score" class="over-score">0</h2>
+      <p id="over-rank" class="over-rank">순위 계산 중…</p>
+      <div class="stat-grid">
+        <div><span>레벨</span><b id="over-level">1</b></div>
+        <div><span>최고 연쇄</span><b id="over-chain">0</b></div>
+        <div><span>제거 보석</span><b id="over-gems">0</b></div>
+        <div><span>사용 아이템</span><b id="over-items">0</b></div>
+        <div><span>플레이 시간</span><b id="over-time">0:00</b></div>
+        <div><span>방 코드</span><b id="over-room">전체</b></div>
+      </div>
+      <p id="over-save" class="msg"></p>
+      <button id="btn-again" class="btn primary big" type="button">다시 하기</button>
+      <div class="row2">
+        <button id="btn-over-rank" class="btn ghost" type="button">랭킹 보기</button>
+        <button id="btn-share" class="btn ghost" type="button">친구에게 공유</button>
+      </div>
+      <button id="btn-over-home" class="btn text" type="button">처음으로</button>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 랭킹 화면 ───────────────────────── -->
+  <section id="screen-rank" class="screen">
+    <div class="rank-card glass">
+      <div class="rank-head">
+        <button id="btn-rank-back" class="icon-btn" type="button" title="뒤로">←</button>
+        <h2>랭킹</h2>
+        <span class="rank-room" id="rank-room">전체</span>
+      </div>
+      <div class="tabs" id="rank-tabs"></div>
+      <p class="rank-status" id="rank-status" hidden></p>
+      <ol class="rank-list" id="rank-list"></ol>
+      <p class="rank-foot" id="rank-foot" hidden></p>
+    </div>
+  </section>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <button id="btn-sound" class="sound-toggle" type="button" title="소리 켜기/끄기">🔊</button>
+</main>
+
+<script>
+/* 진단용: 로드 중 오류를 모아 둡니다 (게임 동작에는 영향 없음) */
+window.__hexaErrors = [];
+window.addEventListener('error', e => window.__hexaErrors.push(String((e && e.message) || e)));
+window.addEventListener('unhandledrejection', e => window.__hexaErrors.push('rejection: ' + String((e.reason && e.reason.message) || e.reason)));
+</script>
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>

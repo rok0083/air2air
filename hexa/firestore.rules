@@ -1,0 +1,43 @@
+rules_version = '2';
+
+// 헥사(HEXA) — Firestore 보안 규칙
+// scores/{docId} : 누구나 읽기, 로그인(익명 포함)한 본인 uid 로만 새 기록 생성.
+// 수정·삭제는 금지. 이름 2~12자, 점수 0~10,000,000 정수 등 형식을 서버에서 검증.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /scores/{docId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly([
+             'uid', 'name', 'score', 'level', 'maxChain',
+             'itemsUsed', 'playTimeSec', 'roomCode', 'createdAt'
+           ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 12
+        && request.resource.data.score is int
+        && request.resource.data.score >= 0
+        && request.resource.data.score <= 10000000
+        && request.resource.data.level is int
+        && request.resource.data.level >= 1
+        && request.resource.data.level <= 999
+        && request.resource.data.maxChain is int
+        && request.resource.data.maxChain >= 0
+        && request.resource.data.maxChain <= 99
+        && request.resource.data.itemsUsed is int
+        && request.resource.data.itemsUsed >= 0
+        && request.resource.data.itemsUsed <= 999
+        && request.resource.data.playTimeSec is int
+        && request.resource.data.playTimeSec >= 0
+        && request.resource.data.playTimeSec <= 99999
+        && request.resource.data.roomCode is string
+        && request.resource.data.roomCode.size() >= 1
+        && request.resource.data.roomCode.size() <= 6
+        && request.resource.data.createdAt == request.time;
+
+      allow update, delete: if false;
+    }
+  }
+}
