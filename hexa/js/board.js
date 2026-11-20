@@ -21,7 +21,7 @@ export class Board {
     this.hooks = hooks;
     this.rows = CFG.board.rows;
     this.cols = CFG.board.cols;
-    this.grid = [];
+    this.grid = Array.from({ length: this.rows }, () => Array(this.cols).fill(null));
     this.ghosts = [];
     this.score = 0;
     this.cell = 40;
