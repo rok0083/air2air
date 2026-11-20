@@ -252,6 +252,12 @@ async function handleGameOver(result) {
   els.overSave.classList.remove('bad');
   showScreen('over');
 
+  if (!(result.score > 0)) {
+    els.overSave.textContent = '0점은 랭킹에 올리지 않았어요. 다음엔 더 높은 점수에 도전!';
+    els.overRank.textContent = '아직 점수가 없어요 · 보석을 3개 이상 맞춰 보세요';
+    return;
+  }
+
   const res = await FB.saveScore(result);
   if (res.ok) {
     els.overSave.textContent = '기록을 저장했어요! 랭킹에서 확인해 보세요.';

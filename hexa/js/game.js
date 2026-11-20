@@ -21,6 +21,8 @@ export class HexaGame {
     this.ctx = boardCanvas.getContext('2d');
     this.nctx = nextCanvas.getContext('2d');
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.rows = ROWS;
+    this.cols = COLS;
     this.state = 'idle';
     this.time = 0;
     this.timers = [];
@@ -172,6 +174,11 @@ export class HexaGame {
   cellAt(r, c) {
     if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return null;
     return this.grid[r][c];
+  }
+
+  setCell(r, c, cell) {
+    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
+    this.grid[r][c] = cell;
   }
 
   pieceCells(piece, row = piece.row, col = piece.col) {
