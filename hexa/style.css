@@ -44,7 +44,7 @@ body {
   background-image: url("assets/beach-bg.jpg");
   background-size: cover;
   background-position: center 62%;
-  filter: saturate(1.08) brightness(0.92);
+  filter: saturate(1.14) brightness(1.02);
   transform: scale(1.02);
 }
 .bg-layer::after {
@@ -52,8 +52,8 @@ body {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(120% 80% at 50% 8%, rgba(4, 18, 32, 0.10), rgba(3, 12, 24, 0.62) 70%),
-    linear-gradient(180deg, rgba(3, 12, 24, 0.42) 0%, rgba(3, 12, 24, 0.18) 38%, rgba(3, 12, 24, 0.62) 100%);
+    radial-gradient(120% 80% at 50% 8%, rgba(4, 18, 32, 0.02), rgba(3, 12, 24, 0.46) 72%),
+    linear-gradient(180deg, rgba(3, 12, 24, 0.30) 0%, rgba(3, 12, 24, 0.08) 42%, rgba(3, 12, 24, 0.52) 100%);
 }
 
 #app {

@@ -116,7 +116,8 @@ games/hexa/
 2. **Cloud Firestore** 생성 — 위치 `asia-southeast1` (Singapore) ✅
 3. **보안 규칙** 게시 — `firestore.rules` ✅
    - 읽기 공개, 생성은 `request.auth.uid == data.uid` + 이름 2~12자 + 점수 0~10,000,000 정수 + `createdAt == request.time`, 수정·삭제 금지
-4. **복합 색인** — `firestore.indexes.json` 과 동일한 3종 ✅
+4. **복합 색인** — `firestore.indexes.json` 과 동일하게 4종 ✅
+   - `score ↓ + createdAt ↓` (오늘·주간 랭킹용 — 콘솔이 요구하는 색인)
    - `roomCode ↑ + score ↓`
    - `createdAt ↑ + score ↓`
    - `roomCode ↑ + createdAt ↑ + score ↓`
