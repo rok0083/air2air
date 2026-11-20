@@ -127,9 +127,8 @@ export class Board {
     const size = Math.max(160, Math.floor(Math.min(availW, availH)));
     this.canvas.style.width = size + 'px';
     this.canvas.style.height = size + 'px';
-    const rect = this.canvas.getBoundingClientRect();
-    const w = Math.max(1, rect.width);
-    const h = Math.max(1, rect.height);
+    const w = size;
+    const h = size;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     if (this.canvas.width !== Math.round(w * dpr) || this.canvas.height !== Math.round(h * dpr)) {
       this.canvas.width = Math.round(w * dpr);
@@ -1044,6 +1043,7 @@ export class Board {
 
   /* ── 보석 그리기 (7가지 모양 + 특수/아이템 표시) ─────────── */
   drawGem(ctx, gem, cx, cy, r) {
+    if (!(r > 0.5)) return;
     const def = CFG.colors[gem.color] || CFG.colors[0];
     const now = performance.now();
     const pop = Math.min(1, (now - (gem.born || 0)) / 160);
