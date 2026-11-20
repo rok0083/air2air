@@ -118,7 +118,7 @@ export class Leaderboard {
     const pending = FB.pendingCount();
     this.setFoot(pending
       ? `저장 대기 중인 기록 ${pending}건 · 온라인이 되면 자동 전송됩니다.`
-      : `상위 ${Math.min(CFG.leaderboard.limit, list.length)}개 기록 · 60초 블리츠`);
+      : `상위 ${Math.min(CFG.leaderboard.limit, list.length)}개 기록 · 2분 블리츠`);
   }
 }
 

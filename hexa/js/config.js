@@ -24,23 +24,29 @@ export const CFG = {
   ],
 
   /* ── 제한 시간 ─────────────────────────────────────────────
-     60초 블리츠. 시간 보석은 +5초, 게임당 최대 3번까지만 적용 */
+     2분(120초) 블리츠. 시간 보석은 +5초, 게임당 최대 3번까지만 적용 */
   time: {
-    total: 60000,
+    total: 120000,
     timeGemBonus: 5000,
     timeGemMax: 3,
     warnAt: 10000,         // 남은 10초부터 경고 연출
   },
 
   /* ── 애니메이션 속도 ───────────────────────────────────────
-     교체 120ms, 제거 150ms, 낙하는 가속도 기반 */
+     교체 220ms(부드러운 감속) · 되돌리기 210ms · 제거 240ms
+     낙하는 가속 후 착지 직전 감속 + 착지 스쿼시 */
   anim: {
-    swapMs: 120,
-    invalidBackMs: 90,
-    clearMs: 150,
-    dropAccel: 0.0075,     // 칸/ms²
-    dropMaxSpeed: 0.055,   // 칸/ms
-    cascadeDelay: 40,      // 연쇄 사이 최소 간격
+    swapMs: 220,           // 교체 이동 시간
+    swapEase: 'easeOutCubic',
+    invalidBackMs: 210,    // 되돌리기 이동 시간
+    invalidEase: 'easeInOutQuad',
+    clearMs: 240,          // 제거 팝/축소 연출
+    clearWaveMs: 52,       // 연쇄 웨이브 사이 간격
+    dropAccel: 0.0006,     // 칸/ms² (낙하 가속)
+    dropMaxSpeed: 0.0125,  // 칸/ms (최고 낙하 속도)
+    dropSoftCells: 1.2,    // 착지 직전 감속 구간(칸)
+    landSquashMs: 200,     // 착지 스쿼시 지속
+    cascadeDelay: 60,      // 연쇄 사이 최소 간격
     hintPulseMs: 900,
   },
 
@@ -79,7 +85,8 @@ export const CFG = {
     perCombo: 6,
     durationMs: 8000,
     scoreMult: 3,
-    specialBoost: 1.7,     // 특수 보석 생성 가중치 배율
+    specialBoost: 1.7,          // 특수 보석 생성 가중치 배율
+    specialSpawnChance: 0.045,  // 피버 중 새 보석이 특수 보석으로 등장할 확률
   },
 
   /* ── 특수 보석 ─────────────────────────────────────────────
@@ -102,15 +109,18 @@ export const CFG = {
   /* ── 드롭 아이템 ───────────────────────────────────────────
      새 보석이 생길 때 확률적으로 아이템이 붙어 내려옵니다. */
   items: {
-    spawnChance: 0.055,     // 새 보석 1개당 아이템 부착 확률
-    maxOnBoard: 3,
-    time:     { name: '시간 보석',  chance: 16 },
-    x2:       { name: '점수 ×2',   chance: 16, durationMs: 10000, mult: 2 },
-    bolt:     { name: '번개 보석',  chance: 14, targets: 12 },
-    wild:     { name: '무지개 보석', chance: 14 },
-    chest:    { name: '보물 상자',  chance: 10, specials: 2 },
-    ice:      { name: '얼음 보석',  chance: 16, hits: 2 },
-    fuse:     { name: '시한 폭탄',  chance: 14, turns: 5, timePenaltyMs: 3000 },
+    spawnChance: 0.12,      // 새 보석 1개당 아이템 부착 확률
+    maxOnBoard: 5,          // 보드 위 동시 아이템 수
+    feverSpawnBoost: 1.8,   // 피버 중 아이템 등장 확률 배율
+    feverGoodScale: 1.6,    // 피버 중 좋은 아이템 가중치 배율
+    feverHazardScale: 0.35, // 피버 중 방해 아이템 가중치 배율
+    time:     { name: '시간 보석',  chance: 18 },
+    x2:       { name: '점수 ×2',   chance: 18, durationMs: 10000, mult: 2 },
+    bolt:     { name: '번개 보석',  chance: 18, targets: 12 },
+    wild:     { name: '무지개 보석', chance: 16 },
+    chest:    { name: '보물 상자',  chance: 16, specials: 2 },
+    ice:      { name: '얼음 보석',  chance: 8, hits: 2 },
+    fuse:     { name: '시한 폭탄',  chance: 8, turns: 5, timePenaltyMs: 3000 },
   },
 
   /* ── 부스터 (피버 게이지 소모) ────────────────────────────── */
@@ -142,7 +152,10 @@ export const CFG = {
   leaderboard: { limit: 50 },
 };
 
-/* 모드 이름 (Firestore `mode` 필드) */
+/* 모드 이름 (Firestore `mode` 필드)
+   제한 시간이 2분으로 바뀌어도 값은 'blitz60' 그대로 둡니다.
+   기존 Firestore 보안 규칙(mode == 'blitz60')과 복합 색인이 그대로 동작해야
+   랭킹 점수 저장이 끊기지 않기 때문입니다. */
 export const MODE = 'blitz60';
 
 /* 콤보 배율 계산 */

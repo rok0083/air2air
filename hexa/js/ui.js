@@ -1,6 +1,6 @@
 /* =========================================================================
    헥사 블리츠 — 화면 · 입력 · 진행
-   60초 타이머, 부스터, 라스트 허라, 게임오버, 랭킹 연결
+   2분(120초) 타이머, 부스터, 라스트 허라, 게임오버, 랭킹 연결
    ========================================================================= */
 
 import { CFG, MODE, comboMultiplier } from './config.js';
@@ -13,6 +13,10 @@ import { FB } from './firebase.js';
 
 const $ = sel => document.querySelector(sel);
 const fmt = n => Number(n || 0).toLocaleString('ko-KR');
+const fmtTime = ms => {
+  const sec = Math.max(0, Math.ceil(ms / 1000));
+  return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+};
 
 const LS = { name: 'hexaBlitz.name', room: 'hexaBlitz.room', mute: 'hexaBlitz.mute' };
 
@@ -168,7 +172,7 @@ function updateHud(force = false) {
   const ratio = Math.max(0, Math.min(1, timeLeft / CFG.time.total));
   els.timeFill.style.width = (ratio * 100).toFixed(1) + '%';
   els.timeFill.classList.toggle('low', timeLeft <= CFG.time.warnAt);
-  els.timeText.textContent = (timeLeft / 1000).toFixed(1);
+  els.timeText.textContent = fmtTime(timeLeft);
   const fever = combos.feverGauge / CFG.fever.max;
   els.feverFill.style.width = (fever * 100).toFixed(1) + '%';
   els.feverFill.classList.toggle('active', combos.isFever());
@@ -228,7 +232,7 @@ async function useBooster(key) {
     toast('🔀 보드 셔플!', 'good');
     board.busy = true;
     await board.shuffle();
-    board.busy = false;
+    board.releaseLock();
   } else if (key === 'freeze') {
     freezeUntil = performance.now() + CFG.boosters.freezeMs;
     banner('TIME FREEZE', '4초간 타이머 정지', '#93c5fd');
@@ -249,7 +253,7 @@ async function resolvePick(r, c) {
     const gem = board.gemAt(r, c);
     if (gem && !gem.wild) await board.colorBomb(gem.color);
   }
-  board.busy = false;
+  board.releaseLock();
   updateHud(true);
   syncBoosters();
 }
@@ -295,7 +299,7 @@ function startGame() {
   showScreen('game');
   updateHud(true);
   syncUrlRoom(room);
-  banner('START!', '60초 블리츠', '#7dd3fc');
+  banner('START!', '2분 블리츠', '#7dd3fc');
 }
 
 function syncUrlRoom(room) {
@@ -404,7 +408,7 @@ async function shareResult() {
   const room = (lastResult && lastResult.roomCode !== 'global') ? lastResult.roomCode : currentRoom;
   if (room) url.searchParams.set('room', room); else url.searchParams.delete('room');
   const score = lastResult ? lastResult.score : 0;
-  const text = `헥사 블리츠 60초에서 ${fmt(score)}점! 나보다 높으면 도전해 봐 🎮`;
+  const text = `헥사 블리츠 2분에서 ${fmt(score)}점! 나보다 높으면 도전해 봐 🎮`;
   if (navigator.share) {
     try { await navigator.share({ title: '헥사 블리츠 HEXA BLITZ', text, url: url.toString() }); return; }
     catch (e) { if (e && e.name === 'AbortError') return; }

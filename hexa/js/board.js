@@ -55,6 +55,7 @@ export class Board {
     this.lastMoveAt = this.startedAt;
     this.timeBonusUsed = 0;
     this.itemSerial = 0;
+    this.pendingSwap = null;
     this.fillBoard();
     this.ensurePlayable();
   }
@@ -405,6 +406,58 @@ export class Board {
     return -1;
   }
 
+  /* ══════════════ 이동 트윈 ══════════════ */
+  /* gem을 (x, y)칸 오프셋에서 0으로 부드럽게 이동시킵니다. */
+  tweenFrom(gem, x, y, dur, ease = CFG.anim.swapEase || 'easeOutCubic') {
+    if (!gem) return;
+    gem.dx = x;
+    gem.dy = y;
+    gem.vy = 0;
+    gem.landAt = 0;
+    gem.tw = {
+      t0: performance.now(),
+      dur: Math.max(16, dur || 200),
+      x0: x,
+      y0: y,
+      ease: EASE[ease] ? ease : 'easeOutCubic',
+    };
+  }
+
+  isSettling() {
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        const gem = this.grid[r][c];
+        if (gem && (gem.tw || gem.dx || gem.dy)) return true;
+      }
+    }
+    return false;
+  }
+
+  /* 보석이 모두 제자리에 앉을 때까지 대기 (최대 maxMs) */
+  waitForSettle(maxMs = 800) {
+    if (!this.isSettling()) return Promise.resolve();
+    const t0 = performance.now();
+    return new Promise(resolve => {
+      const tick = () => {
+        if (!this.isSettling() || performance.now() - t0 > maxMs) resolve();
+        else requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+
+  /* 동작 잠금 해제 + 연쇄 중 들어온 입력 처리 */
+  releaseLock() {
+    this.busy = false;
+    const p = this.pendingSwap;
+    this.pendingSwap = null;
+    if (!p) return;
+    if (performance.now() - p.at > 800) return; // 너무 오래된 입력은 버림
+    setTimeout(() => {
+      if (!this.busy) this.trySwap(p.r1, p.c1, p.r2, p.c2);
+    }, 0);
+  }
+
   /* ══════════════ 스왑 ══════════════ */
   isAdjacent(a, b) {
     return Math.abs(a.r - b.r) + Math.abs(a.c - b.c) === 1;
@@ -412,11 +465,17 @@ export class Board {
 
   canInteract(r, c) {
     const gem = this.gemAt(r, c);
-    return !!gem && gem.dy < 0.35;
+    return !!gem && Math.abs(gem.dy || 0) < 0.35 && !gem.tw;
   }
 
   async trySwap(r1, c1, r2, c2) {
-    if (this.busy) return false;
+    // 연쇄·연출 중에는 입력을 버리지 않고, 보드가 안정되면 이어서 처리합니다.
+    if (this.busy) {
+      if (this.isAdjacent({ r: r1, c: c1 }, { r: r2, c: c2 })) {
+        this.pendingSwap = { r1, c1, r2, c2, at: performance.now() };
+      }
+      return false;
+    }
     if (!this.isAdjacent({ r: r1, c: c1 }, { r: r2, c: c2 })) return false;
     if (!this.canInteract(r1, c1) || !this.canInteract(r2, c2)) return false;
     const a = this.gemAt(r1, c1);
@@ -427,12 +486,12 @@ export class Board {
     this.hintPair = null;
     this.lastMoveAt = performance.now();
 
-    // 데이터 교체 + 시각 오프셋
+    // 데이터 교체 + 시각 트윈 (각 보석이 원래 칸에서 새 칸으로 미끄러집니다)
     this.grid[r1][c1] = b;
     this.grid[r2][c2] = a;
-    const dx = c2 - c1, dr = r2 - r1;
-    b.dx = -dx; b.dy = (b.dy || 0) - dr;
-    a.dx = dx; a.dy = (a.dy || 0) + dr;
+    const dc = c2 - c1, dr = r2 - r1;
+    this.tweenFrom(b, dc, -dr, CFG.anim.swapMs, CFG.anim.swapEase);
+    this.tweenFrom(a, -dc, dr, CFG.anim.swapMs, CFG.anim.swapEase);
     this.audio && this.audio.play('swap');
     await this.delay(CFG.anim.swapMs);
 
@@ -445,7 +504,7 @@ export class Board {
       this.tickFuses();
       await specialSwapCombo(this, { r: r1, c: c1, gem: a2 }, { r: r2, c: c2, gem: b2 });
       await this.settleAfterClear();
-      this.busy = false;
+      this.releaseLock();
       return true;
     }
 
@@ -463,7 +522,7 @@ export class Board {
       this.audio && this.audio.play('hyper');
       await this.clearCells(cells, { source: 'special' });
       await this.settleAfterClear();
-      this.busy = false;
+      this.releaseLock();
       return true;
     }
 
@@ -471,19 +530,20 @@ export class Board {
       this.tickFuses();
       await this.resolveMatches([{ r: r1, c: c1 }, { r: r2, c: c2 }]);
       await this.settleAfterClear();
-      this.busy = false;
+      this.releaseLock();
       return true;
     }
 
-    // 되돌리기
-    this.grid[r1][c1] = a2;
-    this.grid[r2][c2] = b2;
-    a2.dx = dx; a2.dy = (a2.dy || 0) + dr;
-    b2.dx = -dx; b2.dy = (b2.dy || 0) - dr;
+    // 되돌리기: 두 보석이 제자리로 부드럽게 돌아갑니다.
+    this.grid[r1][c1] = a;
+    this.grid[r2][c2] = b;
+    this.tweenFrom(a, -dc, dr, CFG.anim.invalidBackMs, CFG.anim.invalidEase);
+    this.tweenFrom(b, dc, -dr, CFG.anim.invalidBackMs, CFG.anim.invalidEase);
     this.audio && this.audio.play('invalid');
-    await this.delay(CFG.anim.invalidBackMs + 40);
-    a2.dx = 0; a2.dy = 0; b2.dx = 0; b2.dy = 0;
-    this.busy = false;
+    await this.delay(CFG.anim.invalidBackMs + 10);
+    a.dx = 0; a.dy = 0; a.tw = null;
+    b.dx = 0; b.dy = 0; b.tw = null;
+    this.releaseLock();
     return false;
   }
 
@@ -536,7 +596,8 @@ export class Board {
 
       this.applyGravity();
       this.refill();
-      await this.delay(CFG.anim.cascadeDelay + 30);
+      await this.waitForSettle(700);
+      await this.delay(CFG.anim.cascadeDelay);
     }
   }
 
@@ -591,6 +652,11 @@ export class Board {
         const c0 = this.cellCenter(list[0].r, list[0].c);
         this.fx && this.fx.text(c0.x, c0.y - 18, `+${points}`, '#fff7ae', 16);
       }
+      if (list.length >= 8) {
+        const c0 = this.cellCenter(list[0].r, list[0].c);
+        this.fx && this.fx.shockwave(c0.x, c0.y, this.cell * 2.4, '#ffffff');
+        this.fx && this.fx.shake(140, 4);
+      }
 
       const specials = [];
       for (const { r, c, gem } of list) {
@@ -602,7 +668,7 @@ export class Board {
         for (const p of affected || []) work.push(p);
       }
       waves++;
-      await this.delay(40);
+      await this.delay(CFG.anim.clearWaveMs);
     }
   }
 
@@ -733,6 +799,8 @@ export class Board {
   refill() {
     const itemsOnBoard = this.countItems();
     let budget = CFG.items.maxOnBoard - itemsOnBoard;
+    const fever = !!(this.combos && this.combos.isFever());
+    const chance = CFG.items.spawnChance * (fever ? CFG.items.feverSpawnBoost : 1);
     for (let c = 0; c < this.cols; c++) {
       let spawnIdx = 0;
       for (let r = this.rows - 1; r >= 0; r--) {
@@ -741,14 +809,22 @@ export class Board {
         gem.dy = r + 1 + spawnIdx;
         gem.vy = 0;
         // 드롭 아이템 부착
-        if (budget > 0 && Math.random() < CFG.items.spawnChance) {
-          const item = this.pickItemType();
+        if (budget > 0 && Math.random() < chance) {
+          const item = this.pickItemType(fever);
           if (item === 'ice') gem.ice = CFG.items.ice.hits;
           else if (item === 'fuse') gem.fuse = CFG.items.fuse.turns;
           else if (item === 'wild') { gem.wild = true; gem.item = 'wild'; }
           else gem.item = item;
           budget--;
           this.hooks.onItemSpawn && this.hooks.onItemSpawn(item);
+        } else if (fever && Math.random() < CFG.fever.specialSpawnChance) {
+          // 피버 중 특수 보석 생성 보너스
+          const keys = Object.keys(SPECIAL_INFO);
+          gem.special = keys[Math.floor(Math.random() * keys.length)];
+          gem.born = performance.now();
+          this.combos.specialsCreated++;
+          const pos = this.cellCenter(r, c);
+          this.fx && this.fx.burst(pos.x, pos.y, SPECIAL_INFO[gem.special].color, 8, { speed: 1.2 });
         }
         this.grid[r][c] = gem;
         spawnIdx++;
@@ -767,9 +843,14 @@ export class Board {
     return n;
   }
 
-  pickItemType() {
+  pickItemType(fever = false) {
     const keys = ['time', 'x2', 'bolt', 'wild', 'chest', 'ice', 'fuse'];
-    const weights = keys.map(k => CFG.items[k].chance);
+    const hazards = { ice: 1, fuse: 1 };
+    const weights = keys.map(k => {
+      const base = CFG.items[k].chance;
+      if (!fever) return base;
+      return base * (hazards[k] ? CFG.items.feverHazardScale : CFG.items.feverGoodScale);
+    });
     const total = weights.reduce((a, b) => a + b, 0);
     let rnd = Math.random() * total;
     for (let i = 0; i < keys.length; i++) {
@@ -783,12 +864,13 @@ export class Board {
   async settleAfterClear() {
     this.applyGravity();
     this.refill();
-    await this.delay(CFG.anim.clearMs * 0.5);
+    await this.waitForSettle(700);
     // 낙하 후 새로 만들어진 매치까지 처리
     await this.resolveMatches();
     this.applyGravity();
     this.refill();
-    await this.delay(60);
+    await this.waitForSettle(700);
+    await this.delay(CFG.anim.cascadeDelay);
   }
 
   /* ══════════════ 보조 동작 ══════════════ */
@@ -862,7 +944,10 @@ export class Board {
           if (r2 >= this.rows || c2 >= this.cols) continue;
           const a = this.grid[r][c], b = this.grid[r2][c2];
           if (!a || !b) continue;
-          if (a.special || b.special) return [{ r, c }, { r: r2, c: c2 }];
+          // 특수+특수, 하이퍼+일반은 교체만으로 발동 → 항상 유효한 수
+          const bothSpecial = !!(a.special && b.special);
+          const hyperInvolved = (a.special === 'hyper') !== (b.special === 'hyper');
+          if (bothSpecial || hyperInvolved) return [{ r, c }, { r: r2, c: c2 }];
           this.grid[r][c] = b; this.grid[r2][c2] = a;
           const ok = this.findGroups().length > 0;
           this.grid[r][c] = a; this.grid[r2][c2] = b;
@@ -921,19 +1006,41 @@ export class Board {
       for (let c = 0; c < this.cols; c++) {
         const gem = this.grid[r][c];
         if (!gem) continue;
-        if (gem.dx) {
-          const step = dt / CFG.anim.swapMs;
-          gem.dx = Math.abs(gem.dx) <= step ? 0 : gem.dx - Math.sign(gem.dx) * step;
+        // 1) 교체/되돌리기 트윈 (이징)
+        if (gem.tw) {
+          const tw = gem.tw;
+          const k = Math.min(1, (now - tw.t0) / tw.dur);
+          const e = (EASE[tw.ease] || EASE.easeOutCubic)(k);
+          gem.dx = tw.x0 * (1 - e);
+          gem.dy = tw.y0 * (1 - e);
+          gem.twK = k;
+          if (k >= 1) {
+            gem.dx = 0;
+            gem.dy = 0;
+            gem.tw = null;
+            gem.twK = 0;
+          }
+          continue;
         }
+        // 2) 중력 낙하: 가속 → 착지 직전 감속 → 스쿼시
         if (gem.dy) {
+          const dir = Math.sign(gem.dy);
+          const dist = Math.abs(gem.dy);
           gem.vy = Math.min(CFG.anim.dropMaxSpeed, (gem.vy || 0) + CFG.anim.dropAccel * dt);
-          const step = gem.vy * dt;
-          if (Math.abs(gem.dy) <= step) { gem.dy = 0; gem.vy = 0; }
-          else gem.dy -= Math.sign(gem.dy) * step;
+          const soft = Math.min(1, dist / CFG.anim.dropSoftCells);
+          const step = gem.vy * dt * (0.45 + 0.55 * soft);
+          if (dist <= step + 0.0015) {
+            gem.landAt = now;
+            gem.landPower = Math.min(1, dist / 1.4 + 0.4);
+            gem.dy = 0;
+            gem.vy = 0;
+          } else {
+            gem.dy = dir * (dist - step);
+          }
         }
       }
     }
-    this.ghosts = this.ghosts.filter(g => now - g.born < CFG.anim.clearMs + 40);
+    this.ghosts = this.ghosts.filter(g => now - g.born < CFG.anim.clearMs + 60);
     this.fx && this.fx.update(dt);
     if (this.hintPair && now > this.hintUntil) this.hintPair = null;
   }
@@ -999,13 +1106,27 @@ export class Board {
       }
     }
 
-    // 사라지는 잔상
+    // 사라지는 잔상 (팝 → 축소 + 잔광)
     for (const g of this.ghosts) {
-      const k = (now - g.born) / CFG.anim.clearMs;
-      const scale = 1 - k * 0.7;
+      const k = Math.min(1, Math.max(0, (now - g.born) / CFG.anim.clearMs));
+      let scale;
+      let alpha;
+      if (k < 0.28) {
+        const t = k / 0.28;
+        scale = 1 + 0.20 * easeOutCubic(t);
+        alpha = 1;
+      } else {
+        const t = (k - 0.28) / 0.72;
+        scale = 1.20 * (1 - t * t);
+        alpha = Math.pow(1 - t, 0.7);
+      }
+      const gcolor = g.wild ? '#ffffff' : (CFG.colors[g.color] ? CFG.colors[g.color].base : '#ffffff');
+      if (scale <= 0.02 || alpha <= 0.02) continue;
       ctx.save();
-      ctx.globalAlpha = Math.max(0, 1 - k);
-      this.drawGem(ctx, { color: g.color, wild: g.wild, special: g.special, born: g.born }, g.x, g.y, this.cell * 0.44 * scale);
+      ctx.globalAlpha = alpha;
+      ctx.shadowColor = gcolor;
+      ctx.shadowBlur = 6 + 22 * (1 - k);
+      this.drawGem(ctx, { color: g.color, wild: g.wild, special: g.special, born: 0 }, g.x, g.y, this.cell * 0.44 * scale, { noPop: true });
       ctx.restore();
     }
 
@@ -1042,16 +1163,41 @@ export class Board {
   }
 
   /* ── 보석 그리기 (7가지 모양 + 특수/아이템 표시) ─────────── */
-  drawGem(ctx, gem, cx, cy, r) {
+  drawGem(ctx, gem, cx, cy, r, opts = {}) {
     if (!(r > 0.5)) return;
     const def = CFG.colors[gem.color] || CFG.colors[0];
     const now = performance.now();
-    const pop = Math.min(1, (now - (gem.born || 0)) / 160);
-    const scale = 0.82 + pop * 0.18;
+    const pop = (opts.noPop || !gem.born) ? 1 : Math.min(1, (now - gem.born) / 160);
+    let scale = 0.82 + pop * 0.18;
+
+    // 이동 중 미세한 스케일 펄스 (무게감)
+    const tweenK = gem.tw ? (gem.twK || 0) : 0;
+    if (gem.tw) scale *= 1 + 0.06 * Math.sin(Math.PI * tweenK);
+
+    // 착지 스쿼시 / 낙하 스트레치
+    let sx = 1, sy = 1;
+    if (gem.landAt) {
+      const lk = (now - gem.landAt) / CFG.anim.landSquashMs;
+      if (lk >= 1) gem.landAt = 0;
+      else if (lk >= 0) {
+        const amp = 0.17 * (gem.landPower || 1) * Math.exp(-lk * 3.4);
+        const osc = Math.sin(lk * Math.PI * 2.6);
+        sy = 1 - amp * osc;
+        sx = 1 + amp * osc * 0.85;
+      }
+    } else if (gem.dy) {
+      const st = Math.min(0.14, Math.abs(gem.vy || 0) * 8);
+      sy = 1 + st;
+      sx = 1 - st * 0.55;
+    }
 
     ctx.save();
     ctx.translate(cx, cy);
-    ctx.scale(scale, scale);
+    ctx.scale(scale * sx, scale * sy);
+    if (gem.tw) {
+      ctx.shadowColor = gem.wild ? '#ffffff' : def.base;
+      ctx.shadowBlur = 4 + 16 * Math.sin(Math.PI * tweenK);
+    }
 
     // 그림자
     ctx.save();
@@ -1278,3 +1424,13 @@ function mergeCells(a, b) {
   for (const p of b) map.set(p.r * 100 + p.c, p);
   return [...map.values()];
 }
+
+/* ── 이징 함수 ─────────────────────────────────────────────── */
+function easeOutCubic(k) { return 1 - Math.pow(1 - k, 3); }
+function easeInQuad(k) { return k * k; }
+function easeInOutQuad(k) { return k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; }
+function easeOutBack(k) {
+  const c1 = 1.34, c3 = c1 + 1;
+  return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2);
+}
+const EASE = { linear: k => k, easeOutCubic, easeInQuad, easeInOutQuad, easeOutBack };
