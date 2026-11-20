@@ -103,6 +103,7 @@ body {
   border-radius: 14px;
   padding: 13px 18px;
   font-size: 16px;
+  white-space: nowrap;
   transition: transform 0.12s ease, filter 0.16s ease, background 0.16s ease;
   color: var(--ink);
 }
@@ -203,7 +204,8 @@ body {
   box-shadow: 0 0 0 3px rgba(55, 230, 198, 0.18);
 }
 .room-row { display: flex; gap: 8px; }
-.room-row .input { text-transform: uppercase; letter-spacing: 0.14em; font-weight: 800; }
+.room-row .input { flex: 1 1 auto; min-width: 0; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 800; }
+.room-row .btn.small { flex: 0 0 auto; padding: 10px 12px; }
 
 .msg { min-height: 18px; margin: 0; font-size: 13px; font-weight: 600; color: var(--accent); }
 .msg.bad { color: var(--danger); }
@@ -687,6 +689,8 @@ body {
   opacity: 0.85;
 }
 .sound-toggle.muted { opacity: 0.5; }
+/* 게임 화면에서는 일시정지 버튼과 겹치지 않도록 숨깁니다 */
+body.in-game .sound-toggle { display: none; }
 
 /* ── 반응형 ──────────────────────────────────────────────── */
 @media (max-width: 420px) {

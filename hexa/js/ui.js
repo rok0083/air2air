@@ -83,6 +83,7 @@ function showScreen(name) {
     el.classList.toggle('active', key === name);
   });
   currentScreen = name;
+  document.body.classList.toggle('in-game', name === 'game');
   if (name === 'game') requestAnimationFrame(() => game.resize());
   if (name === 'rank') requestAnimationFrame(() => lb && lb.show(lb.scope || 'global'));
 }
