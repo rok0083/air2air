@@ -4,60 +4,33 @@
       "collectionGroup": "scores",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "score",
-          "order": "DESCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
+        { "fieldPath": "score", "order": "DESCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
       "collectionGroup": "scores",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "roomCode",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "score",
-          "order": "DESCENDING"
-        }
+        { "fieldPath": "roomCode", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
       ]
     },
     {
       "collectionGroup": "scores",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "createdAt",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "score",
-          "order": "DESCENDING"
-        }
+        { "fieldPath": "createdAt", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
       ]
     },
     {
       "collectionGroup": "scores",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "roomCode",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "score",
-          "order": "DESCENDING"
-        }
+        { "fieldPath": "roomCode", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" },
+        { "fieldPath": "score", "order": "DESCENDING" }
       ]
     }
   ],

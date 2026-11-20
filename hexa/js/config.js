@@ -1,135 +1,151 @@
 /* =========================================================================
-   헥사(HEXA) — 게임 설정 / 밸런스
-   아이템 확률, 점수, 속도, 피버 지속시간 등 모든 수치를 이 파일 하나에서 조절합니다.
+   헥사 블리츠(HEXA BLITZ) — 게임 밸런스 설정
+   점수·시간·콤보·특수 보석·드롭 아이템·부스터의 모든 수치를 이 파일 하나에서 조절합니다.
    ========================================================================= */
 
-export const COLS = 6;
-export const ROWS = 13;
-
-/* 보석 색상 정의 (레벨 10부터 7번째 색이 추가됨) */
-export const COLOR_KEYS = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
-export const EXTRA_COLOR = 'cyan';
-
-export const COLORS = {
-  red:    { base: '#ff4d63', light: '#ffc2ca', dark: '#8f0e22', name: '루비' },
-  blue:   { base: '#3f8dff', light: '#bfd8ff', dark: '#0f3d8f', name: '사파이어' },
-  green:  { base: '#2ed47a', light: '#c2ffdd', dark: '#0a6b3a', name: '에메랄드' },
-  yellow: { base: '#ffd23d', light: '#fff4c2', dark: '#9c6e00', name: '토파즈' },
-  purple: { base: '#b56bff', light: '#e7d1ff', dark: '#4f1a91', name: '자수정' },
-  orange: { base: '#ff9038', light: '#ffd8b3', dark: '#994500', name: '앰버' },
-  cyan:   { base: '#2ee6e6', light: '#ccffff', dark: '#067070', name: '아쿠아' },
-  stone:  { base: '#7b8698', light: '#c3ccd8', dark: '#3a4351', name: '돌' },
-  rainbow: { base: '#ff5fd2', light: '#ffffff', dark: '#5a1a86', name: '무지개' },
-};
-
-export const CONFIG = {
-  /* ── 보드 / 블록 ───────────────────────────────────────────── */
-  board: { cols: COLS, rows: ROWS },
-  piece: { height: 3 },
-
-  /* ── 레벨 ─────────────────────────────────────────────────── */
-  levels: {
-    gemsPerLevel: 30,     // 보석 30개 제거마다 레벨업
-    maxLevel: 99,
-    extraColorFrom: 10,   // 레벨 10부터 7색
+export const CFG = {
+  /* ── 보드 ──────────────────────────────────────────────────
+     8×8 격자, 보석 색 7가지 (색약 접근성을 위해 모양도 7가지로 구분) */
+  board: {
+    cols: 8,
+    rows: 8,
+    startSpecials: 0,      // 시작 시 미리 깔리는 특수 보석 수
   },
 
-  /* ── 낙하 속도 (ms per row) ──────────────────────────────── */
-  speed: {
-    startDropMs: 880,
-    minDropMs: 190,
-    dropMsPerLevel: 52,
-    softDropFactor: 0.09,   // ↓ 소프트드롭: 한 칸당 간격 ×0.09
-    lockDelayMs: 60,
+  /* ── 보석 색/모양 ─────────────────────────────────────────── */
+  colors: [
+    { key: 'ruby',    name: '루비',    shape: 'circle',   base: '#ff4d63', light: '#ffc2ca', dark: '#8f0e22' },
+    { key: 'sapphire', name: '사파이어', shape: 'diamond',  base: '#3f8dff', light: '#bfd8ff', dark: '#0f3d8f' },
+    { key: 'emerald', name: '에메랄드', shape: 'square',   base: '#2ed47a', light: '#c2ffdd', dark: '#0a6b3a' },
+    { key: 'topaz',   name: '토파즈',   shape: 'triangle', base: '#ffd23d', light: '#fff4c2', dark: '#9c6e00' },
+    { key: 'amethyst', name: '자수정',  shape: 'hexagon',  base: '#b56bff', light: '#e7d1ff', dark: '#4f1a91' },
+    { key: 'amber',   name: '앰버',    shape: 'star',     base: '#ff9038', light: '#ffd8b3', dark: '#994500' },
+    { key: 'aqua',    name: '아쿠아',   shape: 'heart',    base: '#2ee6e6', light: '#ccffff', dark: '#067070' },
+  ],
+
+  /* ── 제한 시간 ─────────────────────────────────────────────
+     60초 블리츠. 시간 보석은 +5초, 게임당 최대 3번까지만 적용 */
+  time: {
+    total: 60000,
+    timeGemBonus: 5000,
+    timeGemMax: 3,
+    warnAt: 10000,         // 남은 10초부터 경고 연출
   },
 
-  /* ── 점수 ─────────────────────────────────────────────────── */
+  /* ── 애니메이션 속도 ───────────────────────────────────────
+     교체 120ms, 제거 150ms, 낙하는 가속도 기반 */
+  anim: {
+    swapMs: 120,
+    invalidBackMs: 90,
+    clearMs: 150,
+    dropAccel: 0.0075,     // 칸/ms²
+    dropMaxSpeed: 0.055,   // 칸/ms
+    cascadeDelay: 40,      // 연쇄 사이 최소 간격
+    hintPulseMs: 900,
+  },
+
+  /* ── 점수 ────────────────────────────────────────────────── */
   score: {
-    perGem: 10,                              // 보석 1개 = 10점 × 레벨
-    chainTable: [1, 1, 2, 4, 8, 16, 32, 64], // 1연쇄 ×1, 2연쇄 ×2, 3연쇄 ×4 ...
-    fourPlusBonus: 1.5,                      // 4개 이상 동시 매치
-    diagonalBonus: 1.2,                      // 대각선 매치 +20%
+    perGem: 25,            // 보석 1개 기본 점수
+    specialCreated: 200,   // 특수 보석 생성 보너스
+    specialTriggered: 60,  // 특수 보석 발동 1회당 추가
+    itemCollected: 120,    // 드롭 아이템 획득 보너스
+    lastHurrahPerSpecial: 500, // 라스트 허라 특수 1개당 보너스
   },
 
-  /* ── 피버 ─────────────────────────────────────────────────── */
+  /* ── 콤보 ──────────────────────────────────────────────────
+     1.5초 안에 다시 매치하면 콤보 +1, 배율 = 1 + 콤보 × 0.25 */
+  combo: {
+    windowMs: 1500,
+    step: 0.25,
+    max: 30,
+  },
+
+  /* ── 블레이징 스피드 ───────────────────────────────────────
+     3초 안에 콤보 5회 → 화염 테두리, 점수 ×2, 매치마다 인접 폭발 */
+  blaze: {
+    combosNeeded: 5,
+    withinMs: 3000,
+    durationMs: 5000,
+    scoreMult: 2,
+    explosionRadius: 1,
+  },
+
+  /* ── 피버 ──────────────────────────────────────────────────
+     게이지가 가득 차면 8초간 점수 ×3 + 특수 보석 생성 확률 상승 */
   fever: {
     max: 100,
-    gainPerGem: 0.9,
-    gainPerChain: 20,
-    durationMs: 10000,   // 10초
-    multiplier: 3,
+    perGem: 1.6,
+    perCombo: 6,
+    durationMs: 8000,
+    scoreMult: 3,
+    specialBoost: 1.7,     // 특수 보석 생성 가중치 배율
   },
 
-  /* ── 아이템 ───────────────────────────────────────────────── */
+  /* ── 특수 보석 ─────────────────────────────────────────────
+     매치 모양에 따라 만들어지는 특수 보석 종류 */
+  specials: {
+    stripedRow:   { name: '가로 줄 보석', color: '#7dd3fc' }, // 세로 4매치
+    stripedCol:   { name: '세로 줄 보석', color: '#7dd3fc' }, // 가로 4매치
+    bomb:         { name: '폭탄 보석',   color: '#fb7185' }, // L/T 매치
+    propeller:    { name: '프로펠러',    color: '#facc15' }, // 2×2 사각 매치
+    hyper:        { name: '하이퍼 큐브', color: '#f472b6' }, // 5개 일렬
+    nova:         { name: '슈퍼노바',    color: '#c084fc' }, // 6개 이상 일렬
+    star:         { name: '스타 보석',   color: '#fde68a' }, // +자 5매치
+    bombRadius: 1,       // 폭탄 1차 폭발 반경 (3×3)
+    bombSecondRadius: 2, // 폭탄 2차 폭발 반경
+    propArm: 2,          // 프로펠러 십자 팔 길이
+    novaRows: 3,
+    novaCols: 3,
+  },
+
+  /* ── 드롭 아이템 ───────────────────────────────────────────
+     새 보석이 생길 때 확률적으로 아이템이 붙어 내려옵니다. */
   items: {
-    inventory: 3,             // 인벤토리 3칸 (가득 차면 가장 오래된 것 자동 발동)
-    dropBaseChance: 0.12,     // 보석 제거 시 기본 12%
-    dropChainBonus: 0.05,     // 연쇄 1단계마다 +5%
-    dropMaxChance: 0.45,
-    // 좋은 아이템 등장 확률(가중치) — 합계 대비 비율
-    weights: {
-      magic: 10, bomb: 9, hlaser: 8, vlaser: 8, cross: 7, rainbow: 7, lightning: 8,
-      hammer: 8, freeze: 5, slow: 6, colorchange: 6, magnet: 5, floor: 8,
-      shield: 4, boost: 6, shuffle: 5, future: 4,
-    },
-    hammerTimeoutMs: 6000,
+    spawnChance: 0.055,     // 새 보석 1개당 아이템 부착 확률
+    maxOnBoard: 3,
+    time:     { name: '시간 보석',  chance: 16 },
+    x2:       { name: '점수 ×2',   chance: 16, durationMs: 10000, mult: 2 },
+    bolt:     { name: '번개 보석',  chance: 14, targets: 12 },
+    wild:     { name: '무지개 보석', chance: 14 },
+    chest:    { name: '보물 상자',  chance: 10, specials: 2 },
+    ice:      { name: '얼음 보석',  chance: 16, hits: 2 },
+    fuse:     { name: '시한 폭탄',  chance: 14, turns: 5, timePenaltyMs: 3000 },
   },
 
-  /* ── 방해 아이템 ──────────────────────────────────────────── */
-  obstacles: {
-    startDelayMs: 22000,      // 첫 방해 아이템까지
-    intervalMs: 27000,        // 이후 주기
-    perLevelMs: 1800,         // 레벨당 주기 단축
-    minIntervalMs: 9000,
-    levelUpChance: 0.7,       // 레벨업 때 추가 발생 확률
-    weights: { stone: 10, rise: 9, speed: 9, dark: 8, invert: 8, lock: 10, confusion: 7 },
+  /* ── 부스터 (피버 게이지 소모) ────────────────────────────── */
+  boosters: {
+    hammer:    { name: '망치',     cost: 30, icon: '🔨', desc: '원하는 보석 1개 파괴' },
+    shuffle:   { name: '셔플',     cost: 25, icon: '🔀', desc: '보드 전체 재배치' },
+    freeze:    { name: '시간 정지', cost: 40, icon: '⏸️', desc: '4초간 타이머 정지' },
+    colorBomb: { name: '컬러 봄',   cost: 50, icon: '💥', desc: '한 색 보석 모두 제거' },
+    freezeMs: 4000,
   },
 
-  /* ── 아이템 지속 효과 (ms) ────────────────────────────────── */
-  effects: {
-    freezeMs: 5000,
-    slowMs: 15000, slowFactor: 0.5,
-    boostMs: 20000, boostFactor: 2,
-    futureMs: 30000, futurePreviews: 5,
-    speedUpMs: 10000, speedUpFactor: 2,
-    darkMs: 10000,
-    invertMs: 8000,
-    confusionMs: 10000,
+  /* ── 입력 / 힌트 ─────────────────────────────────────────── */
+  input: {
+    dragThreshold: 14,     // 드래그로 인식하는 최소 이동(px)
+    idleHintMs: 3000,      // 3초 조작 없으면 힌트 표시
   },
 
-  /* ── 연출 ─────────────────────────────────────────────────── */
-  visuals: {
-    particlesPerGem: 7,
-    popupMs: 1000,
-    bannerMs: 1400,
-    shakeMs: 340,
-    flashMs: 220,
-  },
-
-  /* ── 이름 규칙 ────────────────────────────────────────────── */
+  /* ── 이름 규칙 (간단 비속어 필터) ────────────────────────── */
   name: {
     min: 2,
     max: 12,
-    // 간단한 비속어 필터 (부분 일치)
     banned: [
-      '시발', '씨발', '씨바', '시바', 'ㅅㅂ', '개새', '개색', '병신', '븅신', '빙신',
-      '존나', '존내', '좆', '지랄', '니미', '엠창', '섹스', '야설', '미친놈',
-      'fuck', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'pussy', 'sex',
+      '시발', '씨발', '씨바', 'ㅅㅂ', '개새', '병신', '븅신', '존나', '좆', '지랄',
+      '니미', '엠창', '섹스', '미친놈', 'fuck', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'sex',
     ],
   },
 
-  /* ── 랭킹 ─────────────────────────────────────────────────── */
+  /* ── 랭킹 ────────────────────────────────────────────────── */
   leaderboard: { limit: 50 },
 };
 
-/* 현재 레벨에서 사용할 보석 색상 목록 */
-export function colorsForLevel(level) {
-  if (level >= CONFIG.levels.extraColorFrom) return [...COLOR_KEYS, EXTRA_COLOR];
-  return [...COLOR_KEYS];
-}
+/* 모드 이름 (Firestore `mode` 필드) */
+export const MODE = 'blitz60';
 
-/* 레벨별 낙하 간격 */
-export function dropIntervalForLevel(level) {
-  const { startDropMs, minDropMs, dropMsPerLevel } = CONFIG.speed;
-  return Math.max(minDropMs, startDropMs - (level - 1) * dropMsPerLevel);
+/* 콤보 배율 계산 */
+export function comboMultiplier(combo) {
+  return 1 + Math.min(combo, CFG.combo.max) * CFG.combo.step;
 }

@@ -1,15 +1,20 @@
 /* =========================================================================
-   헥사(HEXA) — 화면 / 입력 / 게임 흐름
+   헥사 블리츠 — 화면 · 입력 · 진행
+   60초 타이머, 부스터, 라스트 허라, 게임오버, 랭킹 연결
    ========================================================================= */
 
-import { HexaGame } from './game.js';
+import { CFG, MODE, comboMultiplier } from './config.js';
+import { Board } from './board.js';
+import { ComboMeter } from './combos.js';
+import { FX } from './effects.js';
+import { Audio } from './audio.js';
 import { Leaderboard } from './leaderboard.js';
 import { FB } from './firebase.js';
-import { SFX, GOOD_BY_ID } from './items.js';
-import { CONFIG } from './config.js';
 
 const $ = sel => document.querySelector(sel);
 const fmt = n => Number(n || 0).toLocaleString('ko-KR');
+
+const LS = { name: 'hexaBlitz.name', room: 'hexaBlitz.room', mute: 'hexaBlitz.mute' };
 
 const els = {
   screens: {
@@ -25,28 +30,27 @@ const els = {
   btnStart: $('#btn-start'),
   btnRank: $('#btn-rank'),
   hudScore: $('#hud-score'),
-  hudLevel: $('#hud-level'),
-  hudChain: $('#hud-chain'),
-  hudRemain: $('#hud-remain'),
+  hudCombo: $('#hud-combo'),
+  hudMult: $('#hud-mult'),
+  timeFill: $('#time-fill'),
+  timeText: $('#time-text'),
   feverFill: $('#fever-fill'),
-  shieldTag: $('#shield-tag'),
-  fxTags: $('#fx-tags'),
-  itemSlots: $('#item-slots'),
-  boardPanel: document.querySelector('.board-panel'),
+  feverText: $('#fever-text'),
+  boosters: $('#boosters'),
+  board: $('#board'),
+  banner: $('#banner'),
   pauseOverlay: $('#pause-overlay'),
   btnPause: $('#btn-pause'),
   btnResume: $('#btn-resume'),
   btnQuit: $('#btn-quit'),
-  btnHome: $('#btn-home'),
-  board: $('#board'),
-  next: $('#next'),
+  btnQuit2: $('#btn-quit2'),
   overScore: $('#over-score'),
   overRank: $('#over-rank'),
-  overLevel: $('#over-level'),
-  overChain: $('#over-chain'),
-  overGems: $('#over-gems'),
-  overItems: $('#over-items'),
-  overTime: $('#over-time'),
+  overCombo: $('#over-combo'),
+  overSpecials: $('#over-specials'),
+  overCombos: $('#over-combos'),
+  overHurrah: $('#over-hurrah'),
+  overMult: $('#over-mult'),
   overRoom: $('#over-room'),
   overSave: $('#over-save'),
   btnAgain: $('#btn-again'),
@@ -63,55 +67,75 @@ const els = {
   btnSound: $('#btn-sound'),
 };
 
-const LS = {
-  name: 'hexa.name',
-  room: 'hexa.room',
-  mute: 'hexa.mute',
-};
+const audio = new Audio();
+const fx = new FX();
+const combos = new ComboMeter({
+  audio,
+  fx,
+  onEvent: (type, data) => {
+    if (type === 'fever') { banner('FEVER!', '8초간 점수 ×3', '#ff5fd2'); syncBoosters(); }
+    if (type === 'blaze') { banner('BLAZING!', '점수 ×2 · 인접 폭발', '#ff9f43'); audio.play('blaze'); }
+    if (type === 'feverSpend') syncBoosters();
+    if (type === 'blazeEnd' || type === 'feverEnd') syncBoosters();
+  },
+});
 
-let currentScreen = 'start';
+let board = null;
+let lb = null;
 let currentName = '';
 let currentRoom = '';
+let currentScreen = 'start';
 let rankReturn = 'start';
+let playing = false;
+let paused = false;
+let finalizing = false;
+let timeLeft = CFG.time.total;
+let freezeUntil = 0;
+let hurrahCount = 0;
+let bestMult = 1;
 let lastResult = null;
-let game = null;
-let lb = null;
+let pickMode = null;      // 'hammer' | 'colorBomb'
+let selected = null;
+let dragStart = null;
+let lastTs = 0;
+let hudAt = 0;
+let lastTickSecond = -1;
 
-/* ───────────────────────── 화면 전환 ───────────────────────── */
+/* ───────────────────────── 화면 ───────────────────────── */
 function showScreen(name) {
-  Object.entries(els.screens).forEach(([key, el]) => {
-    el.classList.toggle('active', key === name);
-  });
+  Object.entries(els.screens).forEach(([key, el]) => el.classList.toggle('active', key === name));
   currentScreen = name;
   document.body.classList.toggle('in-game', name === 'game');
-  if (name === 'game') requestAnimationFrame(() => game.resize());
-  if (name === 'rank') requestAnimationFrame(() => lb && lb.show(lb.scope || 'global'));
+  if (name === 'game') requestAnimationFrame(() => board && board.resize());
+  if (name === 'rank' && lb) requestAnimationFrame(() => lb.show(lb.scope || 'global'));
 }
 
-/* ───────────────────────── 토스트 ───────────────────────── */
 function toast(text, kind = '') {
   const el = document.createElement('div');
   el.className = 'toast ' + kind;
   el.textContent = text;
   els.toasts.appendChild(el);
-  setTimeout(() => {
-    el.classList.add('out');
-    setTimeout(() => el.remove(), 260);
-  }, 1900);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 260); }, 1800);
   while (els.toasts.children.length > 3) els.toasts.firstElementChild.remove();
 }
 
-/* ───────────────────────── 닉네임 / 방 코드 ───────────────────────── */
+let bannerTimer = null;
+function banner(text, sub = '', color = '#fff') {
+  els.banner.innerHTML = `<b style="color:${color}">${text}</b>${sub ? `<span>${sub}</span>` : ''}`;
+  els.banner.classList.add('on');
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(() => els.banner.classList.remove('on'), 1200);
+}
+
+/* ───────────────────────── 이름 / 방 코드 ───────────────────────── */
 function validateName(raw) {
   const name = String(raw || '').replace(/\s+/g, '');
-  if (name.length < CONFIG.name.min || name.length > CONFIG.name.max) {
-    return { ok: false, msg: `닉네임은 ${CONFIG.name.min}~${CONFIG.name.max}자로 입력해 주세요.` };
+  if (name.length < CFG.name.min || name.length > CFG.name.max) {
+    return { ok: false, msg: `닉네임은 ${CFG.name.min}~${CFG.name.max}자로 입력해 주세요.` };
   }
-  if (!/^[가-힣a-zA-Z0-9]+$/.test(name)) {
-    return { ok: false, msg: '한글·영문·숫자만 사용할 수 있어요.' };
-  }
+  if (!/^[가-힣a-zA-Z0-9]+$/.test(name)) return { ok: false, msg: '한글·영문·숫자만 사용할 수 있어요.' };
   const lower = name.toLowerCase();
-  if (CONFIG.name.banned.some(word => lower.includes(word.toLowerCase()))) {
+  if (CFG.name.banned.some(w => lower.includes(w.toLowerCase()))) {
     return { ok: false, msg: '사용할 수 없는 단어가 포함되어 있어요.' };
   }
   return { ok: true, name };
@@ -133,79 +157,145 @@ function setStartMsg(text, bad = false) {
   els.startMsg.classList.toggle('bad', !!bad);
 }
 
-/* ───────────────────────── HUD / 인벤토리 ───────────────────────── */
-const FX_LABELS = {
-  freeze: { text: '⏸ 정지', bad: false },
-  slow: { text: '🐢 슬로우', bad: false },
-  boost: { text: '🚀 ×2', bad: false },
-  future: { text: '👁 NEXT5', bad: false },
-  speedUp: { text: '⏩ 가속', bad: true },
-  dark: { text: '🌑 어둠', bad: true },
-  invert: { text: '🔄 반전', bad: true },
-  confusion: { text: '🎭 색혼란', bad: true },
-};
-
-function renderHud(s) {
-  els.hudScore.textContent = fmt(s.score);
-  els.hudLevel.textContent = s.level;
-  els.hudChain.textContent = s.chain > 0 ? `${s.chain}★` : '0';
-  els.hudRemain.textContent = s.remaining;
-  els.feverFill.style.width = Math.min(100, Math.round(s.fever * 100)) + '%';
-  els.feverFill.style.filter = s.feverActive ? 'brightness(1.35)' : 'none';
-  els.shieldTag.hidden = !s.shield;
-
-  const tags = [];
-  Object.entries(s.effects).forEach(([key, on]) => {
-    if (!on) return;
-    const fx = FX_LABELS[key];
-    if (fx) tags.push(`<span class="fx-tag${fx.bad ? ' bad' : ''}">${fx.text}</span>`);
-  });
-  els.fxTags.innerHTML = tags.join('');
+/* ───────────────────────── HUD ───────────────────────── */
+function updateHud(force = false) {
+  const now = performance.now();
+  if (!force && now - hudAt < 70) return;
+  hudAt = now;
+  els.hudScore.textContent = fmt(board ? board.score : 0);
+  els.hudCombo.textContent = combos.combo > 1 ? `${combos.combo} COMBO` : (combos.combo || 0);
+  els.hudMult.textContent = '×' + combos.multiplier().toFixed(1);
+  const ratio = Math.max(0, Math.min(1, timeLeft / CFG.time.total));
+  els.timeFill.style.width = (ratio * 100).toFixed(1) + '%';
+  els.timeFill.classList.toggle('low', timeLeft <= CFG.time.warnAt);
+  els.timeText.textContent = (timeLeft / 1000).toFixed(1);
+  const fever = combos.feverGauge / CFG.fever.max;
+  els.feverFill.style.width = (fever * 100).toFixed(1) + '%';
+  els.feverFill.classList.toggle('active', combos.isFever());
+  els.feverText.textContent = combos.isFever() ? 'FEVER!' : Math.round(fever * 100) + '%';
+  els.hudCombo.classList.toggle('hot', combos.combo >= 5);
+  if (combos.multiplier() > bestMult) bestMult = combos.multiplier();
+  syncBoosters();
 }
 
-function renderInventory(ids) {
-  els.itemSlots.innerHTML = '';
-  for (let i = 0; i < CONFIG.items.inventory; i++) {
-    const id = ids[i];
-    const item = id ? GOOD_BY_ID[id] : null;
+function buildBoosters() {
+  els.boosters.innerHTML = '';
+  Object.entries(CFG.boosters).forEach(([key, b]) => {
+    if (!b.cost) return;
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'item-slot ' + (item ? 'filled' : 'empty');
-    if (item) {
-      btn.innerHTML = `<span class="ico">${item.icon}</span><span class="nm">${item.name}</span><span class="key">${i + 1}</span>`;
-      btn.title = `${item.name} — ${item.desc}`;
-      btn.addEventListener('click', () => { SFX.resume(); game.useItem(i); });
-    } else {
-      btn.innerHTML = '빈 칸';
-      btn.disabled = true;
-    }
-    els.itemSlots.appendChild(btn);
-  }
+    btn.className = 'booster';
+    btn.dataset.key = key;
+    btn.innerHTML = `<i>${b.icon}</i><span>${b.name}</span><em>${b.cost}</em>`;
+    btn.title = `${b.name} — ${b.desc} (피버 ${b.cost} 소모)`;
+    btn.addEventListener('click', () => useBooster(key));
+    els.boosters.appendChild(btn);
+  });
 }
 
-/* ───────────────────────── 게임 흐름 ───────────────────────── */
+function syncBoosters() {
+  if (!els.boosters.children.length) return;
+  const gauge = combos.feverGauge;
+  [...els.boosters.children].forEach(btn => {
+    const b = CFG.boosters[btn.dataset.key];
+    const ready = !combos.isFever() && gauge >= b.cost && playing;
+    btn.classList.toggle('ready', ready);
+    btn.disabled = !ready;
+    btn.classList.toggle('armed', pickMode === btn.dataset.key);
+  });
+}
+
+/* ───────────────────────── 부스터 ───────────────────────── */
+async function useBooster(key) {
+  if (!playing || paused || finalizing) return;
+  const b = CFG.boosters[key];
+  if (!b) return;
+  if (combos.isFever()) { toast('피버 중에는 부스터를 쓸 수 없어요', 'warn'); return; }
+  if (combos.feverGauge < b.cost) { toast(`피버 게이지가 부족해요 (${b.cost} 필요)`, 'warn'); audio.play('invalid'); return; }
+
+  if (key === 'hammer' || key === 'colorBomb') {
+    pickMode = key;
+    selected = null;
+    board.selected = null;
+    toast(key === 'hammer' ? '🔨 파괴할 보석을 선택하세요' : '💥 색을 지정할 보석을 선택하세요', 'info');
+    syncBoosters();
+    return;
+  }
+
+  if (!combos.spendFever(b.cost)) return;
+  audio.play('booster');
+  if (key === 'shuffle') {
+    toast('🔀 보드 셔플!', 'good');
+    board.busy = true;
+    await board.shuffle();
+    board.busy = false;
+  } else if (key === 'freeze') {
+    freezeUntil = performance.now() + CFG.boosters.freezeMs;
+    banner('TIME FREEZE', '4초간 타이머 정지', '#93c5fd');
+    audio.play('time');
+  }
+  updateHud(true);
+}
+
+async function resolvePick(r, c) {
+  const key = pickMode;
+  pickMode = null;
+  if (!combos.spendFever(CFG.boosters[key].cost)) { syncBoosters(); return; }
+  audio.play('booster');
+  board.busy = true;
+  if (key === 'hammer') {
+    await board.destroyCell(r, c);
+  } else if (key === 'colorBomb') {
+    const gem = board.gemAt(r, c);
+    if (gem && !gem.wild) await board.colorBomb(gem.color);
+  }
+  board.busy = false;
+  updateHud(true);
+  syncBoosters();
+}
+
+/* ───────────────────────── 게임 진행 ───────────────────────── */
 function startGame() {
-  const nameCheck = validateName(els.inputName.value);
-  if (!nameCheck.ok) { setStartMsg(nameCheck.msg, true); els.inputName.focus(); return; }
+  const check = validateName(els.inputName.value);
+  if (!check.ok) { setStartMsg(check.msg, true); els.inputName.focus(); return; }
   const room = normalizeRoom(els.inputRoom.value);
   if (els.inputRoom.value && room.length !== 6) {
     setStartMsg('방 코드는 6자리(영대문자+숫자)입니다.', true);
     els.inputRoom.focus();
     return;
   }
-  currentName = nameCheck.name;
+  currentName = check.name;
   currentRoom = room;
   try {
     localStorage.setItem(LS.name, currentName);
     if (room) localStorage.setItem(LS.room, room); else localStorage.removeItem(LS.room);
   } catch (e) { /* 무시 */ }
+
   setStartMsg('');
-  SFX.resume();
+  audio.resume();
+  audio.startMusic();
+  fx.reset();
+  combos.reset();
+  board.reset();
+  board.resize();
+
+  timeLeft = CFG.time.total;
+  freezeUntil = 0;
+  hurrahCount = 0;
+  bestMult = 1;
+  finalizing = false;
+  playing = true;
+  paused = false;
+  pickMode = null;
+  selected = null;
+  board.selected = null;
+  board.lastMoveAt = performance.now();
   els.pauseOverlay.hidden = true;
-  if (!game) createGame();
+  els.btnPause.textContent = '⏸';
   showScreen('game');
-  game.start({ name: currentName, roomCode: currentRoom || 'global' });
+  updateHud(true);
   syncUrlRoom(room);
+  banner('START!', '60초 블리츠', '#7dd3fc');
 }
 
 function syncUrlRoom(room) {
@@ -217,36 +307,76 @@ function syncUrlRoom(room) {
 }
 
 function togglePause(force) {
-  if (!game || game.state === 'over' || game.state === 'idle') return;
-  const toPause = typeof force === 'boolean' ? force : game.state === 'running';
-  if (toPause) {
-    game.pause();
-    els.pauseOverlay.hidden = false;
-    els.btnPause.textContent = '▶';
-  } else {
-    game.resume();
-    els.pauseOverlay.hidden = true;
-    els.btnPause.textContent = '⏸';
-  }
+  if (!playing || finalizing) return;
+  const toPause = typeof force === 'boolean' ? force : !paused;
+  paused = toPause;
+  els.pauseOverlay.hidden = !toPause;
+  els.btnPause.textContent = toPause ? '▶' : '⏸';
 }
 
 function quitGame() {
+  playing = false;
+  finalizing = false;
+  paused = false;
+  pickMode = null;
   els.pauseOverlay.hidden = true;
-  if (game) game.state = 'idle';
-  els.btnPause.textContent = '⏸';
+  audio.stopMusic();
   showScreen('start');
 }
 
-async function handleGameOver(result) {
+async function startLastHurrah() {
+  if (finalizing) return;
+  finalizing = true;
+  playing = false;
+  pickMode = null;
+  board.busy = true;
+  audio.play('nova');
+  banner('LAST HURRAH!', '남은 특수 보석 전부 발동', '#ffd23d');
+  fx.flash(0.4);
+
+  const specials = board.specialCells();
+  hurrahCount = 0;
+  for (const s of specials) {
+    const gem = board.gemAt(s.r, s.c);
+    if (!gem || !gem.special) continue;
+    hurrahCount++;
+    board.addScore(CFG.score.lastHurrahPerSpecial);
+    const pos = board.cellCenter(s.r, s.c);
+    fx.text(pos.x, pos.y, `+${CFG.score.lastHurrahPerSpecial}`, '#ffe9a8', 18);
+    await board.clearCells([s], { source: 'hurrah' });
+    await board.delay(110);
+  }
+  board.applyGravity();
+  board.refill();
+  await board.delay(160);
+  await board.resolveMatches();
+  board.busy = false;
+  await board.delay(220);
+  finishGame();
+}
+
+async function finishGame() {
+  audio.stopMusic();
+  audio.play('over');
+  const result = {
+    name: currentName,
+    score: board.score,
+    maxCombo: combos.maxCombo,
+    specialsCreated: combos.specialsCreated,
+    combosTriggered: combos.combosTriggered,
+    hurrah: hurrahCount,
+    bestMult,
+    roomCode: currentRoom || 'global',
+    mode: MODE,
+  };
   lastResult = result;
+
   els.overScore.textContent = fmt(result.score);
-  els.overLevel.textContent = result.level;
-  els.overChain.textContent = result.maxChain;
-  els.overGems.textContent = fmt(result.gems);
-  els.overItems.textContent = result.itemsUsed;
-  const mm = Math.floor(result.playTimeSec / 60);
-  const ss = String(result.playTimeSec % 60).padStart(2, '0');
-  els.overTime.textContent = `${mm}:${ss}`;
+  els.overCombo.textContent = result.maxCombo;
+  els.overSpecials.textContent = result.specialsCreated;
+  els.overCombos.textContent = result.combosTriggered;
+  els.overHurrah.textContent = result.hurrah;
+  els.overMult.textContent = '×' + result.bestMult.toFixed(1);
   els.overRoom.textContent = result.roomCode === 'global' ? '전체' : result.roomCode;
   els.overRank.textContent = '';
   els.overSave.textContent = '기록 저장 중…';
@@ -254,25 +384,36 @@ async function handleGameOver(result) {
   showScreen('over');
 
   if (!(result.score > 0)) {
-    els.overSave.textContent = '0점은 랭킹에 올리지 않았어요. 다음엔 더 높은 점수에 도전!';
-    els.overRank.textContent = '아직 점수가 없어요 · 보석을 3개 이상 맞춰 보세요';
+    els.overSave.textContent = '0점은 랭킹에 올리지 않았어요. 다시 도전!';
+    els.overRank.textContent = '보석을 3개 이상 맞춰 점수를 만들어 보세요';
     return;
   }
-
   const res = await FB.saveScore(result);
-  if (res.ok) {
-    els.overSave.textContent = '기록을 저장했어요! 랭킹에서 확인해 보세요.';
-  } else if (res.reason === 'disabled') {
-    els.overSave.textContent = '이 기기에만 기록됩니다 (랭킹 서버 미설정)';
-  } else {
-    els.overSave.textContent = '오프라인 상태예요. 연결되면 자동으로 저장됩니다.';
-  }
+  if (res.ok) els.overSave.textContent = '기록을 저장했어요! 랭킹에서 확인해 보세요.';
+  else if (res.reason === 'disabled') els.overSave.textContent = '이 기기에만 기록됩니다 (랭킹 서버 미설정)';
+  else els.overSave.textContent = '오프라인 상태예요. 연결되면 자동으로 저장됩니다.';
 
   const rank = await FB.rankOf(result.score);
-  if (rank) {
-    els.overRank.textContent = `전체 ${fmt(rank)}위 · 최고 ${result.maxChain}연쇄`;
-  } else {
-    els.overRank.textContent = `최고 ${result.maxChain}연쇄 · ${result.level}레벨 달성!`;
+  els.overRank.textContent = rank
+    ? `전체 ${fmt(rank)}위 · ${result.maxCombo}콤보 · 특수 ${result.specialsCreated}개`
+    : `최고 ${result.maxCombo}콤보 · 특수 보석 ${result.specialsCreated}개`;
+}
+
+async function shareResult() {
+  const url = new URL(location.href);
+  const room = (lastResult && lastResult.roomCode !== 'global') ? lastResult.roomCode : currentRoom;
+  if (room) url.searchParams.set('room', room); else url.searchParams.delete('room');
+  const score = lastResult ? lastResult.score : 0;
+  const text = `헥사 블리츠 60초에서 ${fmt(score)}점! 나보다 높으면 도전해 봐 🎮`;
+  if (navigator.share) {
+    try { await navigator.share({ title: '헥사 블리츠 HEXA BLITZ', text, url: url.toString() }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  try {
+    await navigator.clipboard.writeText(`${text}\n${url.toString()}`);
+    toast('공유 링크를 복사했어요!', 'good');
+  } catch (e) {
+    toast(url.toString());
   }
 }
 
@@ -280,153 +421,168 @@ function openRank(from = 'start', scope = null) {
   rankReturn = from;
   const room = currentRoom || normalizeRoom(els.inputRoom.value);
   els.rankRoom.textContent = room ? `방 ${room}` : '전체';
-  const target = scope || (room ? 'room' : 'global');
-  if (lb) lb.scope = target;
+  if (lb) lb.scope = scope || (room ? 'room' : 'global');
   showScreen('rank');
 }
 
-async function shareResult() {
-  const url = new URL(location.href);
-  const room = (lastResult && lastResult.roomCode && lastResult.roomCode !== 'global')
-    ? lastResult.roomCode : currentRoom;
-  if (room) url.searchParams.set('room', room); else url.searchParams.delete('room');
-  const score = lastResult ? lastResult.score : 0;
-  const text = `헥사(HEXA)에서 ${fmt(score)}점! 나보다 높으면 도전해 봐 🎮`;
-  const shareData = { title: '헥사 HEXA', text, url: url.toString() };
-  if (navigator.share) {
-    try {
-      await navigator.share(shareData);
-      return;
-    } catch (e) {
-      if (e && e.name === 'AbortError') return;
-    }
-  }
-  try {
-    await navigator.clipboard.writeText(`${text}\n${url.toString()}`);
-    toast('공유 링크를 복사했어요!', 'good');
-  } catch (e) {
-    toast(url.toString(), '');
-  }
-}
-
 /* ───────────────────────── 입력 ───────────────────────── */
-function bindKeyboard() {
-  document.addEventListener('keydown', e => {
-    if (e.target && /input|textarea/i.test(e.target.tagName)) {
-      if (e.key === 'Enter' && currentScreen === 'start') { e.preventDefault(); startGame(); }
-      return;
-    }
-    if (currentScreen === 'start' && e.key === 'Enter') { startGame(); return; }
-    if (currentScreen !== 'game' || !game) {
-      if (currentScreen === 'rank' && e.key === 'Escape') els.btnRankBack.click();
-      return;
-    }
-    switch (e.key) {
-      case 'ArrowLeft': game.move(-1); e.preventDefault(); break;
-      case 'ArrowRight': game.move(1); e.preventDefault(); break;
-      case 'ArrowUp': case ' ': game.rotate(); e.preventDefault(); break;
-      case 'ArrowDown': game.softDrop(); e.preventDefault(); break;
-      case 'Shift': game.hardDrop(); e.preventDefault(); break;
-      case '1': case '2': case '3': game.useItem(Number(e.key) - 1); break;
-      case 'p': case 'P': case 'Escape': togglePause(); break;
-      default: break;
-    }
-  });
-}
+function bindInput() {
+  const canvas = els.board;
+  const toCell = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    return board.cellFromPoint(e.clientX - rect.left, e.clientY - rect.top);
+  };
 
-function bindTouch() {
-  let start = null;
-  const panel = els.boardPanel;
-  const reset = () => { start = null; };
-  panel.addEventListener('pointerdown', e => {
-    start = { x: e.clientX, y: e.clientY, t: performance.now() };
+  canvas.addEventListener('pointerdown', e => {
+    if (!playing || paused || finalizing) return;
+    const cell = toCell(e);
+    if (!cell) return;
+    audio.resume();
+    if (pickMode) { resolvePick(cell.r, cell.c); return; }
+    dragStart = { ...cell, x: e.clientX, y: e.clientY, moved: false };
+    board.lastMoveAt = performance.now();
+    canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
   });
-  panel.addEventListener('pointercancel', reset);
-  panel.addEventListener('pointerup', e => {
-    if (!start || !game || game.state !== 'running') { reset(); return; }
+
+  canvas.addEventListener('pointermove', e => {
+    if (!dragStart) return;
+    const dx = e.clientX - dragStart.x;
+    const dy = e.clientY - dragStart.y;
+    if (Math.hypot(dx, dy) > CFG.input.dragThreshold) dragStart.moved = true;
+  });
+
+  canvas.addEventListener('pointerup', e => {
+    if (!dragStart || !playing || paused || finalizing) { dragStart = null; return; }
+    const start = dragStart;
+    dragStart = null;
     const dx = e.clientX - start.x;
     const dy = e.clientY - start.y;
-    const dt = performance.now() - start.t;
     const dist = Math.hypot(dx, dy);
-    reset();
-    if (game.pickMode) return;
-    if (dt < 500 && dist < 16) { game.rotate(); return; }
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 16) {
-      const steps = Math.min(5, Math.max(1, Math.round(Math.abs(dx) / 26)));
-      for (let i = 0; i < steps; i++) game.move(dx > 0 ? 1 : -1);
+
+    if (dist >= CFG.input.dragThreshold) {
+      let dr = 0, dc = 0;
+      if (Math.abs(dx) > Math.abs(dy)) dc = dx > 0 ? 1 : -1;
+      else dr = dy > 0 ? 1 : -1;
+      const target = { r: start.r + dr, c: start.c + dc };
+      if (target.r >= 0 && target.r < board.rows && target.c >= 0 && target.c < board.cols) {
+        selected = null;
+        board.selected = null;
+        board.trySwap(start.r, start.c, target.r, target.c);
+      }
       return;
     }
-    if (dy > 28) { game.hardDrop(); return; }
-    if (dy < -28) { game.rotate(); }
+
+    // 탭: 선택 / 인접 교체
+    if (selected && selected.r === start.r && selected.c === start.c) {
+      selected = null;
+      board.selected = null;
+      return;
+    }
+    if (selected && Math.abs(selected.r - start.r) + Math.abs(selected.c - start.c) === 1) {
+      const from = selected;
+      selected = null;
+      board.selected = null;
+      board.trySwap(from.r, from.c, start.r, start.c);
+      return;
+    }
+    selected = { r: start.r, c: start.c };
+    board.selected = selected;
+    audio.play('ui');
   });
-  panel.addEventListener('contextmenu', e => e.preventDefault());
+
+  canvas.addEventListener('pointercancel', () => { dragStart = null; });
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
 }
 
-/* ───────────────────────── 초기화 ───────────────────────── */
-function createGame() {
-  game = new HexaGame({
-    boardCanvas: els.board,
-    nextCanvas: els.next,
-    hooks: {
-      onHud: renderHud,
-      onInventory: renderInventory,
-      onGameOver: handleGameOver,
-      onToast: toast,
-    },
-  });
-  window.__hexa = game; // 검증/디버그용 핸들
+/* ───────────────────────── 메인 루프 ───────────────────────── */
+function loop(ts) {
+  const dt = Math.min(60, ts - (lastTs || ts));
+  lastTs = ts;
+  const now = performance.now();
+
+  if (playing && !paused && !finalizing) {
+    if (now >= freezeUntil) {
+      timeLeft -= dt;
+      if (timeLeft <= 0) { timeLeft = 0; startLastHurrah(); }
+    }
+    // 3초 무입력 → 힌트
+    if (now - board.lastMoveAt > CFG.input.idleHintMs && !board.hintPair && !board.busy) {
+      board.showHint();
+    }
+    // 유효 수 없음 → 자동 셔플 (0.7초에 한 번만 검사)
+    if (!board.busy && now - board.lastMoveAt > 700 && now > (board._nextMoveCheck || 0)) {
+      board._nextMoveCheck = now + 700;
+      if (!board.findValidMove()) {
+        board.ensurePlayable();
+        banner('NO MOVES', '보드 자동 셔플', '#7dd3fc');
+      }
+    }
+    // 남은 10초 이하 카운트다운 비프
+    const sec = Math.ceil(timeLeft / 1000);
+    if (timeLeft <= CFG.time.warnAt && sec !== lastTickSecond) {
+      lastTickSecond = sec;
+      audio.play('tick');
+    }
+    combos.update();
+  }
+  updateHud();
+  requestAnimationFrame(loop);
 }
 
-function bindButtons() {
-  els.btnStart.addEventListener('click', () => { SFX.play('ui'); startGame(); });
-  els.btnRank.addEventListener('click', () => { SFX.play('ui'); openRank('start'); });
-  els.btnMakeRoom.addEventListener('click', () => {
-    els.inputRoom.value = makeRoomCode();
-    els.inputRoom.focus();
-    SFX.play('ui');
-    toast('방 코드를 만들었어요. 친구에게 알려 주세요!', 'good');
-  });
-  els.inputRoom.addEventListener('input', () => {
-    els.inputRoom.value = normalizeRoom(els.inputRoom.value);
-  });
-  els.btnPause.addEventListener('click', () => togglePause());
-  els.btnHome.addEventListener('click', () => togglePause(true));
-  els.btnResume.addEventListener('click', () => togglePause(false));
-  els.btnQuit.addEventListener('click', quitGame);
-  els.btnAgain.addEventListener('click', () => { SFX.play('ui'); startGame(); });
-  els.btnOverRank.addEventListener('click', () => { SFX.play('ui'); openRank('over'); });
-  els.btnShare.addEventListener('click', () => { SFX.play('ui'); shareResult(); });
-  els.btnOverHome.addEventListener('click', () => showScreen('start'));
-  els.btnRankBack.addEventListener('click', () => { SFX.play('ui'); showScreen(rankReturn === 'over' ? 'over' : 'start'); });
-  els.btnSound.addEventListener('click', () => {
-    const muted = !SFX.muted;
-    SFX.mute(muted);
-    els.btnSound.textContent = muted ? '🔇' : '🔊';
-    els.btnSound.classList.toggle('muted', muted);
-    try { localStorage.setItem(LS.mute, muted ? '1' : '0'); } catch (e) { /* 무시 */ }
-    if (!muted) SFX.play('ui');
-  });
-  window.addEventListener('resize', () => { if (game) game.resize(); });
-  window.addEventListener('orientationchange', () => setTimeout(() => game && game.resize(), 220));
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden && game && game.state === 'running') togglePause(true);
-  });
-}
-
+/* ───────────────────────── 설정 복원 / 초기화 ───────────────────────── */
 function restoreSettings() {
   try {
     els.inputName.value = localStorage.getItem(LS.name) || '';
     els.inputRoom.value = normalizeRoom(localStorage.getItem(LS.room) || '');
     const muted = localStorage.getItem(LS.mute) === '1';
-    SFX.mute(muted);
+    audio.setMuted(muted);
     els.btnSound.textContent = muted ? '🔇' : '🔊';
     els.btnSound.classList.toggle('muted', muted);
   } catch (e) { /* 무시 */ }
   const params = new URLSearchParams(location.search);
   const room = normalizeRoom(params.get('room') || '');
   if (room) els.inputRoom.value = room;
-  const nameParam = params.get('name');
-  if (nameParam && !els.inputName.value) els.inputName.value = nameParam.slice(0, 12);
+}
+
+function bindButtons() {
+  els.btnStart.addEventListener('click', () => { audio.play('ui'); startGame(); });
+  els.btnRank.addEventListener('click', () => { audio.play('ui'); openRank('start'); });
+  els.btnMakeRoom.addEventListener('click', () => {
+    els.inputRoom.value = makeRoomCode();
+    els.inputRoom.focus();
+    audio.play('ui');
+    toast('방 코드를 만들었어요. 친구에게 알려 주세요!', 'good');
+  });
+  els.inputRoom.addEventListener('input', () => { els.inputRoom.value = normalizeRoom(els.inputRoom.value); });
+  els.inputName.addEventListener('keydown', e => { if (e.key === 'Enter') startGame(); });
+  els.btnPause.addEventListener('click', () => togglePause());
+  els.btnQuit.addEventListener('click', () => togglePause(true));
+  els.btnResume.addEventListener('click', () => togglePause(false));
+  els.btnQuit2.addEventListener('click', quitGame);
+  els.btnAgain.addEventListener('click', () => { audio.play('ui'); startGame(); });
+  els.btnOverRank.addEventListener('click', () => { audio.play('ui'); openRank('over'); });
+  els.btnShare.addEventListener('click', () => { audio.play('ui'); shareResult(); });
+  els.btnOverHome.addEventListener('click', () => showScreen('start'));
+  els.btnRankBack.addEventListener('click', () => { audio.play('ui'); showScreen(rankReturn === 'over' ? 'over' : 'start'); });
+  els.btnSound.addEventListener('click', () => {
+    const muted = !audio.muted;
+    audio.setMuted(muted);
+    els.btnSound.textContent = muted ? '🔇' : '🔊';
+    els.btnSound.classList.toggle('muted', muted);
+    try { localStorage.setItem(LS.mute, muted ? '1' : '0'); } catch (e) { /* 무시 */ }
+    if (!muted) { audio.play('ui'); if (playing) audio.startMusic(); }
+  });
+  window.addEventListener('resize', () => { board && board.resize(); });
+  window.addEventListener('orientationchange', () => setTimeout(() => board && board.resize(), 220));
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && playing && !paused) togglePause(true);
+  });
+  document.addEventListener('keydown', e => {
+    if (currentScreen === 'start' && e.target === els.inputName) return;
+    if (currentScreen === 'start' && e.key === 'Enter') { startGame(); return; }
+    if (currentScreen === 'rank' && e.key === 'Escape') els.btnRankBack.click();
+    if (currentScreen === 'game' && (e.key === 'p' || e.key === 'P' || e.key === 'Escape')) togglePause();
+  });
 }
 
 let inited = false;
@@ -434,12 +590,20 @@ function init() {
   if (inited) return;
   inited = true;
   restoreSettings();
-  createGame();
-  bindButtons();
-  bindKeyboard();
-  bindTouch();
-  renderInventory([]);
-  renderHud({ score: 0, level: 1, chain: 0, remaining: CONFIG.levels.gemsPerLevel, fever: 0, feverActive: false, shield: false, effects: {} });
+  board = new Board({
+    canvas: els.board,
+    fx,
+    audio,
+    combos,
+    hooks: {
+      onScore: () => updateHud(),
+      onTimeBonus: (ms) => {
+        timeLeft = Math.max(0, Math.min(CFG.time.total + 20000, timeLeft + ms));
+        updateHud(true);
+      },
+      onToast: toast,
+    },
+  });
   lb = new Leaderboard({
     tabsEl: els.rankTabs,
     listEl: els.rankList,
@@ -448,14 +612,19 @@ function init() {
     getRoom: () => currentRoom || normalizeRoom(els.inputRoom.value),
     getName: () => currentName || els.inputName.value,
   });
+  buildBoosters();
+  bindButtons();
+  bindInput();
+  updateHud(true);
+  window.__hexa = { board, combos, fx, audio, CFG };
+  requestAnimationFrame(loop);
+
   FB.init().then(status => {
-    if (status && status.ready) console.info('[HEXA] firebase ready', status.uid);
-    else console.info('[HEXA] firebase not ready', status && status.error);
+    if (status && status.ready) console.info('[HEXA BLITZ] firebase ready');
+    else console.info('[HEXA BLITZ] firebase not ready', status && status.error);
   }).catch(() => {});
-  // 첫 사용자 제스처에서 오디오 컨텍스트 활성화
-  const unlock = () => { SFX.resume(); window.removeEventListener('pointerdown', unlock); };
+  const unlock = () => { audio.resume(); window.removeEventListener('pointerdown', unlock); };
   window.addEventListener('pointerdown', unlock, { once: true });
-  game.resize();
 }
 
 document.addEventListener('DOMContentLoaded', init);

@@ -1,7 +1,10 @@
 /* =========================================================================
-   Firebase 웹 앱 설정
+   Firebase 웹 앱 설정 — 헥사 블리츠
    프로젝트: samsung-brick-breaker (Spark)
    Firestore: asia-southeast1 (Singapore) · Anonymous Auth · Web App "hexa-game"
+
+   ▶ 다른 프로젝트에서 쓰려면 아래 값을 그 프로젝트의 웹 앱 설정으로 바꾸면 됩니다.
+     (값이 비어 있거나 YOUR_ 로 시작하면 랭킹 없이 로컬 전용으로 동작합니다.)
    ========================================================================= */
 
 export const firebaseConfig = {
@@ -15,4 +18,5 @@ export const firebaseConfig = {
 };
 
 /* 설정이 비어 있으면(플레이스홀더) 게임은 로컬 전용 모드로 동작합니다. */
-export const FIREBASE_ENABLED = !/YOUR_|placeholder|example/i.test(firebaseConfig.apiKey + firebaseConfig.projectId);
+export const FIREBASE_ENABLED =
+  !!firebaseConfig.apiKey && !/YOUR_|placeholder|example/i.test(firebaseConfig.apiKey + firebaseConfig.projectId);
