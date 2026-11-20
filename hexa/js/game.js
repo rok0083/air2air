@@ -769,7 +769,7 @@ export class HexaGame {
     const cw = this._boardSize ? this._boardSize.w : this.boardCanvas.clientWidth;
     const ch = this._boardSize ? this._boardSize.h : this.boardCanvas.clientHeight;
     const pad = 6;
-    const cell = Math.min((cw - pad * 2) / COLS, (ch - pad * 2) / ROWS);
+    const cell = Math.max(4, Math.min((cw - pad * 2) / COLS, (ch - pad * 2) / ROWS));
     const ox = (cw - cell * COLS) / 2;
     const oy = (ch - cell * ROWS) / 2;
     return { cell, ox, oy, cw, ch };
@@ -778,6 +778,7 @@ export class HexaGame {
   render() {
     if (!this._boardSize || this._boardSize.w !== this.boardCanvas.clientWidth) this.resize();
     const g = this.layout();
+    if (g.cw < 40 || g.ch < 40) return; // 화면에 보이지 않을 때는 그리지 않음
     const ctx = this.ctx;
     const now = performance.now();
 
@@ -981,7 +982,7 @@ export class HexaGame {
   }
 
   roundRect(ctx, x, y, w, h, r) {
-    const rr = Math.min(r, w / 2, h / 2);
+    const rr = Math.max(0, Math.min(r, w / 2, h / 2));
     ctx.beginPath();
     ctx.moveTo(x + rr, y);
     ctx.arcTo(x + w, y, x + w, y + h, rr);
