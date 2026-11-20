@@ -167,7 +167,7 @@ function updateHud(force = false) {
   if (!force && now - hudAt < 70) return;
   hudAt = now;
   els.hudScore.textContent = fmt(board ? board.score : 0);
-  els.hudCombo.textContent = combos.combo > 1 ? `${combos.combo} COMBO` : (combos.combo || 0);
+  els.hudCombo.textContent = combos.combo || 0;
   els.hudMult.textContent = '×' + combos.multiplier().toFixed(1);
   const ratio = Math.max(0, Math.min(1, timeLeft / CFG.time.total));
   els.timeFill.style.width = (ratio * 100).toFixed(1) + '%';

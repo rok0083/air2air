@@ -56,6 +56,7 @@ export class Board {
     this.timeBonusUsed = 0;
     this.itemSerial = 0;
     this.pendingSwap = null;
+    this.wildToastShown = false;
     this.fillBoard();
     this.ensurePlayable();
   }
@@ -738,7 +739,11 @@ export class Board {
         break;
       }
       case 'wild':
-        this.hooks.onToast && this.hooks.onToast('🌈 무지개 보석은 어떤 색과도 맞습니다', 'info');
+        // 무지개 보석은 자주 나오므로 안내는 게임당 한 번만
+        if (!this.wildToastShown) {
+          this.wildToastShown = true;
+          this.hooks.onToast && this.hooks.onToast('🌈 무지개 보석은 어떤 색과도 맞습니다', 'info');
+        }
         break;
       default:
         break;

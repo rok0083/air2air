@@ -109,8 +109,8 @@ export const CFG = {
   /* ── 드롭 아이템 ───────────────────────────────────────────
      새 보석이 생길 때 확률적으로 아이템이 붙어 내려옵니다. */
   items: {
-    spawnChance: 0.12,      // 새 보석 1개당 아이템 부착 확률
-    maxOnBoard: 5,          // 보드 위 동시 아이템 수
+    spawnChance: 0.09,      // 새 보석 1개당 아이템 부착 확률 (기존 5.5% → 9%)
+    maxOnBoard: 4,          // 보드 위 동시 아이템 수
     feverSpawnBoost: 1.8,   // 피버 중 아이템 등장 확률 배율
     feverGoodScale: 1.6,    // 피버 중 좋은 아이템 가중치 배율
     feverHazardScale: 0.35, // 피버 중 방해 아이템 가중치 배율
