@@ -70,13 +70,13 @@ class App {
       Profile.state.starterGift = true;
       for (const b of CFG.boosters.order) Profile.state.boosters[b] = (Profile.state.boosters[b] || 0) + CFG.boosters.starterCount;
       Profile.state.coins += CFG.economy.startCoins - (Profile.state.coins < CFG.economy.startCoins ? 0 : 0);
-      Profile.save();
+      Profile.save({ sync: false });   // 첫 방문만으로는 랭킹 문서를 만들지 않는다
     }
     step(86, '레벨을 준비하는 중…');
     // 다음 레벨 데이터 미리 받기
     try { await loadLevel(Math.min(CFG.areas * CFG.levelsPerArea, Profile.state.level)); } catch {}
     step(100, '준비 완료!');
-    Profile.save();
+    Profile.save({ sync: false });
 
     setTimeout(() => {
       document.getElementById('screen-boot').classList.add('hidden');
@@ -124,7 +124,7 @@ class App {
             if (v.length < 2 || v.length > 12) { toast('2~12자로 입력해 주세요'); return false; }
             Profile.state.name = v;
             Profile.state.firstRun = false;
-            Profile.save();
+            Profile.save({ sync: false });
             m.close();
             resolve(v);
             return false;
