@@ -129,11 +129,11 @@ class App {
     } catch (e) {
       console.warn('[hexa-kingdom] 로그인 지연 — 로컬 모드로 시작', e);
     }
+    if (!this.profile.data.roomCode) this.profile.ensureRoomCode();
     boot?.classList.add('hidden');
     $('#screen-home').classList.remove('hidden');
     await this.showHome();
     this.syncSoon();
-    if (!this.profile.data.roomCode) this.profile.ensureRoomCode();
   }
 
   async showHome() {
