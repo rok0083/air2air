@@ -231,6 +231,7 @@ export class HomeScreen {
     if (Profile.state.chests.includes(key)) return;
     Profile.state.chests.push(key);
     Profile.addCoins(CFG.economy.areaChestCoins);
+    for (const b of ['hammer', 'arrow', 'jester']) Profile.addBooster(b, 3);
     const nextArea = Math.min(CFG.areas, area + 1);
     Profile.state.area = nextArea;
     if (nextArea > area) Profile.state.level = Math.max(Profile.state.level, (area) * CFG.levelsPerArea + 1);
@@ -241,7 +242,7 @@ export class HomeScreen {
       title: '구역 완성!',
       body: `<div style="font-size:46px">🎁</div>
         <div class="result-coins">🪙 +${fmt(CFG.economy.areaChestCoins)}</div>
-        <p>무제한 목숨 30분 + <b>${CFG.areaDefs[nextArea - 1]?.name || ''}</b> 해금!</p>`,
+        <p>부스터 3종 ×3 + 무제한 목숨 30분 + <b>${CFG.areaDefs[nextArea - 1]?.name || ''}</b> 해금!</p>`,
       buttons: [{ label: '좋아요!', cls: 'green', onClick: () => this.refresh() }],
     });
   }

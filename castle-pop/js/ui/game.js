@@ -1023,9 +1023,20 @@ export class GameScreen {
       Profile.save();
     }
     if (this.opts.scoreAttack) this.opts.app?.events?.submitRushScore?.(this.board.score);
+    // 10레벨마다 보물 상자
+    let chest = null;
+    const localLv = this.level.level || 0;
+    const chestKey = `lvl-${this.level.area || 1}-${localLv}`;
+    if (!custom && localLv > 0 && localLv % CFG.economy.chestEveryLevels === 0 && !Profile.state.chests.includes(chestKey)) {
+      Profile.state.chests.push(chestKey);
+      Profile.addCoins(CFG.economy.chestCoins);
+      for (const b of ['hammer', 'arrow', 'jester', 'lightning']) Profile.addBooster(b, CFG.economy.chestBoosters);
+      chest = { coins: CFG.economy.chestCoins };
+      Audio.play('chest');
+    }
     Audio.play('chest');
     if (custom) this.showEventWin(totalCoins + (reward.coins || 0));
-    else this.showWinModal(totalCoins, movesLeft);
+    else this.showWinModal(totalCoins, movesLeft, chest);
   }
 
   showEventWin(coins) {
@@ -1108,7 +1119,7 @@ export class GameScreen {
     Audio.play('coinShower');
   }
 
-  showWinModal(coins, movesLeft) {
+  showWinModal(coins, movesLeft, chest = null) {
     const body = document.createElement('div');
     body.innerHTML = `
       <div class="result-stars" style="color:#ffd23f;-webkit-text-stroke:7px #c9971f;paint-order:stroke fill;text-shadow:0 4px 0 #a87b0c">★</div>
@@ -1116,6 +1127,7 @@ export class GameScreen {
       <p>남은 이동 ${movesLeft}발이 로켓과 TNT로 터졌어요.</p>
       <div class="result-goals">${this.board.goals.map(g => `<span class="result-goal">${goalRibbon(g)} ${g.done}/${g.need}</span>`).join('')}</div>
       ${Profile.state.winStreak > 1 ? `<p style="color:#b8860b">🔥 ${Profile.state.winStreak}연승! 다음 레벨 시작 선물이 커져요</p>` : ''}
+      ${chest ? `<p style="color:#b8860b">🎁 10레벨 보물 상자! 🪙${fmt(chest.coins)} + 부스터 ${CFG.economy.chestBoosters}개씩</p>` : ''}
     `;
     modal({
       title: '레벨 클리어!',
