@@ -266,11 +266,23 @@ export class GameSession {
     };
     // 브라우저가 제스처를 가져가 취소한 경우 = 탭이 아니다. 선택만 남기지 않는다.
     this.onCancel = () => { this.drag = null; this.view.press = null; };
-    canvas.addEventListener('pointerdown', this.onDown);
-    canvas.addEventListener('pointermove', this.onMove);
-    canvas.addEventListener('pointerup', this.onUp);
-    canvas.addEventListener('pointercancel', this.onCancel);
-    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    this.onContextMenu = (e) => e.preventDefault();
+    // 세션마다 같은 canvas 에 다시 붙으므로, 끝날 때 반드시 떼어낸다(중복 입력 방지)
+    this._inputCanvas = canvas;
+    this._inputList = [
+      ['pointerdown', this.onDown],
+      ['pointermove', this.onMove],
+      ['pointerup', this.onUp],
+      ['pointercancel', this.onCancel],
+      ['contextmenu', this.onContextMenu],
+    ];
+    for (const [type, fn] of this._inputList) canvas.addEventListener(type, fn);
+  }
+
+  unbindInput() {
+    if (!this._inputCanvas || !this._inputList) return;
+    for (const [type, fn] of this._inputList) this._inputCanvas.removeEventListener(type, fn);
+    this._inputList = null;
   }
 
   /* 탭 → 탭 으로도 교체 (스와이프 대체 수단) */
@@ -569,6 +581,7 @@ export class GameSession {
   destroy() {
     this.destroyed = true;
     this.pendingSwap = null;
+    this.unbindInput();
     this.app.backdrop?.setScene(this.app.state.world || 1, 'home');
     closeAllModals();
     cancelAnimationFrame(this.raf);
