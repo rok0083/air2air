@@ -83,17 +83,17 @@ async function loadLevel(world, level) {
   }
   say(`gravity: levels=${levels} runs=${runs} brokenObstacleRuns=${bushRuns} failingRuns=${fails} in ${Math.round(performance.now() - t0)}ms`);
 
-  // ── 신규 부스터 스모크 테스트 ──────────────────────────
-  const bdata = await loadLevel(1, 3);
-  const b = new Board(bdata, {});
-  await b.init();
+  // ── 신규 부스터 스모크 테스트(부스터마다 새 보드) ──────
   const results = {};
   for (const kind of ['hammer', 'drill', 'bomber', 'magicHat', 'lightning', 'prism', 'hourglass']) {
     try {
+      const b = new Board(await loadLevel(1, 3), {});
+      await b.init();
+      b.goals.list.length = 0;            // 승리 판정 없이 보드만 시험
       const before = b.moves;
       const ok = await b.useBooster(kind, 3, 3);
       results[kind] = ok ? 'ok' : 'false';
-      if (kind === 'hourglass' && b.moves !== before + 3) results[kind] = `moves ${before}->${b.moves}`;
+      if (kind === 'hourglass') results[kind] = b.moves === before + 3 ? 'ok(+3)' : `moves ${before}->${b.moves}`;
       const bad = checkBoard(b, `booster ${kind}`);
       if (bad) results[kind] += ' BOARD_BROKEN';
     } catch (e) {
@@ -101,6 +101,9 @@ async function loadLevel(world, level) {
     }
   }
   try {
+    const b = new Board(await loadLevel(1, 3), {});
+    await b.init();
+    b.goals.list.length = 0;
     const ok = await b.freeSwap(4, 4, 4, 5);
     results.swap = ok ? 'ok' : 'false';
     if (checkBoard(b, 'freeSwap')) results.swap += ' BOARD_BROKEN';
@@ -108,20 +111,33 @@ async function loadLevel(world, level) {
 
   // 보너스 보석
   const bonus = {};
+  const b2 = new Board(await loadLevel(1, 3), {});
+  await b2.init();
   for (const t of ['coin', 'moves', 'strike', 'x2']) {
     try {
-      const tile = b.grid[1]?.[1];
+      const tile = b2.grid[1]?.[1];
       if (!tile) { bonus[t] = 'no tile'; continue; }
       tile.bonus = t;
-      const movesBefore = b.moves;
-      b.collectBonus(1, 1, tile);
-      bonus[t] = t === 'moves' ? (b.moves === movesBefore + CFG.bonus.moves ? 'ok' : 'moves-wrong')
-        : t === 'x2' ? (b.bonusFx.x2 === CFG.bonus.x2Turns ? 'ok' : 'x2-wrong')
-        : t === 'strike' ? (b.bonusFx.pendingStrike > 0 ? 'ok' : 'strike-wrong') : 'ok';
+      const movesBefore = b2.moves;
+      b2.collectBonus(1, 1, tile);
+      bonus[t] = t === 'moves' ? (b2.moves === movesBefore + CFG.bonus.moves ? 'ok' : 'moves-wrong')
+        : t === 'x2' ? (b2.bonusFx.x2 === CFG.bonus.x2Turns ? 'ok' : 'x2-wrong')
+        : t === 'strike' ? (b2.bonusFx.pendingStrike > 0 ? 'ok' : 'strike-wrong') : 'ok';
     } catch (e) { bonus[t] = 'ERR ' + e.message; }
   }
-  try { await b.processStrikes(); bonus.strikeRun = 'ok'; if (checkBoard(b, 'strike')) bonus.strikeRun = 'BOARD_BROKEN'; }
+  try { await b2.processStrikes(); bonus.strikeRun = 'ok'; if (checkBoard(b2, 'strike')) bonus.strikeRun = 'BOARD_BROKEN'; }
   catch (e) { bonus.strikeRun = 'ERR ' + e.message; }
+
+  // 실제 보드에서 보너스 스폰 → 매치로 획득 루프
+  try {
+    const bs2 = new Board(await loadLevel(1, 2), {});
+    await bs2.init();
+    bs2.goals.list.length = 0;
+    const t = bs2.maybeSpawnBonus();
+    bonus.spawn = t || 'none';
+    const bt = bs2.bonusTiles()[0];
+    if (bt) { bs2.collectBonus(bt.r, bt.c, bt.tile); bonus.collect = 'ok'; }
+  } catch (e) { bonus.spawn = 'ERR ' + e.message; }
 
   // 무작위 스왑 40회 (실제 플레이 루프) — 빈 칸 0 확인
   const bs = new Board(await loadLevel(1, 3), {});
