@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><title>hexa seed</title></head>
+<body style="background:#111;color:#0f0;font:12px monospace;padding:10px">
+<div id="o">seeding…</div>
+<script>
+/* 임시 검증용: 3번 스테이지 해금 상태를 만들기 위해 앞 두 스테이지만 클리어 처리 */
+try {
+  const KEY = 'hexaKingdom.profile.v1';
+  const raw = localStorage.getItem(KEY);
+  const d = raw ? JSON.parse(raw) : null;
+  if (d) {
+    d.cleared = d.cleared || {};
+    d.cleared['w1-1'] = true;
+    d.cleared['w1-2'] = true;
+    d.stars = d.stars || {};
+    d.stars['w1-1'] = d.stars['w1-1'] || 2;
+    d.stars['w1-2'] = d.stars['w1-2'] || 2;
+    d.updatedAt = Date.now();
+    localStorage.setItem(KEY, JSON.stringify(d));
+    document.getElementById('o').textContent = 'seeded: ' + Object.keys(d.cleared).join(',');
+  } else {
+    document.getElementById('o').textContent = 'no profile yet';
+  }
+} catch (e) {
+  document.getElementById('o').textContent = 'ERR ' + e.message;
+}
+setTimeout(() => location.replace('../tools/mobile.html?v=seed'), 700);
+</script>
+</body>
+</html>
