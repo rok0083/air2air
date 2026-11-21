@@ -1,0 +1,79 @@
+{
+  "id": "w1-15",
+  "world": 1,
+  "level": 15,
+  "name": "루크의 훈련",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    5300,
+    9300,
+    13800
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 4,
+      "count": 26
+    },
+    {
+      "type": "clear",
+      "obstacle": "any",
+      "count": 4
+    }
+  ],
+  "cells": [
+    {
+      "r": 6,
+      "c": 7,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 1,
+      "c": 7,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 6,
+      "c": 4,
+      "type": "crate"
+    },
+    {
+      "r": 5,
+      "c": 3,
+      "type": "crate"
+    },
+    {
+      "r": 0,
+      "c": 0,
+      "type": "crate"
+    },
+    {
+      "r": 0,
+      "c": 1,
+      "type": "bush",
+      "hp": 2
+    }
+  ],
+  "voids": [],
+  "seed": 13158,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 13158,
+    "obstacles": 6,
+    "free": 58
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 58,
+    "hasMove": true,
+    "blockedRatio": 0.09
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "id": "w4-10",
+  "world": 4,
+  "level": 10,
+  "name": "덩굴다리 5번길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    4500,
+    7900,
+    11700
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 2,
+      "item": "seed"
+    },
+    {
+      "type": "collect",
+      "color": 2,
+      "count": 20
+    }
+  ],
+  "cells": [
+    {
+      "r": 6,
+      "c": 0,
+      "type": "swamp"
+    },
+    {
+      "r": 1,
+      "c": 7,
+      "type": "swamp"
+    },
+    {
+      "r": 1,
+      "c": 3,
+      "type": "vine"
+    },
+    {
+      "r": 1,
+      "c": 1,
+      "type": "swamp"
+    },
+    {
+      "r": 5,
+      "c": 1,
+      "type": "vine"
+    }
+  ],
+  "voids": [],
+  "seed": 42473,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 42473,
+    "obstacles": 5,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

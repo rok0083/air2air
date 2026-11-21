@@ -1,0 +1,81 @@
+{
+  "id": "w5-13",
+  "world": 5,
+  "level": 13,
+  "name": "그림자 예배당 3번길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    5400,
+    9400,
+    14000
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 3,
+      "item": "seed"
+    }
+  ],
+  "cells": [
+    {
+      "r": 1,
+      "c": 2,
+      "type": "shadowStone"
+    },
+    {
+      "r": 6,
+      "c": 6,
+      "type": "shadowRune"
+    },
+    {
+      "r": 5,
+      "c": 5,
+      "type": "shadowRune"
+    },
+    {
+      "r": 0,
+      "c": 3,
+      "type": "shadowStone"
+    },
+    {
+      "r": 1,
+      "c": 1,
+      "type": "shadowStone"
+    },
+    {
+      "r": 7,
+      "c": 3,
+      "type": "shadowStone"
+    },
+    {
+      "r": 1,
+      "c": 3,
+      "type": "shadowRune"
+    },
+    {
+      "r": 0,
+      "c": 4,
+      "type": "shadowStone"
+    }
+  ],
+  "voids": [],
+  "seed": 52884,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 52884,
+    "obstacles": 8,
+    "free": 59
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 59,
+    "hasMove": true,
+    "blockedRatio": 0.08
+  }
+}

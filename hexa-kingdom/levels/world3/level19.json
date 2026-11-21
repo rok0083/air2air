@@ -1,0 +1,96 @@
+{
+  "id": "w3-19",
+  "world": 3,
+  "level": 19,
+  "name": "잊힌 유적 4번길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 25,
+  "stars": [
+    6600,
+    11600,
+    17200
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 3,
+      "item": "seed"
+    }
+  ],
+  "cells": [
+    {
+      "r": 7,
+      "c": 7,
+      "type": "jar"
+    },
+    {
+      "r": 2,
+      "c": 6,
+      "type": "jar"
+    },
+    {
+      "r": 4,
+      "c": 5,
+      "type": "cactus"
+    },
+    {
+      "r": 3,
+      "c": 4,
+      "type": "jar"
+    },
+    {
+      "r": 5,
+      "c": 7,
+      "type": "cactus"
+    },
+    {
+      "r": 3,
+      "c": 0,
+      "type": "jar"
+    },
+    {
+      "r": 4,
+      "c": 6,
+      "type": "jar"
+    },
+    {
+      "r": 6,
+      "c": 3,
+      "type": "jar"
+    },
+    {
+      "r": 1,
+      "c": 1,
+      "type": "cactus"
+    },
+    {
+      "r": 0,
+      "c": 4,
+      "type": "jar"
+    },
+    {
+      "r": 3,
+      "c": 1,
+      "type": "cactus"
+    }
+  ],
+  "voids": [],
+  "seed": 33706,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 33706,
+    "obstacles": 11,
+    "free": 53
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 53,
+    "hasMove": true,
+    "blockedRatio": 0.17
+  }
+}

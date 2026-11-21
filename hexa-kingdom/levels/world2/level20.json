@@ -1,0 +1,100 @@
+{
+  "id": "w2-20",
+  "world": 2,
+  "level": 20,
+  "name": "보스 · 눈보라 골렘",
+  "story": "얼음 왕국의 끝, 그림자 군주의 부하가 기다린다.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 30,
+  "stars": [
+    8800,
+    15500,
+    23000
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 3,
+      "item": "seed"
+    },
+    {
+      "type": "collect",
+      "color": 4,
+      "count": 28
+    },
+    {
+      "type": "boss"
+    }
+  ],
+  "cells": [
+    {
+      "r": 5,
+      "c": 4,
+      "type": "icicle"
+    },
+    {
+      "r": 3,
+      "c": 3,
+      "type": "ice"
+    },
+    {
+      "r": 2,
+      "c": 7,
+      "type": "icicle"
+    },
+    {
+      "r": 2,
+      "c": 0,
+      "type": "icicle"
+    },
+    {
+      "r": 1,
+      "c": 4,
+      "type": "ice"
+    },
+    {
+      "r": 2,
+      "c": 1,
+      "type": "ice"
+    },
+    {
+      "r": 1,
+      "c": 5,
+      "type": "ice"
+    },
+    {
+      "r": 5,
+      "c": 0,
+      "type": "icicle"
+    },
+    {
+      "r": 3,
+      "c": 2,
+      "type": "icicle"
+    }
+  ],
+  "voids": [],
+  "seed": 23843,
+  "boss": {
+    "name": "눈보라 골렘",
+    "hp": 200,
+    "summon": "icicle",
+    "summonEvery": 2,
+    "kind": "golem"
+  },
+  "generator": {
+    "version": "1.0.0",
+    "seed": 23843,
+    "obstacles": 9,
+    "free": 59
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 59,
+    "hasMove": true,
+    "blockedRatio": 0.08
+  }
+}

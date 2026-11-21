@@ -1,0 +1,66 @@
+{
+  "id": "w3-3",
+  "world": 3,
+  "level": 3,
+  "name": "선인장 길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    3400,
+    6000,
+    8900
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "cactus",
+      "count": 3
+    },
+    {
+      "type": "collect",
+      "color": 3,
+      "count": 18
+    }
+  ],
+  "cells": [
+    {
+      "r": 7,
+      "c": 1,
+      "type": "cactus"
+    },
+    {
+      "r": 3,
+      "c": 0,
+      "type": "cactus"
+    },
+    {
+      "r": 0,
+      "c": 7,
+      "type": "cactus"
+    },
+    {
+      "r": 2,
+      "c": 5,
+      "type": "cactus"
+    }
+  ],
+  "voids": [],
+  "seed": 31514,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 31514,
+    "obstacles": 4,
+    "free": 60
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 60,
+    "hasMove": true,
+    "blockedRatio": 0.06
+  }
+}

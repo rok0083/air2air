@@ -1,0 +1,71 @@
+{
+  "id": "w3-8",
+  "world": 3,
+  "level": 8,
+  "name": "오아시스 3번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 23,
+  "stars": [
+    4400,
+    7700,
+    11400
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "sand",
+      "count": 4
+    }
+  ],
+  "cells": [
+    {
+      "r": 4,
+      "c": 3,
+      "type": "sand"
+    },
+    {
+      "r": 1,
+      "c": 6,
+      "type": "sand"
+    },
+    {
+      "r": 4,
+      "c": 5,
+      "type": "jar"
+    },
+    {
+      "r": 3,
+      "c": 1,
+      "type": "jar"
+    },
+    {
+      "r": 4,
+      "c": 6,
+      "type": "sand"
+    },
+    {
+      "r": 4,
+      "c": 7,
+      "type": "sand"
+    }
+  ],
+  "voids": [],
+  "seed": 32199,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 32199,
+    "obstacles": 6,
+    "free": 62
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 62,
+    "hasMove": true,
+    "blockedRatio": 0.03
+  }
+}

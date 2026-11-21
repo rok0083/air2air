@@ -1,0 +1,71 @@
+{
+  "id": "w2-7",
+  "world": 2,
+  "level": 7,
+  "name": "눈송이광장 2번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 23,
+  "stars": [
+    4300,
+    7500,
+    11100
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "any",
+      "count": 6
+    }
+  ],
+  "cells": [
+    {
+      "r": 4,
+      "c": 2,
+      "type": "icicle"
+    },
+    {
+      "r": 4,
+      "c": 5,
+      "type": "ice"
+    },
+    {
+      "r": 5,
+      "c": 3,
+      "type": "icicle"
+    },
+    {
+      "r": 5,
+      "c": 0,
+      "type": "ice"
+    },
+    {
+      "r": 6,
+      "c": 0,
+      "type": "icicle"
+    },
+    {
+      "r": 2,
+      "c": 1,
+      "type": "icicle"
+    }
+  ],
+  "voids": [],
+  "seed": 22062,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 22062,
+    "obstacles": 6,
+    "free": 60
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 60,
+    "hasMove": true,
+    "blockedRatio": 0.06
+  }
+}

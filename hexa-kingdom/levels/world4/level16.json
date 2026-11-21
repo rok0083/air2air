@@ -1,0 +1,86 @@
+{
+  "id": "w4-16",
+  "world": 4,
+  "level": 16,
+  "name": "수정신전 1번길",
+  "story": "수정 정글 4구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 25,
+  "stars": [
+    5900,
+    10400,
+    15400
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 2,
+      "count": 28
+    }
+  ],
+  "cells": [
+    {
+      "r": 5,
+      "c": 3,
+      "type": "swamp"
+    },
+    {
+      "r": 2,
+      "c": 5,
+      "type": "swamp"
+    },
+    {
+      "r": 4,
+      "c": 4,
+      "type": "fruitTree"
+    },
+    {
+      "r": 4,
+      "c": 6,
+      "type": "swamp"
+    },
+    {
+      "r": 0,
+      "c": 3,
+      "type": "fruitTree"
+    },
+    {
+      "r": 4,
+      "c": 7,
+      "type": "fruitTree"
+    },
+    {
+      "r": 4,
+      "c": 2,
+      "type": "fruitTree"
+    },
+    {
+      "r": 3,
+      "c": 1,
+      "type": "swamp"
+    },
+    {
+      "r": 7,
+      "c": 3,
+      "type": "fruitTree"
+    }
+  ],
+  "voids": [],
+  "seed": 43295,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 43295,
+    "obstacles": 9,
+    "free": 59
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 59,
+    "hasMove": true,
+    "blockedRatio": 0.08
+  }
+}

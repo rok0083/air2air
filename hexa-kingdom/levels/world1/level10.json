@@ -1,0 +1,76 @@
+{
+  "id": "w1-10",
+  "world": 1,
+  "level": 10,
+  "name": "상자 더미",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 26,
+  "stars": [
+    4700,
+    8200,
+    12100
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 3,
+      "item": "seed"
+    },
+    {
+      "type": "clear",
+      "obstacle": "grass",
+      "count": 4
+    }
+  ],
+  "cells": [
+    {
+      "r": 2,
+      "c": 3,
+      "type": "grass"
+    },
+    {
+      "r": 6,
+      "c": 1,
+      "type": "grass"
+    },
+    {
+      "r": 1,
+      "c": 5,
+      "type": "grass"
+    },
+    {
+      "r": 4,
+      "c": 5,
+      "type": "grass"
+    },
+    {
+      "r": 5,
+      "c": 4,
+      "type": "grass"
+    },
+    {
+      "r": 2,
+      "c": 7,
+      "type": "grass"
+    }
+  ],
+  "voids": [],
+  "seed": 12473,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 12473,
+    "obstacles": 6,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

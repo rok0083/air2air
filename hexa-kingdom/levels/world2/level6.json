@@ -1,0 +1,56 @@
+{
+  "id": "w2-6",
+  "world": 2,
+  "level": 6,
+  "name": "눈송이광장 1번길",
+  "story": "얼음 왕국 2구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 23,
+  "stars": [
+    3700,
+    6400,
+    9500
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 2,
+      "count": 20
+    }
+  ],
+  "cells": [
+    {
+      "r": 7,
+      "c": 4,
+      "type": "snowman"
+    },
+    {
+      "r": 1,
+      "c": 7,
+      "type": "snowman"
+    },
+    {
+      "r": 5,
+      "c": 4,
+      "type": "snowman"
+    }
+  ],
+  "voids": [],
+  "seed": 21925,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 21925,
+    "obstacles": 3,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

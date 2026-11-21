@@ -1,0 +1,61 @@
+{
+  "id": "w3-2",
+  "world": 3,
+  "level": 2,
+  "name": "항아리 창고",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    3300,
+    5800,
+    8600
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "jar",
+      "count": 2
+    }
+  ],
+  "cells": [
+    {
+      "r": 3,
+      "c": 0,
+      "type": "cactus"
+    },
+    {
+      "r": 1,
+      "c": 0,
+      "type": "jar"
+    },
+    {
+      "r": 2,
+      "c": 3,
+      "type": "jar"
+    },
+    {
+      "r": 3,
+      "c": 7,
+      "type": "cactus"
+    }
+  ],
+  "voids": [],
+  "seed": 31377,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 31377,
+    "obstacles": 4,
+    "free": 60
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 60,
+    "hasMove": true,
+    "blockedRatio": 0.06
+  }
+}

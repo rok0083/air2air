@@ -1,0 +1,66 @@
+{
+  "id": "w5-15",
+  "world": 5,
+  "level": 15,
+  "name": "그림자 예배당 5번길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 25,
+  "stars": [
+    5000,
+    8700,
+    13000
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 2,
+      "count": 24
+    },
+    {
+      "type": "drop",
+      "count": 3,
+      "item": "seed"
+    }
+  ],
+  "cells": [
+    {
+      "r": 0,
+      "c": 1,
+      "type": "shadowStone"
+    },
+    {
+      "r": 2,
+      "c": 7,
+      "type": "shadowStone"
+    },
+    {
+      "r": 0,
+      "c": 2,
+      "type": "shadowStone"
+    },
+    {
+      "r": 4,
+      "c": 3,
+      "type": "shadowStone"
+    }
+  ],
+  "voids": [],
+  "seed": 53158,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 53158,
+    "obstacles": 4,
+    "free": 60
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 60,
+    "hasMove": true,
+    "blockedRatio": 0.06
+  }
+}

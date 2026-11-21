@@ -1,0 +1,81 @@
+{
+  "id": "w1-14",
+  "world": 1,
+  "level": 14,
+  "name": "메마른 개울",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 26,
+  "stars": [
+    5300,
+    9300,
+    13900
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 2,
+      "item": "seed"
+    },
+    {
+      "type": "clear",
+      "obstacle": "bush",
+      "count": 6
+    }
+  ],
+  "cells": [
+    {
+      "r": 3,
+      "c": 4,
+      "type": "bush"
+    },
+    {
+      "r": 6,
+      "c": 7,
+      "type": "bush"
+    },
+    {
+      "r": 1,
+      "c": 3,
+      "type": "bush"
+    },
+    {
+      "r": 6,
+      "c": 0,
+      "type": "bush"
+    },
+    {
+      "r": 4,
+      "c": 5,
+      "type": "bush"
+    },
+    {
+      "r": 4,
+      "c": 1,
+      "type": "bush"
+    },
+    {
+      "r": 5,
+      "c": 1,
+      "type": "bush"
+    }
+  ],
+  "voids": [],
+  "seed": 13021,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 13021,
+    "obstacles": 7,
+    "free": 57
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 57,
+    "hasMove": true,
+    "blockedRatio": 0.11
+  }
+}

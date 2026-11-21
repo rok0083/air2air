@@ -1,0 +1,72 @@
+{
+  "id": "w1-20",
+  "world": 1,
+  "level": 20,
+  "name": "보스 · 슬라임 경비대장",
+  "story": "푸른 초원의 끝, 그림자 군주의 부하가 기다린다.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 30,
+  "stars": [
+    7300,
+    12800,
+    19000
+  ],
+  "goals": [
+    {
+      "type": "boss"
+    },
+    {
+      "type": "collect",
+      "color": 0,
+      "count": 20
+    }
+  ],
+  "cells": [
+    {
+      "r": 4,
+      "c": 0,
+      "type": "bush"
+    },
+    {
+      "r": 4,
+      "c": 6,
+      "type": "bush"
+    },
+    {
+      "r": 5,
+      "c": 7,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 5,
+      "c": 0,
+      "type": "bush",
+      "hp": 2
+    }
+  ],
+  "voids": [],
+  "seed": 13843,
+  "boss": {
+    "name": "슬라임 경비대장",
+    "hp": 140,
+    "summon": "bush",
+    "summonEvery": 2,
+    "kind": "slime"
+  },
+  "generator": {
+    "version": "1.0.0",
+    "seed": 13843,
+    "obstacles": 4,
+    "free": 60
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 60,
+    "hasMove": true,
+    "blockedRatio": 0.06
+  }
+}

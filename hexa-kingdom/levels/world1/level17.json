@@ -1,0 +1,87 @@
+{
+  "id": "w1-17",
+  "world": 1,
+  "level": 17,
+  "name": "상자의 비밀",
+  "story": "푸른 초원 4구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 26,
+  "stars": [
+    5900,
+    10300,
+    15300
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 1,
+      "count": 24
+    },
+    {
+      "type": "collect",
+      "color": 4,
+      "count": 24
+    }
+  ],
+  "cells": [
+    {
+      "r": 0,
+      "c": 3,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 0,
+      "c": 7,
+      "type": "bush"
+    },
+    {
+      "r": 2,
+      "c": 4,
+      "type": "grass"
+    },
+    {
+      "r": 2,
+      "c": 0,
+      "type": "grass"
+    },
+    {
+      "r": 4,
+      "c": 2,
+      "type": "crate"
+    },
+    {
+      "r": 4,
+      "c": 3,
+      "type": "crate"
+    },
+    {
+      "r": 3,
+      "c": 2,
+      "type": "bush"
+    },
+    {
+      "r": 6,
+      "c": 2,
+      "type": "grass"
+    }
+  ],
+  "voids": [],
+  "seed": 13432,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 13432,
+    "obstacles": 8,
+    "free": 59
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 59,
+    "hasMove": true,
+    "blockedRatio": 0.08
+  }
+}

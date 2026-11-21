@@ -1,0 +1,81 @@
+{
+  "id": "w2-13",
+  "world": 2,
+  "level": 13,
+  "name": "얼음동굴 3번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    5400,
+    9400,
+    14000
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "ice",
+      "count": 5
+    }
+  ],
+  "cells": [
+    {
+      "r": 2,
+      "c": 1,
+      "type": "ice"
+    },
+    {
+      "r": 2,
+      "c": 3,
+      "type": "ice"
+    },
+    {
+      "r": 1,
+      "c": 3,
+      "type": "ice"
+    },
+    {
+      "r": 6,
+      "c": 4,
+      "type": "snowman"
+    },
+    {
+      "r": 4,
+      "c": 1,
+      "type": "ice"
+    },
+    {
+      "r": 1,
+      "c": 4,
+      "type": "snowman"
+    },
+    {
+      "r": 1,
+      "c": 0,
+      "type": "snowman"
+    },
+    {
+      "r": 4,
+      "c": 6,
+      "type": "ice"
+    }
+  ],
+  "voids": [],
+  "seed": 22884,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 22884,
+    "obstacles": 8,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

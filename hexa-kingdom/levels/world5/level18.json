@@ -1,0 +1,71 @@
+{
+  "id": "w5-18",
+  "world": 5,
+  "level": 18,
+  "name": "왕좌의 방 3번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 25,
+  "stars": [
+    5700,
+    10000,
+    14800
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "shadowStone",
+      "count": 6
+    }
+  ],
+  "cells": [
+    {
+      "r": 5,
+      "c": 5,
+      "type": "shadowStone"
+    },
+    {
+      "r": 7,
+      "c": 7,
+      "type": "shadowStone"
+    },
+    {
+      "r": 6,
+      "c": 5,
+      "type": "shadowStone"
+    },
+    {
+      "r": 1,
+      "c": 1,
+      "type": "shadowStone"
+    },
+    {
+      "r": 5,
+      "c": 6,
+      "type": "shadowStone"
+    },
+    {
+      "r": 3,
+      "c": 1,
+      "type": "shadowStone"
+    }
+  ],
+  "voids": [],
+  "seed": 53569,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 53569,
+    "obstacles": 6,
+    "free": 58
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 58,
+    "hasMove": true,
+    "blockedRatio": 0.09
+  }
+}

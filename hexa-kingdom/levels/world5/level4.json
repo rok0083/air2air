@@ -1,0 +1,76 @@
+{
+  "id": "w5-4",
+  "world": 5,
+  "level": 4,
+  "name": "왕좌로 가는 길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 26,
+  "stars": [
+    3900,
+    6800,
+    10100
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 2,
+      "item": "seed"
+    },
+    {
+      "type": "collect",
+      "color": 1,
+      "count": 20
+    }
+  ],
+  "cells": [
+    {
+      "r": 3,
+      "c": 0,
+      "type": "shadowStone"
+    },
+    {
+      "r": 6,
+      "c": 5,
+      "type": "shadowStone"
+    },
+    {
+      "r": 4,
+      "c": 7,
+      "type": "shadowRune"
+    },
+    {
+      "r": 6,
+      "c": 7,
+      "type": "shadowRune"
+    },
+    {
+      "r": 2,
+      "c": 5,
+      "type": "shadowStone"
+    },
+    {
+      "r": 1,
+      "c": 7,
+      "type": "shadowRune"
+    }
+  ],
+  "voids": [],
+  "seed": 51651,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 51651,
+    "obstacles": 6,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "id": "w2-5",
+  "world": 2,
+  "level": 5,
+  "name": "보스 · 눈보라 골렘",
+  "story": "얼음 왕국의 끝, 그림자 군주의 부하가 기다린다.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 28,
+  "stars": [
+    5500,
+    9600,
+    14300
+  ],
+  "goals": [
+    {
+      "type": "boss"
+    }
+  ],
+  "cells": [
+    {
+      "r": 6,
+      "c": 6,
+      "type": "ice"
+    },
+    {
+      "r": 5,
+      "c": 3,
+      "type": "ice"
+    },
+    {
+      "r": 7,
+      "c": 3,
+      "type": "snowman"
+    },
+    {
+      "r": 6,
+      "c": 1,
+      "type": "ice"
+    },
+    {
+      "r": 0,
+      "c": 3,
+      "type": "snowman"
+    },
+    {
+      "r": 1,
+      "c": 7,
+      "type": "ice"
+    }
+  ],
+  "voids": [],
+  "seed": 21788,
+  "boss": {
+    "name": "눈보라 골렘",
+    "hp": 124,
+    "summon": "icicle",
+    "summonEvery": 2,
+    "kind": "golem"
+  },
+  "generator": {
+    "version": "1.0.0",
+    "seed": 21788,
+    "obstacles": 6,
+    "free": 62
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 62,
+    "hasMove": true,
+    "blockedRatio": 0.03
+  }
+}

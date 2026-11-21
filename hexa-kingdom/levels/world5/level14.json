@@ -1,0 +1,86 @@
+{
+  "id": "w5-14",
+  "world": 5,
+  "level": 14,
+  "name": "그림자 예배당 4번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    5700,
+    9900,
+    14700
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "shadowRune",
+      "count": 5
+    }
+  ],
+  "cells": [
+    {
+      "r": 6,
+      "c": 2,
+      "type": "shadowRune"
+    },
+    {
+      "r": 3,
+      "c": 2,
+      "type": "shadowStone"
+    },
+    {
+      "r": 4,
+      "c": 5,
+      "type": "shadowRune"
+    },
+    {
+      "r": 5,
+      "c": 3,
+      "type": "shadowRune"
+    },
+    {
+      "r": 6,
+      "c": 3,
+      "type": "shadowRune"
+    },
+    {
+      "r": 4,
+      "c": 6,
+      "type": "shadowRune"
+    },
+    {
+      "r": 1,
+      "c": 6,
+      "type": "shadowStone"
+    },
+    {
+      "r": 1,
+      "c": 1,
+      "type": "shadowStone"
+    },
+    {
+      "r": 7,
+      "c": 1,
+      "type": "shadowStone"
+    }
+  ],
+  "voids": [],
+  "seed": 53021,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 53021,
+    "obstacles": 9,
+    "free": 60
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 60,
+    "hasMove": true,
+    "blockedRatio": 0.06
+  }
+}

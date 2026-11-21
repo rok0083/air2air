@@ -1,0 +1,71 @@
+{
+  "id": "w3-10",
+  "world": 3,
+  "level": 10,
+  "name": "오아시스 5번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    4500,
+    7900,
+    11700
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "any",
+      "count": 5
+    },
+    {
+      "type": "clear",
+      "obstacle": "cactus",
+      "count": 3
+    }
+  ],
+  "cells": [
+    {
+      "r": 4,
+      "c": 6,
+      "type": "sand"
+    },
+    {
+      "r": 7,
+      "c": 1,
+      "type": "cactus"
+    },
+    {
+      "r": 4,
+      "c": 4,
+      "type": "cactus"
+    },
+    {
+      "r": 5,
+      "c": 0,
+      "type": "cactus"
+    },
+    {
+      "r": 3,
+      "c": 0,
+      "type": "sand"
+    }
+  ],
+  "voids": [],
+  "seed": 32473,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 32473,
+    "obstacles": 5,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

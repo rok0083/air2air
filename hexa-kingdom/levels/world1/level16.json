@@ -1,0 +1,88 @@
+{
+  "id": "w1-16",
+  "world": 1,
+  "level": 16,
+  "name": "덤불 군락",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    5900,
+    10400,
+    15400
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "bush",
+      "count": 8
+    }
+  ],
+  "cells": [
+    {
+      "r": 3,
+      "c": 3,
+      "type": "bush"
+    },
+    {
+      "r": 3,
+      "c": 5,
+      "type": "bush"
+    },
+    {
+      "r": 5,
+      "c": 7,
+      "type": "bush"
+    },
+    {
+      "r": 0,
+      "c": 0,
+      "type": "bush"
+    },
+    {
+      "r": 1,
+      "c": 6,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 5,
+      "c": 3,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 0,
+      "c": 5,
+      "type": "bush"
+    },
+    {
+      "r": 3,
+      "c": 7,
+      "type": "bush"
+    },
+    {
+      "r": 1,
+      "c": 2,
+      "type": "bush"
+    }
+  ],
+  "voids": [],
+  "seed": 13295,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 13295,
+    "obstacles": 9,
+    "free": 55
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 55,
+    "hasMove": true,
+    "blockedRatio": 0.14
+  }
+}

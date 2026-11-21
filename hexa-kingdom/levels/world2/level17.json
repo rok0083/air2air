@@ -1,0 +1,91 @@
+{
+  "id": "w2-17",
+  "world": 2,
+  "level": 17,
+  "name": "온천마을 2번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 25,
+  "stars": [
+    6200,
+    10900,
+    16100
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "icicle",
+      "count": 6
+    }
+  ],
+  "cells": [
+    {
+      "r": 2,
+      "c": 5,
+      "type": "icicle"
+    },
+    {
+      "r": 3,
+      "c": 6,
+      "type": "icicle"
+    },
+    {
+      "r": 1,
+      "c": 5,
+      "type": "icicle"
+    },
+    {
+      "r": 4,
+      "c": 6,
+      "type": "ice"
+    },
+    {
+      "r": 4,
+      "c": 2,
+      "type": "icicle"
+    },
+    {
+      "r": 0,
+      "c": 2,
+      "type": "icicle"
+    },
+    {
+      "r": 5,
+      "c": 6,
+      "type": "ice"
+    },
+    {
+      "r": 0,
+      "c": 1,
+      "type": "icicle"
+    },
+    {
+      "r": 3,
+      "c": 7,
+      "type": "ice"
+    },
+    {
+      "r": 3,
+      "c": 3,
+      "type": "ice"
+    }
+  ],
+  "voids": [],
+  "seed": 23432,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 23432,
+    "obstacles": 10,
+    "free": 58
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 58,
+    "hasMove": true,
+    "blockedRatio": 0.09
+  }
+}

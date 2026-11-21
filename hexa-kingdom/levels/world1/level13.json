@@ -1,0 +1,76 @@
+{
+  "id": "w1-13",
+  "world": 1,
+  "level": 13,
+  "name": "초원의 심장",
+  "story": "푸른 초원 3구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    5200,
+    9100,
+    13500
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 3,
+      "count": 28
+    }
+  ],
+  "cells": [
+    {
+      "r": 6,
+      "c": 4,
+      "type": "crate"
+    },
+    {
+      "r": 6,
+      "c": 0,
+      "type": "grass"
+    },
+    {
+      "r": 2,
+      "c": 2,
+      "type": "grass"
+    },
+    {
+      "r": 4,
+      "c": 3,
+      "type": "crate"
+    },
+    {
+      "r": 5,
+      "c": 3,
+      "type": "grass"
+    },
+    {
+      "r": 7,
+      "c": 7,
+      "type": "crate"
+    },
+    {
+      "r": 4,
+      "c": 0,
+      "type": "grass"
+    }
+  ],
+  "voids": [],
+  "seed": 12884,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 12884,
+    "obstacles": 7,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "id": "w4-19",
+  "world": 4,
+  "level": 19,
+  "name": "수정신전 4번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 25,
+  "stars": [
+    6600,
+    11600,
+    17200
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "fruitTree",
+      "count": 6
+    }
+  ],
+  "cells": [
+    {
+      "r": 7,
+      "c": 2,
+      "type": "fruitTree"
+    },
+    {
+      "r": 4,
+      "c": 1,
+      "type": "swamp"
+    },
+    {
+      "r": 6,
+      "c": 6,
+      "type": "swamp"
+    },
+    {
+      "r": 3,
+      "c": 7,
+      "type": "fruitTree"
+    },
+    {
+      "r": 7,
+      "c": 6,
+      "type": "fruitTree"
+    },
+    {
+      "r": 2,
+      "c": 1,
+      "type": "swamp"
+    },
+    {
+      "r": 6,
+      "c": 3,
+      "type": "fruitTree"
+    },
+    {
+      "r": 0,
+      "c": 0,
+      "type": "fruitTree"
+    },
+    {
+      "r": 5,
+      "c": 6,
+      "type": "swamp"
+    },
+    {
+      "r": 4,
+      "c": 3,
+      "type": "fruitTree"
+    },
+    {
+      "r": 3,
+      "c": 0,
+      "type": "fruitTree"
+    }
+  ],
+  "voids": [],
+  "seed": 43706,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 43706,
+    "obstacles": 11,
+    "free": 57
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 57,
+    "hasMove": true,
+    "blockedRatio": 0.11
+  }
+}

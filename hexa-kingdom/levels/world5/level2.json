@@ -1,0 +1,66 @@
+{
+  "id": "w5-2",
+  "world": 5,
+  "level": 2,
+  "name": "무너진 회랑",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    3500,
+    6100,
+    9000
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "shadowStone",
+      "count": 3
+    }
+  ],
+  "cells": [
+    {
+      "r": 4,
+      "c": 1,
+      "type": "shadowStone"
+    },
+    {
+      "r": 3,
+      "c": 6,
+      "type": "shadowStone"
+    },
+    {
+      "r": 0,
+      "c": 6,
+      "type": "shadowStone"
+    },
+    {
+      "r": 2,
+      "c": 2,
+      "type": "shadowRune"
+    },
+    {
+      "r": 3,
+      "c": 0,
+      "type": "shadowRune"
+    }
+  ],
+  "voids": [],
+  "seed": 51377,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 51377,
+    "obstacles": 5,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

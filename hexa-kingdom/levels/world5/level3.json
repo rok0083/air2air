@@ -1,0 +1,76 @@
+{
+  "id": "w5-3",
+  "world": 5,
+  "level": 3,
+  "name": "그림자 예배당",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    3900,
+    6800,
+    10200
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "shadowRune",
+      "count": 6
+    }
+  ],
+  "cells": [
+    {
+      "r": 4,
+      "c": 5,
+      "type": "shadowRune"
+    },
+    {
+      "r": 6,
+      "c": 3,
+      "type": "shadowRune"
+    },
+    {
+      "r": 5,
+      "c": 4,
+      "type": "shadowRune"
+    },
+    {
+      "r": 5,
+      "c": 6,
+      "type": "shadowRune"
+    },
+    {
+      "r": 1,
+      "c": 5,
+      "type": "shadowRune"
+    },
+    {
+      "r": 5,
+      "c": 0,
+      "type": "shadowRune"
+    },
+    {
+      "r": 3,
+      "c": 7,
+      "type": "shadowRune"
+    }
+  ],
+  "voids": [],
+  "seed": 51514,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 51514,
+    "obstacles": 7,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

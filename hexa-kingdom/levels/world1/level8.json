@@ -1,0 +1,76 @@
+{
+  "id": "w1-8",
+  "world": 1,
+  "level": 8,
+  "name": "바람의 언덕",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    4400,
+    7700,
+    11400
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "grass",
+      "count": 5
+    },
+    {
+      "type": "collect",
+      "color": 0,
+      "count": 20
+    }
+  ],
+  "cells": [
+    {
+      "r": 2,
+      "c": 0,
+      "type": "grass"
+    },
+    {
+      "r": 2,
+      "c": 3,
+      "type": "grass"
+    },
+    {
+      "r": 1,
+      "c": 0,
+      "type": "grass"
+    },
+    {
+      "r": 1,
+      "c": 2,
+      "type": "grass"
+    },
+    {
+      "r": 2,
+      "c": 6,
+      "type": "grass"
+    },
+    {
+      "r": 4,
+      "c": 3,
+      "type": "grass"
+    }
+  ],
+  "voids": [],
+  "seed": 12199,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 12199,
+    "obstacles": 6,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

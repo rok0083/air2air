@@ -1,0 +1,71 @@
+{
+  "id": "w2-3",
+  "world": 2,
+  "level": 3,
+  "name": "눈사람 마당",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    3800,
+    6600,
+    9800
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "snowman",
+      "count": 3
+    }
+  ],
+  "cells": [
+    {
+      "r": 7,
+      "c": 2,
+      "type": "snowman"
+    },
+    {
+      "r": 2,
+      "c": 4,
+      "type": "snowman"
+    },
+    {
+      "r": 5,
+      "c": 1,
+      "type": "ice"
+    },
+    {
+      "r": 3,
+      "c": 2,
+      "type": "ice"
+    },
+    {
+      "r": 4,
+      "c": 3,
+      "type": "ice"
+    },
+    {
+      "r": 6,
+      "c": 7,
+      "type": "snowman"
+    }
+  ],
+  "voids": [],
+  "seed": 21514,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 21514,
+    "obstacles": 6,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

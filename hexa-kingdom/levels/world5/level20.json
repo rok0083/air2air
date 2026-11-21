@@ -1,0 +1,100 @@
+{
+  "id": "w5-20",
+  "world": 5,
+  "level": 20,
+  "name": "보스 · 그림자 군주",
+  "story": "그림자 성의 끝, 그림자 군주의 부하가 기다린다.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 30,
+  "stars": [
+    10800,
+    18800,
+    28000
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "any",
+      "count": 9
+    },
+    {
+      "type": "clear",
+      "obstacle": "shadowStone",
+      "count": 5
+    },
+    {
+      "type": "boss"
+    }
+  ],
+  "cells": [
+    {
+      "r": 4,
+      "c": 7,
+      "type": "shadowStone"
+    },
+    {
+      "r": 7,
+      "c": 0,
+      "type": "shadowStone"
+    },
+    {
+      "r": 6,
+      "c": 6,
+      "type": "shadowStone"
+    },
+    {
+      "r": 2,
+      "c": 4,
+      "type": "shadowRune"
+    },
+    {
+      "r": 3,
+      "c": 7,
+      "type": "shadowRune"
+    },
+    {
+      "r": 7,
+      "c": 2,
+      "type": "shadowStone"
+    },
+    {
+      "r": 4,
+      "c": 2,
+      "type": "shadowRune"
+    },
+    {
+      "r": 1,
+      "c": 0,
+      "type": "shadowRune"
+    },
+    {
+      "r": 3,
+      "c": 0,
+      "type": "shadowStone"
+    }
+  ],
+  "voids": [],
+  "seed": 53843,
+  "boss": {
+    "name": "그림자 군주",
+    "hp": 360,
+    "summon": "shadowStone",
+    "summonEvery": 2,
+    "kind": "shadow"
+  },
+  "generator": {
+    "version": "1.0.0",
+    "seed": 53843,
+    "obstacles": 9,
+    "free": 59
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 59,
+    "hasMove": true,
+    "blockedRatio": 0.08
+  }
+}

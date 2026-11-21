@@ -1,0 +1,81 @@
+{
+  "id": "w2-4",
+  "world": 2,
+  "level": 4,
+  "name": "고드름 동굴",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 26,
+  "stars": [
+    4000,
+    7100,
+    10500
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 2,
+      "item": "seed"
+    },
+    {
+      "type": "clear",
+      "obstacle": "icicle",
+      "count": 3
+    }
+  ],
+  "cells": [
+    {
+      "r": 2,
+      "c": 1,
+      "type": "ice"
+    },
+    {
+      "r": 3,
+      "c": 1,
+      "type": "icicle"
+    },
+    {
+      "r": 5,
+      "c": 1,
+      "type": "icicle"
+    },
+    {
+      "r": 3,
+      "c": 4,
+      "type": "ice"
+    },
+    {
+      "r": 3,
+      "c": 7,
+      "type": "ice"
+    },
+    {
+      "r": 4,
+      "c": 4,
+      "type": "icicle"
+    },
+    {
+      "r": 6,
+      "c": 2,
+      "type": "ice"
+    }
+  ],
+  "voids": [],
+  "seed": 21651,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 21651,
+    "obstacles": 7,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

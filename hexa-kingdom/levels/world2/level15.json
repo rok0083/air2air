@@ -1,0 +1,66 @@
+{
+  "id": "w2-15",
+  "world": 2,
+  "level": 15,
+  "name": "얼음동굴 5번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 25,
+  "stars": [
+    5000,
+    8700,
+    13000
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "any",
+      "count": 4
+    },
+    {
+      "type": "clear",
+      "obstacle": "icicle",
+      "count": 4
+    }
+  ],
+  "cells": [
+    {
+      "r": 1,
+      "c": 5,
+      "type": "icicle"
+    },
+    {
+      "r": 2,
+      "c": 1,
+      "type": "icicle"
+    },
+    {
+      "r": 6,
+      "c": 3,
+      "type": "icicle"
+    },
+    {
+      "r": 3,
+      "c": 6,
+      "type": "icicle"
+    }
+  ],
+  "voids": [],
+  "seed": 23158,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 23158,
+    "obstacles": 4,
+    "free": 60
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 60,
+    "hasMove": true,
+    "blockedRatio": 0.06
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "id": "w5-7",
+  "world": 5,
+  "level": 7,
+  "name": "부서진 회랑 2번길",
+  "story": "그림자 성 2구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 23,
+  "stars": [
+    4300,
+    7500,
+    11100
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 0,
+      "count": 20
+    }
+  ],
+  "cells": [
+    {
+      "r": 1,
+      "c": 7,
+      "type": "shadowRune"
+    },
+    {
+      "r": 2,
+      "c": 6,
+      "type": "shadowRune"
+    },
+    {
+      "r": 7,
+      "c": 6,
+      "type": "shadowStone"
+    },
+    {
+      "r": 4,
+      "c": 4,
+      "type": "shadowRune"
+    },
+    {
+      "r": 1,
+      "c": 4,
+      "type": "shadowRune"
+    },
+    {
+      "r": 4,
+      "c": 2,
+      "type": "shadowStone"
+    }
+  ],
+  "voids": [],
+  "seed": 52062,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 52062,
+    "obstacles": 6,
+    "free": 62
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 62,
+    "hasMove": true,
+    "blockedRatio": 0.03
+  }
+}

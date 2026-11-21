@@ -1,0 +1,83 @@
+{
+  "id": "w1-11",
+  "world": 1,
+  "level": 11,
+  "name": "꿀벌의 정원",
+  "story": "푸른 초원 3구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    5000,
+    8700,
+    12900
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 2,
+      "count": 20
+    },
+    {
+      "type": "collect",
+      "color": 4,
+      "count": 20
+    }
+  ],
+  "cells": [
+    {
+      "r": 5,
+      "c": 5,
+      "type": "grass"
+    },
+    {
+      "r": 5,
+      "c": 2,
+      "type": "bush"
+    },
+    {
+      "r": 1,
+      "c": 4,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 4,
+      "c": 4,
+      "type": "grass"
+    },
+    {
+      "r": 5,
+      "c": 7,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 4,
+      "c": 5,
+      "type": "grass"
+    },
+    {
+      "r": 1,
+      "c": 6,
+      "type": "bush"
+    }
+  ],
+  "voids": [],
+  "seed": 12610,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 12610,
+    "obstacles": 7,
+    "free": 60
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 60,
+    "hasMove": true,
+    "blockedRatio": 0.06
+  }
+}

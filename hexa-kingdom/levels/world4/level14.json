@@ -1,0 +1,86 @@
+{
+  "id": "w4-14",
+  "world": 4,
+  "level": 14,
+  "name": "열매농장 4번길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    5700,
+    9900,
+    14700
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 3,
+      "item": "seed"
+    }
+  ],
+  "cells": [
+    {
+      "r": 5,
+      "c": 5,
+      "type": "swamp"
+    },
+    {
+      "r": 7,
+      "c": 0,
+      "type": "fruitTree"
+    },
+    {
+      "r": 5,
+      "c": 2,
+      "type": "fruitTree"
+    },
+    {
+      "r": 0,
+      "c": 4,
+      "type": "fruitTree"
+    },
+    {
+      "r": 6,
+      "c": 2,
+      "type": "swamp"
+    },
+    {
+      "r": 6,
+      "c": 3,
+      "type": "swamp"
+    },
+    {
+      "r": 0,
+      "c": 0,
+      "type": "fruitTree"
+    },
+    {
+      "r": 1,
+      "c": 6,
+      "type": "swamp"
+    },
+    {
+      "r": 4,
+      "c": 1,
+      "type": "fruitTree"
+    }
+  ],
+  "voids": [],
+  "seed": 43021,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 43021,
+    "obstacles": 9,
+    "free": 59
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 59,
+    "hasMove": true,
+    "blockedRatio": 0.08
+  }
+}

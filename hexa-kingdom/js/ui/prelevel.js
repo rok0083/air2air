@@ -1,0 +1,145 @@
+/* =========================================================================
+   스테이지 시작 전 모달 — 목표·별 기준·시작 부스터 선택
+   ========================================================================= */
+import { CFG, GEMS } from '../config.js';
+import { loadLevel } from '../meta/levels.js';
+import { levelName, isBossLevel } from '../meta/worldmap.js';
+import { openModal, toast, ICONS, fmt, el } from './dom.js';
+import { bossSvg } from './art.js';
+
+export async function openPreLevel(app, world, level) {
+  const p = app.profile;
+  if (!p.isLevelUnlocked(world, level)) { toast('앞 스테이지를 먼저 클리어해 주세요.', 'bad'); return; }
+  let data;
+  try { data = await loadLevel(world, level); }
+  catch { toast('스테이지를 불러오지 못했어요.', 'bad'); return; }
+
+  const stars = p.starsOf(world, level);
+  const bestScore = p.data.bestScores[`w${world}-${level}`] || 0;
+  const thresholds = data.stars || [2500, 5000, 8000];
+  const lives = p.livesInfo();
+  const boss = data.boss;
+
+  const selected = { startRocket: false, startTnt: false, startSpinner: false };
+  const owned = {
+    startRocket: p.boosterCount('startRocket'),
+    startTnt: p.boosterCount('startTnt'),
+    startSpinner: p.boosterCount('startSpinner'),
+  };
+
+  const goalRows = (data.goals || []).map(g => goalRowHtml(g, data)).join('');
+
+  const body = el('div', {});
+  body.innerHTML = `
+    <div class="level-banner">
+      <div class="lb-art">${boss ? bossSvg(boss.kind || 'slime', 64) : `<div style="font-size:22px;font-weight:900;color:#ffd166">${level}</div>`}</div>
+      <div class="grow">
+        <div class="tiny muted">월드 ${world} · ${boss ? '보스 스테이지' : `스테이지 ${level}`}</div>
+        <h2>${data.name || levelName(world, level)}</h2>
+        <div class="lb-sub">이동 ${data.moves}수 · 색 ${data.colors || 5}종 ${boss ? `· 보스 HP ${boss.hp}` : ''}</div>
+      </div>
+    </div>
+
+    <div class="stars-row">
+      ${[0, 1, 2].map(i => `<div class="star-slot ${i < stars ? 'on' : ''}">${ICONS.star}</div>`).join('')}
+    </div>
+    <div class="center tiny muted">${stars ? `최고 별 ${stars}개 · 최고 점수 ${fmt(bestScore)}` : `별 기준 ${thresholds.map(t => fmt(t)).join(' / ')}`}</div>
+
+    <div class="goal-list">${goalRows}</div>
+
+    <div>
+      <div class="spread" style="margin-bottom:6px">
+        <span class="tiny muted">시작 부스터</span>
+        <span class="tiny muted">보유 ${owned.startRocket + owned.startTnt + owned.startSpinner}개</span>
+      </div>
+      <div class="pre-boosters" id="pre-boosters">
+        ${preBoosterHtml('startRocket', '시작 로켓', owned.startRocket)}
+        ${preBoosterHtml('startTnt', '시작 폭탄', owned.startTnt)}
+        ${preBoosterHtml('startSpinner', '시작 프로펠러', owned.startSpinner)}
+      </div>
+    </div>
+
+    <div class="spread tiny muted" style="padding-top:2px">
+      <span>${ICONS.heart} 목숨 ${lives.count}/${lives.max} · 시작 시 1 소모</span>
+      <span>${lives.nextIn ? `다음 회복 ${Math.ceil(lives.nextIn / 60000)}분` : '가득 참'}</span>
+    </div>
+    ${boss ? `<div class="tiny" style="color:#d9c2ff">${ICONS.boss} ${boss.name} — ${boss.summonEvery ?? 2}수마다 장애물을 소환합니다.</div>` : ''}
+  `;
+
+  const modal = openModal({
+    title: '출발 준비',
+    subtitle: `${world}월드 · ${levelName(world, level)}`,
+    body,
+    actions: [
+      { label: '지도로', class: 'btn-ghost' },
+      {
+        label: lives.count > 0 ? `${ICONS.play} 플레이` : '목숨 부족',
+        class: 'btn-green',
+        disabled: lives.count <= 0,
+        onClick: (close) => {
+          if (!p.consumeLife()) { toast('목숨이 없어요. 30분마다 회복됩니다.', 'bad'); return; }
+          // 선택한 시작 부스터 차감
+          const extra = {};
+          for (const key of Object.keys(selected)) {
+            if (selected[key] && p.useBooster(key)) extra[key] = (extra[key] || 0) + 1;
+          }
+          p.save();
+          close();
+          app.startLevel(world, level, data, extra);
+        },
+      },
+    ],
+  });
+
+  // 부스터 토글
+  modal.body.querySelectorAll('[data-pb]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.pb;
+      if (!owned[key]) { toast('상점에서 시작 부스터를 살 수 있어요.', 'bad'); return; }
+      selected[key] = !selected[key];
+      btn.classList.toggle('on', selected[key]);
+      app.audio.sfx('click');
+    });
+  });
+  if (lives.count <= 0) {
+    toast('목숨이 모두 떨어졌어요. 30분마다 1개씩 회복됩니다.', 'bad');
+  }
+}
+
+function preBoosterHtml(key, name, count) {
+  const svg = {
+    startRocket: '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 19l6-6M14 4c4 0 6 2 6 6-3 0-6 3-6 6-2-2-2-4-2-4z" fill="#ff9f43" stroke="#fff" stroke-width="1"/><circle cx="16" cy="8" r="1.6" fill="#fff"/></svg>',
+    startTnt: '<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="11" cy="14" r="6" fill="#ff5e57"/><path d="M15 9c2-3 4-2 4-2" stroke="#ffd166" stroke-width="2" fill="none"/><circle cx="20" cy="6" r="2" fill="#ffd166"/></svg>',
+    startSpinner: '<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="2.6" fill="#48dbfb"/><path d="M12 4c3 0 4 2 4 2l-3 3M20 12c0 3-2 4-2 4l-3-3M12 20c-3 0-4-2-4-2l3-3M4 12c0-3 2-4 2-4l3 3" stroke="#9be9ff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',
+  };
+  return `<button class="pre-booster" data-pb="${key}">
+    ${svg[key]}
+    <span class="pbn">${name}</span>
+    <span class="pbc">${count}개</span>
+  </button>`;
+}
+
+function goalRowHtml(g, data) {
+  if (g.type === 'collect') {
+    const gem = GEMS[g.color] || GEMS[0];
+    return `<div class="goal-row"><span class="gem-dot" style="background:${gem.color}"></span>${gem.name} ${g.count}개 모으기<span class="gcount">0/${g.count}</span></div>`;
+  }
+  if (g.type === 'clear') {
+    return `<div class="goal-row">${ICONS.gem}장애물 ${g.obstacle && g.obstacle !== 'any' ? obstacleName(g.obstacle) : ''} ${g.count}개 없애기<span class="gcount">0/${g.count}</span></div>`;
+  }
+  if (g.type === 'drop') {
+    return `<div class="goal-row">${ICONS.seed}마법 씨앗 ${g.count}개를 바닥까지 떨어뜨리기<span class="gcount">0/${g.count}</span></div>`;
+  }
+  if (g.type === 'boss') {
+    return `<div class="goal-row">${ICONS.boss}${data.boss?.name || '보스'} 처치 (HP ${data.boss?.hp || g.count})<span class="gcount">0/${data.boss?.hp || g.count}</span></div>`;
+  }
+  return '';
+}
+
+function obstacleName(type) {
+  return {
+    bush: '덤불', crate: '나무 상자', grass: '풀밭', ice: '얼음', snowman: '눈사람', icicle: '고드름',
+    sand: '모래', jar: '항아리', cactus: '선인장', vine: '덩굴', fruitTree: '열매 나무', swamp: '늪',
+    shadowStone: '그림자 돌', shadowRune: '그림자 룬',
+  }[type] || '';
+}

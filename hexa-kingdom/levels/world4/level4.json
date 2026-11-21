@@ -1,0 +1,91 @@
+{
+  "id": "w4-4",
+  "world": 4,
+  "level": 4,
+  "name": "늪의 속삭임",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 26,
+  "stars": [
+    4400,
+    7600,
+    11300
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 4,
+      "count": 26
+    },
+    {
+      "type": "clear",
+      "obstacle": "vine",
+      "count": 5
+    }
+  ],
+  "cells": [
+    {
+      "r": 5,
+      "c": 2,
+      "type": "vine"
+    },
+    {
+      "r": 4,
+      "c": 4,
+      "type": "swamp"
+    },
+    {
+      "r": 3,
+      "c": 7,
+      "type": "vine"
+    },
+    {
+      "r": 2,
+      "c": 2,
+      "type": "vine"
+    },
+    {
+      "r": 3,
+      "c": 3,
+      "type": "swamp"
+    },
+    {
+      "r": 6,
+      "c": 7,
+      "type": "vine"
+    },
+    {
+      "r": 2,
+      "c": 0,
+      "type": "vine"
+    },
+    {
+      "r": 5,
+      "c": 1,
+      "type": "swamp"
+    },
+    {
+      "r": 1,
+      "c": 3,
+      "type": "vine"
+    }
+  ],
+  "voids": [],
+  "seed": 41651,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 41651,
+    "obstacles": 9,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "id": "w3-17",
+  "world": 3,
+  "level": 17,
+  "name": "잊힌 유적 2번길",
+  "story": "불타는 사막 4구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 25,
+  "stars": [
+    6200,
+    10900,
+    16100
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 2,
+      "count": 28
+    }
+  ],
+  "cells": [
+    {
+      "r": 1,
+      "c": 3,
+      "type": "sand"
+    },
+    {
+      "r": 5,
+      "c": 2,
+      "type": "cactus"
+    },
+    {
+      "r": 4,
+      "c": 3,
+      "type": "sand"
+    },
+    {
+      "r": 2,
+      "c": 1,
+      "type": "cactus"
+    },
+    {
+      "r": 5,
+      "c": 4,
+      "type": "sand"
+    },
+    {
+      "r": 3,
+      "c": 6,
+      "type": "sand"
+    },
+    {
+      "r": 6,
+      "c": 1,
+      "type": "cactus"
+    },
+    {
+      "r": 4,
+      "c": 4,
+      "type": "cactus"
+    },
+    {
+      "r": 1,
+      "c": 5,
+      "type": "cactus"
+    },
+    {
+      "r": 5,
+      "c": 3,
+      "type": "cactus"
+    }
+  ],
+  "voids": [],
+  "seed": 33432,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 33432,
+    "obstacles": 10,
+    "free": 58
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 58,
+    "hasMove": true,
+    "blockedRatio": 0.09
+  }
+}

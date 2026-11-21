@@ -1,0 +1,76 @@
+{
+  "id": "w2-11",
+  "world": 2,
+  "level": 11,
+  "name": "얼음동굴 1번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    5000,
+    8700,
+    12900
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "any",
+      "count": 7
+    }
+  ],
+  "cells": [
+    {
+      "r": 0,
+      "c": 2,
+      "type": "snowman"
+    },
+    {
+      "r": 0,
+      "c": 1,
+      "type": "snowman"
+    },
+    {
+      "r": 1,
+      "c": 3,
+      "type": "icicle"
+    },
+    {
+      "r": 6,
+      "c": 6,
+      "type": "icicle"
+    },
+    {
+      "r": 5,
+      "c": 4,
+      "type": "snowman"
+    },
+    {
+      "r": 6,
+      "c": 3,
+      "type": "icicle"
+    },
+    {
+      "r": 3,
+      "c": 0,
+      "type": "snowman"
+    }
+  ],
+  "voids": [],
+  "seed": 22610,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 22610,
+    "obstacles": 7,
+    "free": 57
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 57,
+    "hasMove": true,
+    "blockedRatio": 0.11
+  }
+}

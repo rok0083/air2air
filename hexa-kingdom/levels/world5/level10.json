@@ -1,0 +1,71 @@
+{
+  "id": "w5-10",
+  "world": 5,
+  "level": 10,
+  "name": "부서진 회랑 5번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    4500,
+    7900,
+    11700
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "shadowStone",
+      "count": 3
+    },
+    {
+      "type": "clear",
+      "obstacle": "any",
+      "count": 5
+    }
+  ],
+  "cells": [
+    {
+      "r": 5,
+      "c": 4,
+      "type": "shadowRune"
+    },
+    {
+      "r": 0,
+      "c": 0,
+      "type": "shadowStone"
+    },
+    {
+      "r": 1,
+      "c": 3,
+      "type": "shadowRune"
+    },
+    {
+      "r": 6,
+      "c": 1,
+      "type": "shadowStone"
+    },
+    {
+      "r": 3,
+      "c": 1,
+      "type": "shadowStone"
+    }
+  ],
+  "voids": [],
+  "seed": 52473,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 52473,
+    "obstacles": 5,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

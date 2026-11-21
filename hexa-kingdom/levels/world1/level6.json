@@ -1,0 +1,64 @@
+{
+  "id": "w1-6",
+  "world": 1,
+  "level": 6,
+  "name": "물레방아 마을",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    3700,
+    6400,
+    9500
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 2,
+      "item": "seed"
+    },
+    {
+      "type": "collect",
+      "color": 1,
+      "count": 16
+    }
+  ],
+  "cells": [
+    {
+      "r": 1,
+      "c": 0,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 6,
+      "c": 2,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 4,
+      "c": 0,
+      "type": "bush",
+      "hp": 2
+    }
+  ],
+  "voids": [],
+  "seed": 11925,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 11925,
+    "obstacles": 3,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

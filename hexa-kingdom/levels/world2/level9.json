@@ -1,0 +1,61 @@
+{
+  "id": "w2-9",
+  "world": 2,
+  "level": 9,
+  "name": "눈송이광장 4번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 23,
+  "stars": [
+    4200,
+    7400,
+    10900
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "snowman",
+      "count": 4
+    }
+  ],
+  "cells": [
+    {
+      "r": 3,
+      "c": 3,
+      "type": "snowman"
+    },
+    {
+      "r": 5,
+      "c": 3,
+      "type": "snowman"
+    },
+    {
+      "r": 2,
+      "c": 1,
+      "type": "snowman"
+    },
+    {
+      "r": 1,
+      "c": 2,
+      "type": "snowman"
+    }
+  ],
+  "voids": [],
+  "seed": 22336,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 22336,
+    "obstacles": 4,
+    "free": 60
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 60,
+    "hasMove": true,
+    "blockedRatio": 0.06
+  }
+}

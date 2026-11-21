@@ -1,0 +1,76 @@
+{
+  "id": "w1-5",
+  "world": 1,
+  "level": 5,
+  "name": "풀밭 너머로",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    4000,
+    7000,
+    10400
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "crate",
+      "count": 3
+    },
+    {
+      "type": "collect",
+      "color": 0,
+      "count": 16
+    }
+  ],
+  "cells": [
+    {
+      "r": 6,
+      "c": 6,
+      "type": "crate"
+    },
+    {
+      "r": 5,
+      "c": 6,
+      "type": "crate"
+    },
+    {
+      "r": 7,
+      "c": 7,
+      "type": "crate"
+    },
+    {
+      "r": 2,
+      "c": 1,
+      "type": "bush"
+    },
+    {
+      "r": 4,
+      "c": 1,
+      "type": "crate"
+    },
+    {
+      "r": 2,
+      "c": 5,
+      "type": "bush"
+    }
+  ],
+  "voids": [],
+  "seed": 11788,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 11788,
+    "obstacles": 6,
+    "free": 58
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 58,
+    "hasMove": true,
+    "blockedRatio": 0.09
+  }
+}

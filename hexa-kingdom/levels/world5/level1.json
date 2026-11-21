@@ -1,0 +1,61 @@
+{
+  "id": "w5-1",
+  "world": 5,
+  "level": 1,
+  "name": "잿빛 성문",
+  "story": "그림자 성 1구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 22,
+  "stars": [
+    3200,
+    5500,
+    8200
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 3,
+      "count": 22
+    }
+  ],
+  "cells": [
+    {
+      "r": 3,
+      "c": 6,
+      "type": "shadowRune"
+    },
+    {
+      "r": 5,
+      "c": 1,
+      "type": "shadowRune"
+    },
+    {
+      "r": 6,
+      "c": 5,
+      "type": "shadowRune"
+    },
+    {
+      "r": 4,
+      "c": 3,
+      "type": "shadowRune"
+    }
+  ],
+  "voids": [],
+  "seed": 51240,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 51240,
+    "obstacles": 4,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

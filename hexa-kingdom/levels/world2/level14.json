@@ -1,0 +1,86 @@
+{
+  "id": "w2-14",
+  "world": 2,
+  "level": 14,
+  "name": "얼음동굴 4번길",
+  "story": "얼음 왕국 3구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    5700,
+    9900,
+    14700
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 4,
+      "count": 24
+    }
+  ],
+  "cells": [
+    {
+      "r": 7,
+      "c": 7,
+      "type": "snowman"
+    },
+    {
+      "r": 4,
+      "c": 3,
+      "type": "snowman"
+    },
+    {
+      "r": 3,
+      "c": 4,
+      "type": "snowman"
+    },
+    {
+      "r": 4,
+      "c": 6,
+      "type": "icicle"
+    },
+    {
+      "r": 1,
+      "c": 3,
+      "type": "icicle"
+    },
+    {
+      "r": 0,
+      "c": 0,
+      "type": "icicle"
+    },
+    {
+      "r": 6,
+      "c": 6,
+      "type": "snowman"
+    },
+    {
+      "r": 5,
+      "c": 5,
+      "type": "snowman"
+    },
+    {
+      "r": 7,
+      "c": 0,
+      "type": "icicle"
+    }
+  ],
+  "voids": [],
+  "seed": 23021,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 23021,
+    "obstacles": 9,
+    "free": 55
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 55,
+    "hasMove": true,
+    "blockedRatio": 0.14
+  }
+}

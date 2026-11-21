@@ -1,0 +1,127 @@
+rules_version = '2';
+
+// =========================================================================
+// samsung-brick-breaker — Firestore 보안 규칙 (통합)
+//   · scores        : 헥사 블리츠(HEXA BLITZ) 기존 규칙 — 그대로 유지
+//   · users         : 헥사 킹덤(HEXA KINGDOM) 플레이어 프로필
+//   · blitzScores   : 헥사 킹덤 주간 블리츠 점수
+// 기존 hexa 의 scores 규칙은 절대 바뀌지 않도록 그대로 병합했습니다.
+// =========================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── 헥사 블리츠 (기존, 변경 금지) ─────────────────────────────────
+    match /scores/{docId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly([
+             'uid', 'name', 'score', 'maxCombo', 'specialsCreated',
+             'combosTriggered', 'mode', 'roomCode', 'createdAt'
+           ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 12
+        && request.resource.data.score is int
+        && request.resource.data.score >= 0
+        && request.resource.data.score <= 5000000
+        && request.resource.data.maxCombo is int
+        && request.resource.data.maxCombo >= 0
+        && request.resource.data.maxCombo <= 999
+        && request.resource.data.specialsCreated is int
+        && request.resource.data.specialsCreated >= 0
+        && request.resource.data.specialsCreated <= 9999
+        && request.resource.data.combosTriggered is int
+        && request.resource.data.combosTriggered >= 0
+        && request.resource.data.combosTriggered <= 9999
+        && request.resource.data.mode == 'blitz60'
+        && request.resource.data.roomCode is string
+        && request.resource.data.roomCode.size() >= 1
+        && request.resource.data.roomCode.size() <= 6
+        && request.resource.data.createdAt == request.time;
+
+      allow update, delete: if false;
+    }
+
+    // ── 헥사 킹덤 · 플레이어 프로필 ───────────────────────────────────
+    // users/{uid} : 누구나 랭킹용으로 읽기 가능, 쓰기는 본인 uid 만.
+    match /users/{uid} {
+      allow read: if true;
+
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly([
+             'uid', 'name', 'playerLevel', 'xp', 'coins', 'stars',
+             'progressIndex', 'progressWorld', 'progressLevel',
+             'roomCode', 'tasks', 'updatedAt'
+           ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 12
+        && request.resource.data.playerLevel is int
+        && request.resource.data.playerLevel >= 1
+        && request.resource.data.playerLevel <= 99
+        && request.resource.data.xp is int
+        && request.resource.data.xp >= 0
+        && request.resource.data.xp <= 100000000
+        && request.resource.data.coins is int
+        && request.resource.data.coins >= 0
+        && request.resource.data.coins <= 100000000
+        && request.resource.data.stars is int
+        && request.resource.data.stars >= 0
+        && request.resource.data.stars <= 300
+        && request.resource.data.progressIndex is int
+        && request.resource.data.progressIndex >= 0
+        && request.resource.data.progressIndex <= 2000
+        && request.resource.data.progressWorld is int
+        && request.resource.data.progressWorld >= 1
+        && request.resource.data.progressWorld <= 5
+        && request.resource.data.progressLevel is int
+        && request.resource.data.progressLevel >= 0
+        && request.resource.data.progressLevel <= 20
+        && request.resource.data.roomCode is string
+        && request.resource.data.roomCode.size() <= 6
+        && request.resource.data.tasks is int
+        && request.resource.data.tasks >= 0
+        && request.resource.data.tasks <= 100
+        && request.resource.data.updatedAt == request.time;
+
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── 헥사 킹덤 · 주간 블리츠 점수 ─────────────────────────────────
+    match /blitzScores/{docId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly([
+             'uid', 'name', 'score', 'roomCode', 'weekId',
+             'mode', 'playerLevel', 'createdAt'
+           ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 12
+        && request.resource.data.score is int
+        && request.resource.data.score >= 0
+        && request.resource.data.score <= 2000000
+        && request.resource.data.roomCode is string
+        && request.resource.data.roomCode.size() >= 1
+        && request.resource.data.roomCode.size() <= 6
+        && request.resource.data.weekId is string
+        && request.resource.data.weekId.size() == 10
+        && request.resource.data.mode == 'blitz60'
+        && request.resource.data.playerLevel is int
+        && request.resource.data.playerLevel >= 1
+        && request.resource.data.playerLevel <= 99
+        && request.resource.data.createdAt == request.time;
+
+      // 수정은 금지, 본인 기록 삭제만 허용(테스트/기록 정리용)
+      allow update: if false;
+      allow delete: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+    }
+  }
+}

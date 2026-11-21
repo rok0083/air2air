@@ -1,0 +1,81 @@
+{
+  "id": "w4-3",
+  "world": 4,
+  "level": 3,
+  "name": "열매 나무숲",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    4100,
+    7100,
+    10600
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "swamp",
+      "count": 5
+    }
+  ],
+  "cells": [
+    {
+      "r": 3,
+      "c": 1,
+      "type": "swamp"
+    },
+    {
+      "r": 5,
+      "c": 3,
+      "type": "vine"
+    },
+    {
+      "r": 5,
+      "c": 4,
+      "type": "vine"
+    },
+    {
+      "r": 1,
+      "c": 0,
+      "type": "swamp"
+    },
+    {
+      "r": 5,
+      "c": 6,
+      "type": "swamp"
+    },
+    {
+      "r": 3,
+      "c": 2,
+      "type": "swamp"
+    },
+    {
+      "r": 1,
+      "c": 1,
+      "type": "swamp"
+    },
+    {
+      "r": 5,
+      "c": 7,
+      "type": "swamp"
+    }
+  ],
+  "voids": [],
+  "seed": 41514,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 41514,
+    "obstacles": 8,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

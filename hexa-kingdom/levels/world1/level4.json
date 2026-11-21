@@ -1,0 +1,56 @@
+{
+  "id": "w1-4",
+  "world": 1,
+  "level": 4,
+  "name": "나무 상자 창고",
+  "story": "푸른 초원 1구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    3400,
+    6000,
+    8800
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 2,
+      "count": 22
+    }
+  ],
+  "cells": [
+    {
+      "r": 1,
+      "c": 7,
+      "type": "crate"
+    },
+    {
+      "r": 4,
+      "c": 6,
+      "type": "crate"
+    },
+    {
+      "r": 5,
+      "c": 5,
+      "type": "crate"
+    }
+  ],
+  "voids": [],
+  "seed": 11651,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 11651,
+    "obstacles": 3,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "id": "w3-1",
+  "world": 3,
+  "level": 1,
+  "name": "모래 언덕",
+  "story": "불타는 사막 1구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 22,
+  "stars": [
+    3200,
+    5500,
+    8200
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 2,
+      "count": 20
+    }
+  ],
+  "cells": [
+    {
+      "r": 6,
+      "c": 4,
+      "type": "sand"
+    },
+    {
+      "r": 5,
+      "c": 4,
+      "type": "sand"
+    },
+    {
+      "r": 2,
+      "c": 2,
+      "type": "sand"
+    },
+    {
+      "r": 3,
+      "c": 1,
+      "type": "sand"
+    }
+  ],
+  "voids": [],
+  "seed": 31240,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 31240,
+    "obstacles": 4,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

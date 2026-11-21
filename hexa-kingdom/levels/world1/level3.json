@@ -1,0 +1,77 @@
+{
+  "id": "w1-3",
+  "world": 1,
+  "level": 3,
+  "name": "이슬 맺힌 길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 22,
+  "stars": [
+    3800,
+    6600,
+    9800
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "bush",
+      "count": 5
+    },
+    {
+      "type": "collect",
+      "color": 1,
+      "count": 14
+    }
+  ],
+  "cells": [
+    {
+      "r": 0,
+      "c": 0,
+      "type": "bush"
+    },
+    {
+      "r": 7,
+      "c": 5,
+      "type": "bush"
+    },
+    {
+      "r": 3,
+      "c": 1,
+      "type": "bush"
+    },
+    {
+      "r": 0,
+      "c": 2,
+      "type": "bush"
+    },
+    {
+      "r": 4,
+      "c": 3,
+      "type": "bush"
+    },
+    {
+      "r": 3,
+      "c": 7,
+      "type": "bush",
+      "hp": 2
+    }
+  ],
+  "voids": [],
+  "seed": 11514,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 11514,
+    "obstacles": 6,
+    "free": 58
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 58,
+    "hasMove": true,
+    "blockedRatio": 0.09
+  }
+}

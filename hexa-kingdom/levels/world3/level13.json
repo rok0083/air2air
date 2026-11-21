@@ -1,0 +1,81 @@
+{
+  "id": "w3-13",
+  "world": 3,
+  "level": 13,
+  "name": "향신료 시장 3번길",
+  "story": "불타는 사막 3구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    5400,
+    9400,
+    14000
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 4,
+      "count": 24
+    }
+  ],
+  "cells": [
+    {
+      "r": 2,
+      "c": 5,
+      "type": "jar"
+    },
+    {
+      "r": 5,
+      "c": 5,
+      "type": "sand"
+    },
+    {
+      "r": 5,
+      "c": 1,
+      "type": "jar"
+    },
+    {
+      "r": 3,
+      "c": 2,
+      "type": "sand"
+    },
+    {
+      "r": 2,
+      "c": 2,
+      "type": "jar"
+    },
+    {
+      "r": 5,
+      "c": 4,
+      "type": "sand"
+    },
+    {
+      "r": 1,
+      "c": 1,
+      "type": "sand"
+    },
+    {
+      "r": 4,
+      "c": 1,
+      "type": "sand"
+    }
+  ],
+  "voids": [],
+  "seed": 32884,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 32884,
+    "obstacles": 8,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "id": "w5-11",
+  "world": 5,
+  "level": 11,
+  "name": "그림자 예배당 1번길",
+  "story": "그림자 성 3구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    5000,
+    8700,
+    12900
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 4,
+      "count": 24
+    }
+  ],
+  "cells": [
+    {
+      "r": 3,
+      "c": 6,
+      "type": "shadowStone"
+    },
+    {
+      "r": 4,
+      "c": 1,
+      "type": "shadowRune"
+    },
+    {
+      "r": 2,
+      "c": 1,
+      "type": "shadowStone"
+    },
+    {
+      "r": 6,
+      "c": 6,
+      "type": "shadowStone"
+    },
+    {
+      "r": 2,
+      "c": 3,
+      "type": "shadowRune"
+    },
+    {
+      "r": 1,
+      "c": 5,
+      "type": "shadowStone"
+    },
+    {
+      "r": 4,
+      "c": 4,
+      "type": "shadowRune"
+    }
+  ],
+  "voids": [],
+  "seed": 52610,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 52610,
+    "obstacles": 7,
+    "free": 60
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 60,
+    "hasMove": true,
+    "blockedRatio": 0.06
+  }
+}

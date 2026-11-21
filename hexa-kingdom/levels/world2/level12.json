@@ -1,0 +1,66 @@
+{
+  "id": "w2-12",
+  "world": 2,
+  "level": 12,
+  "name": "얼음동굴 2번길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    4800,
+    8300,
+    12400
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 3,
+      "item": "seed"
+    }
+  ],
+  "cells": [
+    {
+      "r": 6,
+      "c": 7,
+      "type": "icicle"
+    },
+    {
+      "r": 0,
+      "c": 3,
+      "type": "icicle"
+    },
+    {
+      "r": 5,
+      "c": 3,
+      "type": "icicle"
+    },
+    {
+      "r": 6,
+      "c": 6,
+      "type": "icicle"
+    },
+    {
+      "r": 3,
+      "c": 1,
+      "type": "icicle"
+    }
+  ],
+  "voids": [],
+  "seed": 22747,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 22747,
+    "obstacles": 5,
+    "free": 59
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 59,
+    "hasMove": true,
+    "blockedRatio": 0.08
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "id": "w2-10",
+  "world": 2,
+  "level": 10,
+  "name": "눈송이광장 5번길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    4500,
+    7900,
+    11700
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 0,
+      "count": 20
+    },
+    {
+      "type": "drop",
+      "count": 2,
+      "item": "seed"
+    }
+  ],
+  "cells": [
+    {
+      "r": 6,
+      "c": 1,
+      "type": "ice"
+    },
+    {
+      "r": 5,
+      "c": 4,
+      "type": "icicle"
+    },
+    {
+      "r": 2,
+      "c": 3,
+      "type": "ice"
+    },
+    {
+      "r": 2,
+      "c": 0,
+      "type": "icicle"
+    },
+    {
+      "r": 4,
+      "c": 2,
+      "type": "icicle"
+    }
+  ],
+  "voids": [],
+  "seed": 22473,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 22473,
+    "obstacles": 5,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

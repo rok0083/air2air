@@ -1,0 +1,76 @@
+{
+  "id": "w4-11",
+  "world": 4,
+  "level": 11,
+  "name": "열매농장 1번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    5000,
+    8700,
+    12900
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "fruitTree",
+      "count": 4
+    }
+  ],
+  "cells": [
+    {
+      "r": 7,
+      "c": 6,
+      "type": "fruitTree"
+    },
+    {
+      "r": 4,
+      "c": 6,
+      "type": "swamp"
+    },
+    {
+      "r": 6,
+      "c": 3,
+      "type": "fruitTree"
+    },
+    {
+      "r": 4,
+      "c": 5,
+      "type": "swamp"
+    },
+    {
+      "r": 1,
+      "c": 2,
+      "type": "fruitTree"
+    },
+    {
+      "r": 2,
+      "c": 3,
+      "type": "swamp"
+    },
+    {
+      "r": 5,
+      "c": 3,
+      "type": "fruitTree"
+    }
+  ],
+  "voids": [],
+  "seed": 42610,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 42610,
+    "obstacles": 7,
+    "free": 60
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 60,
+    "hasMove": true,
+    "blockedRatio": 0.06
+  }
+}

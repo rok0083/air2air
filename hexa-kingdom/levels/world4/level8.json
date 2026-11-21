@@ -1,0 +1,71 @@
+{
+  "id": "w4-8",
+  "world": 4,
+  "level": 8,
+  "name": "덩굴다리 3번길",
+  "story": "수정 정글 2구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 23,
+  "stars": [
+    4400,
+    7700,
+    11400
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 0,
+      "count": 20
+    }
+  ],
+  "cells": [
+    {
+      "r": 4,
+      "c": 3,
+      "type": "vine"
+    },
+    {
+      "r": 1,
+      "c": 2,
+      "type": "vine"
+    },
+    {
+      "r": 4,
+      "c": 6,
+      "type": "vine"
+    },
+    {
+      "r": 1,
+      "c": 0,
+      "type": "fruitTree"
+    },
+    {
+      "r": 0,
+      "c": 1,
+      "type": "fruitTree"
+    },
+    {
+      "r": 6,
+      "c": 0,
+      "type": "vine"
+    }
+  ],
+  "voids": [],
+  "seed": 42199,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 42199,
+    "obstacles": 6,
+    "free": 62
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 62,
+    "hasMove": true,
+    "blockedRatio": 0.03
+  }
+}

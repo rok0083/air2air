@@ -1,0 +1,92 @@
+{
+  "id": "w1-19",
+  "world": 1,
+  "level": 19,
+  "name": "그림자 전조",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 26,
+  "stars": [
+    6300,
+    11000,
+    16400
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 2,
+      "item": "seed"
+    },
+    {
+      "type": "collect",
+      "color": 5,
+      "count": 22
+    }
+  ],
+  "cells": [
+    {
+      "r": 5,
+      "c": 2,
+      "type": "bush"
+    },
+    {
+      "r": 0,
+      "c": 6,
+      "type": "crate"
+    },
+    {
+      "r": 4,
+      "c": 3,
+      "type": "grass"
+    },
+    {
+      "r": 5,
+      "c": 1,
+      "type": "grass"
+    },
+    {
+      "r": 0,
+      "c": 1,
+      "type": "crate"
+    },
+    {
+      "r": 7,
+      "c": 5,
+      "type": "bush"
+    },
+    {
+      "r": 6,
+      "c": 2,
+      "type": "crate"
+    },
+    {
+      "r": 1,
+      "c": 6,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 0,
+      "c": 7,
+      "type": "bush"
+    }
+  ],
+  "voids": [],
+  "seed": 13706,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 13706,
+    "obstacles": 9,
+    "free": 57
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 57,
+    "hasMove": true,
+    "blockedRatio": 0.11
+  }
+}

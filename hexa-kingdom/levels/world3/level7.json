@@ -1,0 +1,71 @@
+{
+  "id": "w3-7",
+  "world": 3,
+  "level": 7,
+  "name": "오아시스 2번길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 23,
+  "stars": [
+    4300,
+    7500,
+    11100
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 2,
+      "item": "seed"
+    }
+  ],
+  "cells": [
+    {
+      "r": 5,
+      "c": 7,
+      "type": "sand"
+    },
+    {
+      "r": 7,
+      "c": 5,
+      "type": "cactus"
+    },
+    {
+      "r": 4,
+      "c": 4,
+      "type": "cactus"
+    },
+    {
+      "r": 3,
+      "c": 4,
+      "type": "sand"
+    },
+    {
+      "r": 3,
+      "c": 2,
+      "type": "cactus"
+    },
+    {
+      "r": 5,
+      "c": 2,
+      "type": "cactus"
+    }
+  ],
+  "voids": [],
+  "seed": 32062,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 32062,
+    "obstacles": 6,
+    "free": 60
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 60,
+    "hasMove": true,
+    "blockedRatio": 0.06
+  }
+}

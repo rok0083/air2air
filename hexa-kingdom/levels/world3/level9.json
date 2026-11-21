@@ -1,0 +1,61 @@
+{
+  "id": "w3-9",
+  "world": 3,
+  "level": 9,
+  "name": "오아시스 4번길",
+  "story": "불타는 사막 2구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 23,
+  "stars": [
+    4200,
+    7400,
+    10900
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 0,
+      "count": 20
+    }
+  ],
+  "cells": [
+    {
+      "r": 4,
+      "c": 3,
+      "type": "jar"
+    },
+    {
+      "r": 5,
+      "c": 6,
+      "type": "jar"
+    },
+    {
+      "r": 0,
+      "c": 2,
+      "type": "jar"
+    },
+    {
+      "r": 1,
+      "c": 0,
+      "type": "jar"
+    }
+  ],
+  "voids": [],
+  "seed": 32336,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 32336,
+    "obstacles": 4,
+    "free": 60
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 60,
+    "hasMove": true,
+    "blockedRatio": 0.06
+  }
+}

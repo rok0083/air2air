@@ -1,0 +1,76 @@
+{
+  "id": "w3-11",
+  "world": 3,
+  "level": 11,
+  "name": "향신료 시장 1번길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    5000,
+    8700,
+    12900
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 3,
+      "item": "seed"
+    }
+  ],
+  "cells": [
+    {
+      "r": 0,
+      "c": 1,
+      "type": "jar"
+    },
+    {
+      "r": 4,
+      "c": 2,
+      "type": "jar"
+    },
+    {
+      "r": 3,
+      "c": 5,
+      "type": "jar"
+    },
+    {
+      "r": 1,
+      "c": 5,
+      "type": "cactus"
+    },
+    {
+      "r": 6,
+      "c": 3,
+      "type": "cactus"
+    },
+    {
+      "r": 7,
+      "c": 3,
+      "type": "cactus"
+    },
+    {
+      "r": 3,
+      "c": 1,
+      "type": "jar"
+    }
+  ],
+  "voids": [],
+  "seed": 32610,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 32610,
+    "obstacles": 7,
+    "free": 57
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 57,
+    "hasMove": true,
+    "blockedRatio": 0.11
+  }
+}

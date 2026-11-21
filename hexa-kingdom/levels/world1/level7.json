@@ -1,0 +1,68 @@
+{
+  "id": "w1-7",
+  "world": 1,
+  "level": 7,
+  "name": "도토리 소동",
+  "story": "푸른 초원 2구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 22,
+  "stars": [
+    4100,
+    7200,
+    10700
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 3,
+      "count": 24
+    }
+  ],
+  "cells": [
+    {
+      "r": 4,
+      "c": 6,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 4,
+      "c": 4,
+      "type": "bush"
+    },
+    {
+      "r": 0,
+      "c": 5,
+      "type": "bush"
+    },
+    {
+      "r": 7,
+      "c": 4,
+      "type": "crate"
+    },
+    {
+      "r": 4,
+      "c": 1,
+      "type": "bush",
+      "hp": 2
+    }
+  ],
+  "voids": [],
+  "seed": 12062,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 12062,
+    "obstacles": 5,
+    "free": 59
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 59,
+    "hasMove": true,
+    "blockedRatio": 0.08
+  }
+}

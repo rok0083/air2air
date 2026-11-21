@@ -1,0 +1,86 @@
+{
+  "id": "w2-16",
+  "world": 2,
+  "level": 16,
+  "name": "온천마을 1번길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 25,
+  "stars": [
+    5900,
+    10400,
+    15400
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 3,
+      "item": "seed"
+    }
+  ],
+  "cells": [
+    {
+      "r": 4,
+      "c": 0,
+      "type": "icicle"
+    },
+    {
+      "r": 6,
+      "c": 4,
+      "type": "icicle"
+    },
+    {
+      "r": 0,
+      "c": 6,
+      "type": "snowman"
+    },
+    {
+      "r": 1,
+      "c": 6,
+      "type": "snowman"
+    },
+    {
+      "r": 0,
+      "c": 2,
+      "type": "snowman"
+    },
+    {
+      "r": 5,
+      "c": 5,
+      "type": "snowman"
+    },
+    {
+      "r": 1,
+      "c": 4,
+      "type": "snowman"
+    },
+    {
+      "r": 2,
+      "c": 2,
+      "type": "icicle"
+    },
+    {
+      "r": 2,
+      "c": 7,
+      "type": "icicle"
+    }
+  ],
+  "voids": [],
+  "seed": 23295,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 23295,
+    "obstacles": 9,
+    "free": 55
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 55,
+    "hasMove": true,
+    "blockedRatio": 0.14
+  }
+}

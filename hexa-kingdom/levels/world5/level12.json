@@ -1,0 +1,66 @@
+{
+  "id": "w5-12",
+  "world": 5,
+  "level": 12,
+  "name": "그림자 예배당 2번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    4800,
+    8300,
+    12400
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "any",
+      "count": 5
+    }
+  ],
+  "cells": [
+    {
+      "r": 3,
+      "c": 3,
+      "type": "shadowRune"
+    },
+    {
+      "r": 4,
+      "c": 2,
+      "type": "shadowRune"
+    },
+    {
+      "r": 5,
+      "c": 1,
+      "type": "shadowRune"
+    },
+    {
+      "r": 3,
+      "c": 5,
+      "type": "shadowRune"
+    },
+    {
+      "r": 2,
+      "c": 3,
+      "type": "shadowRune"
+    }
+  ],
+  "voids": [],
+  "seed": 52747,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 52747,
+    "obstacles": 5,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

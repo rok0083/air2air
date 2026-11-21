@@ -1,0 +1,79 @@
+{
+  "id": "w1-9",
+  "world": 1,
+  "level": 9,
+  "name": "덤불 미로",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    4700,
+    8200,
+    12200
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "any",
+      "count": 7
+    }
+  ],
+  "cells": [
+    {
+      "r": 6,
+      "c": 2,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 3,
+      "c": 7,
+      "type": "bush"
+    },
+    {
+      "r": 1,
+      "c": 3,
+      "type": "crate"
+    },
+    {
+      "r": 0,
+      "c": 6,
+      "type": "crate"
+    },
+    {
+      "r": 5,
+      "c": 3,
+      "type": "crate"
+    },
+    {
+      "r": 7,
+      "c": 7,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 5,
+      "c": 5,
+      "type": "bush",
+      "hp": 2
+    }
+  ],
+  "voids": [],
+  "seed": 12336,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 12336,
+    "obstacles": 7,
+    "free": 57
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 57,
+    "hasMove": true,
+    "blockedRatio": 0.11
+  }
+}

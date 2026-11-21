@@ -1,0 +1,56 @@
+{
+  "id": "w5-6",
+  "world": 5,
+  "level": 6,
+  "name": "부서진 회랑 1번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 23,
+  "stars": [
+    3700,
+    6400,
+    9500
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "shadowStone",
+      "count": 3
+    }
+  ],
+  "cells": [
+    {
+      "r": 0,
+      "c": 6,
+      "type": "shadowStone"
+    },
+    {
+      "r": 3,
+      "c": 0,
+      "type": "shadowStone"
+    },
+    {
+      "r": 6,
+      "c": 0,
+      "type": "shadowStone"
+    }
+  ],
+  "voids": [],
+  "seed": 51925,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 51925,
+    "obstacles": 3,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

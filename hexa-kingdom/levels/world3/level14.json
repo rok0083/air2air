@@ -1,0 +1,86 @@
+{
+  "id": "w3-14",
+  "world": 3,
+  "level": 14,
+  "name": "향신료 시장 4번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    5700,
+    9900,
+    14700
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "any",
+      "count": 8
+    }
+  ],
+  "cells": [
+    {
+      "r": 6,
+      "c": 3,
+      "type": "cactus"
+    },
+    {
+      "r": 1,
+      "c": 3,
+      "type": "cactus"
+    },
+    {
+      "r": 7,
+      "c": 2,
+      "type": "jar"
+    },
+    {
+      "r": 6,
+      "c": 6,
+      "type": "jar"
+    },
+    {
+      "r": 2,
+      "c": 0,
+      "type": "cactus"
+    },
+    {
+      "r": 2,
+      "c": 5,
+      "type": "jar"
+    },
+    {
+      "r": 7,
+      "c": 1,
+      "type": "cactus"
+    },
+    {
+      "r": 0,
+      "c": 5,
+      "type": "jar"
+    },
+    {
+      "r": 0,
+      "c": 1,
+      "type": "jar"
+    }
+  ],
+  "voids": [],
+  "seed": 33021,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 33021,
+    "obstacles": 9,
+    "free": 55
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 55,
+    "hasMove": true,
+    "blockedRatio": 0.14
+  }
+}

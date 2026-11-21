@@ -1,0 +1,100 @@
+{
+  "id": "w4-20",
+  "world": 4,
+  "level": 20,
+  "name": "보스 · 그림자 덩굴",
+  "story": "수정 정글의 끝, 그림자 군주의 부하가 기다린다.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 30,
+  "stars": [
+    9800,
+    17200,
+    25500
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 0,
+      "count": 28
+    },
+    {
+      "type": "drop",
+      "count": 3,
+      "item": "seed"
+    },
+    {
+      "type": "boss"
+    }
+  ],
+  "cells": [
+    {
+      "r": 3,
+      "c": 1,
+      "type": "swamp"
+    },
+    {
+      "r": 3,
+      "c": 7,
+      "type": "swamp"
+    },
+    {
+      "r": 3,
+      "c": 2,
+      "type": "swamp"
+    },
+    {
+      "r": 3,
+      "c": 5,
+      "type": "swamp"
+    },
+    {
+      "r": 2,
+      "c": 3,
+      "type": "vine"
+    },
+    {
+      "r": 1,
+      "c": 6,
+      "type": "vine"
+    },
+    {
+      "r": 3,
+      "c": 6,
+      "type": "vine"
+    },
+    {
+      "r": 2,
+      "c": 1,
+      "type": "swamp"
+    },
+    {
+      "r": 5,
+      "c": 0,
+      "type": "vine"
+    }
+  ],
+  "voids": [],
+  "seed": 43843,
+  "boss": {
+    "name": "그림자 덩굴",
+    "hp": 280,
+    "summon": "vine",
+    "summonEvery": 2,
+    "kind": "vine"
+  },
+  "generator": {
+    "version": "1.0.0",
+    "seed": 43843,
+    "obstacles": 9,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

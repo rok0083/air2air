@@ -1,0 +1,81 @@
+{
+  "id": "w4-13",
+  "world": 4,
+  "level": 13,
+  "name": "열매농장 3번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 24,
+  "stars": [
+    5400,
+    9400,
+    14000
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "any",
+      "count": 8
+    }
+  ],
+  "cells": [
+    {
+      "r": 1,
+      "c": 3,
+      "type": "vine"
+    },
+    {
+      "r": 0,
+      "c": 6,
+      "type": "fruitTree"
+    },
+    {
+      "r": 5,
+      "c": 4,
+      "type": "vine"
+    },
+    {
+      "r": 1,
+      "c": 1,
+      "type": "vine"
+    },
+    {
+      "r": 0,
+      "c": 4,
+      "type": "fruitTree"
+    },
+    {
+      "r": 2,
+      "c": 6,
+      "type": "vine"
+    },
+    {
+      "r": 6,
+      "c": 3,
+      "type": "vine"
+    },
+    {
+      "r": 4,
+      "c": 0,
+      "type": "fruitTree"
+    }
+  ],
+  "voids": [],
+  "seed": 42884,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 42884,
+    "obstacles": 8,
+    "free": 61
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 61,
+    "hasMove": true,
+    "blockedRatio": 0.05
+  }
+}

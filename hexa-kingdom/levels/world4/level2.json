@@ -1,0 +1,71 @@
+{
+  "id": "w4-2",
+  "world": 4,
+  "level": 2,
+  "name": "덩굴 덮인 길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 26,
+  "stars": [
+    3500,
+    6100,
+    9000
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "fruitTree",
+      "count": 2
+    },
+    {
+      "type": "drop",
+      "count": 2,
+      "item": "seed"
+    }
+  ],
+  "cells": [
+    {
+      "r": 7,
+      "c": 5,
+      "type": "fruitTree"
+    },
+    {
+      "r": 2,
+      "c": 2,
+      "type": "vine"
+    },
+    {
+      "r": 0,
+      "c": 2,
+      "type": "fruitTree"
+    },
+    {
+      "r": 3,
+      "c": 5,
+      "type": "vine"
+    },
+    {
+      "r": 4,
+      "c": 1,
+      "type": "vine"
+    }
+  ],
+  "voids": [],
+  "seed": 41377,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 41377,
+    "obstacles": 5,
+    "free": 62
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 62,
+    "hasMove": true,
+    "blockedRatio": 0.03
+  }
+}

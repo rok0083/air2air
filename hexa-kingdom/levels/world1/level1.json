@@ -1,0 +1,40 @@
+{
+  "id": "w1-1",
+  "world": 1,
+  "level": 1,
+  "name": "초원 입구",
+  "story": "푸른 초원 1구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    2500,
+    4400,
+    6600
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 0,
+      "count": 18
+    }
+  ],
+  "cells": [],
+  "voids": [],
+  "seed": 11240,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 11240,
+    "obstacles": 0,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

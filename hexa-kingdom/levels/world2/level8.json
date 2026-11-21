@@ -1,0 +1,71 @@
+{
+  "id": "w2-8",
+  "world": 2,
+  "level": 8,
+  "name": "눈송이광장 3번길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 23,
+  "stars": [
+    4400,
+    7700,
+    11400
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 2,
+      "item": "seed"
+    }
+  ],
+  "cells": [
+    {
+      "r": 0,
+      "c": 2,
+      "type": "snowman"
+    },
+    {
+      "r": 6,
+      "c": 5,
+      "type": "ice"
+    },
+    {
+      "r": 3,
+      "c": 2,
+      "type": "ice"
+    },
+    {
+      "r": 6,
+      "c": 4,
+      "type": "snowman"
+    },
+    {
+      "r": 5,
+      "c": 6,
+      "type": "ice"
+    },
+    {
+      "r": 2,
+      "c": 0,
+      "type": "ice"
+    }
+  ],
+  "voids": [],
+  "seed": 22199,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 22199,
+    "obstacles": 6,
+    "free": 62
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 62,
+    "hasMove": true,
+    "blockedRatio": 0.03
+  }
+}

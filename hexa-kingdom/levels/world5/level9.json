@@ -1,0 +1,61 @@
+{
+  "id": "w5-9",
+  "world": 5,
+  "level": 9,
+  "name": "부서진 회랑 4번길",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 23,
+  "stars": [
+    4200,
+    7400,
+    10900
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 2,
+      "item": "seed"
+    }
+  ],
+  "cells": [
+    {
+      "r": 3,
+      "c": 4,
+      "type": "shadowRune"
+    },
+    {
+      "r": 5,
+      "c": 2,
+      "type": "shadowRune"
+    },
+    {
+      "r": 2,
+      "c": 7,
+      "type": "shadowRune"
+    },
+    {
+      "r": 4,
+      "c": 0,
+      "type": "shadowRune"
+    }
+  ],
+  "voids": [],
+  "seed": 52336,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 52336,
+    "obstacles": 4,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

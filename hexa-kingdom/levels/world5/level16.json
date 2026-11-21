@@ -1,0 +1,86 @@
+{
+  "id": "w5-16",
+  "world": 5,
+  "level": 16,
+  "name": "왕좌의 방 1번길",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 6,
+  "moves": 25,
+  "stars": [
+    5900,
+    10400,
+    15400
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "any",
+      "count": 9
+    }
+  ],
+  "cells": [
+    {
+      "r": 2,
+      "c": 1,
+      "type": "shadowRune"
+    },
+    {
+      "r": 6,
+      "c": 5,
+      "type": "shadowStone"
+    },
+    {
+      "r": 3,
+      "c": 4,
+      "type": "shadowRune"
+    },
+    {
+      "r": 0,
+      "c": 4,
+      "type": "shadowStone"
+    },
+    {
+      "r": 0,
+      "c": 3,
+      "type": "shadowStone"
+    },
+    {
+      "r": 5,
+      "c": 1,
+      "type": "shadowRune"
+    },
+    {
+      "r": 1,
+      "c": 0,
+      "type": "shadowRune"
+    },
+    {
+      "r": 2,
+      "c": 7,
+      "type": "shadowStone"
+    },
+    {
+      "r": 1,
+      "c": 1,
+      "type": "shadowStone"
+    }
+  ],
+  "voids": [],
+  "seed": 53295,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 53295,
+    "obstacles": 9,
+    "free": 59
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 59,
+    "hasMove": true,
+    "blockedRatio": 0.08
+  }
+}

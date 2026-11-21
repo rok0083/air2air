@@ -1,0 +1,86 @@
+{
+  "id": "w3-4",
+  "world": 3,
+  "level": 4,
+  "name": "모래 폭풍",
+  "story": "마법 씨앗을 바닥까지 떨어뜨려 마을을 되살려요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 26,
+  "stars": [
+    4200,
+    7400,
+    10900
+  ],
+  "goals": [
+    {
+      "type": "drop",
+      "count": 2,
+      "item": "seed"
+    },
+    {
+      "type": "clear",
+      "obstacle": "sand",
+      "count": 6
+    }
+  ],
+  "cells": [
+    {
+      "r": 6,
+      "c": 0,
+      "type": "sand"
+    },
+    {
+      "r": 6,
+      "c": 3,
+      "type": "sand"
+    },
+    {
+      "r": 3,
+      "c": 1,
+      "type": "sand"
+    },
+    {
+      "r": 6,
+      "c": 1,
+      "type": "sand"
+    },
+    {
+      "r": 3,
+      "c": 4,
+      "type": "sand"
+    },
+    {
+      "r": 3,
+      "c": 6,
+      "type": "sand"
+    },
+    {
+      "r": 5,
+      "c": 7,
+      "type": "sand"
+    },
+    {
+      "r": 2,
+      "c": 3,
+      "type": "sand"
+    }
+  ],
+  "voids": [],
+  "seed": 31651,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 31651,
+    "obstacles": 8,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

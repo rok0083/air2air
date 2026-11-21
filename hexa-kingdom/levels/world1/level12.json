@@ -1,0 +1,88 @@
+{
+  "id": "w1-12",
+  "world": 1,
+  "level": 12,
+  "name": "풍차 날개",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 26,
+  "stars": [
+    5200,
+    9200,
+    13600
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "crate",
+      "count": 4
+    },
+    {
+      "type": "collect",
+      "color": 1,
+      "count": 18
+    }
+  ],
+  "cells": [
+    {
+      "r": 5,
+      "c": 0,
+      "type": "crate"
+    },
+    {
+      "r": 3,
+      "c": 3,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 0,
+      "c": 7,
+      "type": "crate"
+    },
+    {
+      "r": 6,
+      "c": 0,
+      "type": "bush",
+      "hp": 2
+    },
+    {
+      "r": 6,
+      "c": 6,
+      "type": "crate"
+    },
+    {
+      "r": 1,
+      "c": 5,
+      "type": "crate"
+    },
+    {
+      "r": 7,
+      "c": 6,
+      "type": "crate"
+    },
+    {
+      "r": 0,
+      "c": 1,
+      "type": "bush"
+    }
+  ],
+  "voids": [],
+  "seed": 12747,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 12747,
+    "obstacles": 8,
+    "free": 56
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 56,
+    "hasMove": true,
+    "blockedRatio": 0.13
+  }
+}

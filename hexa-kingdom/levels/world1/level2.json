@@ -1,0 +1,51 @@
+{
+  "id": "w1-2",
+  "world": 1,
+  "level": 2,
+  "name": "덤불의 속삭임",
+  "story": "푸른 초원 1구역의 기운을 모아요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 22,
+  "stars": [
+    3000,
+    5200,
+    7700
+  ],
+  "goals": [
+    {
+      "type": "collect",
+      "color": 0,
+      "count": 20
+    }
+  ],
+  "cells": [
+    {
+      "r": 6,
+      "c": 3,
+      "type": "bush"
+    },
+    {
+      "r": 5,
+      "c": 7,
+      "type": "bush"
+    }
+  ],
+  "voids": [],
+  "seed": 11377,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 11377,
+    "obstacles": 2,
+    "free": 62
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 62,
+    "hasMove": true,
+    "blockedRatio": 0.03
+  }
+}

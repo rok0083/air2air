@@ -1,0 +1,81 @@
+{
+  "id": "w2-2",
+  "world": 2,
+  "level": 2,
+  "name": "얼음 장벽",
+  "story": "저주가 남긴 장애물을 걷어내요.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 24,
+  "stars": [
+    3800,
+    6600,
+    9800
+  ],
+  "goals": [
+    {
+      "type": "clear",
+      "obstacle": "ice",
+      "count": 5
+    },
+    {
+      "type": "collect",
+      "color": 0,
+      "count": 16
+    }
+  ],
+  "cells": [
+    {
+      "r": 1,
+      "c": 5,
+      "type": "ice"
+    },
+    {
+      "r": 4,
+      "c": 7,
+      "type": "ice"
+    },
+    {
+      "r": 6,
+      "c": 3,
+      "type": "ice"
+    },
+    {
+      "r": 1,
+      "c": 3,
+      "type": "ice"
+    },
+    {
+      "r": 1,
+      "c": 6,
+      "type": "ice"
+    },
+    {
+      "r": 2,
+      "c": 2,
+      "type": "ice"
+    },
+    {
+      "r": 6,
+      "c": 2,
+      "type": "ice"
+    }
+  ],
+  "voids": [],
+  "seed": 21377,
+  "boss": null,
+  "generator": {
+    "version": "1.0.0",
+    "seed": 21377,
+    "obstacles": 7,
+    "free": 64
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 64,
+    "hasMove": true,
+    "blockedRatio": 0
+  }
+}

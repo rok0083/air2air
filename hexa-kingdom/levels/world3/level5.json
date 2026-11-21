@@ -1,0 +1,70 @@
+{
+  "id": "w3-5",
+  "world": 3,
+  "level": 5,
+  "name": "보스 · 사막의 스핑크스",
+  "story": "불타는 사막의 끝, 그림자 군주의 부하가 기다린다.",
+  "cols": 8,
+  "rows": 8,
+  "colors": 5,
+  "moves": 28,
+  "stars": [
+    5600,
+    9900,
+    14700
+  ],
+  "goals": [
+    {
+      "type": "boss"
+    }
+  ],
+  "cells": [
+    {
+      "r": 0,
+      "c": 7,
+      "type": "jar"
+    },
+    {
+      "r": 1,
+      "c": 7,
+      "type": "cactus"
+    },
+    {
+      "r": 5,
+      "c": 6,
+      "type": "cactus"
+    },
+    {
+      "r": 1,
+      "c": 1,
+      "type": "jar"
+    },
+    {
+      "r": 7,
+      "c": 5,
+      "type": "jar"
+    }
+  ],
+  "voids": [],
+  "seed": 31788,
+  "boss": {
+    "name": "사막의 스핑크스",
+    "hp": 149,
+    "summon": "jar",
+    "summonEvery": 3,
+    "kind": "sphinx"
+  },
+  "generator": {
+    "version": "1.0.0",
+    "seed": 31788,
+    "obstacles": 5,
+    "free": 59
+  },
+  "analysis": {
+    "validated": true,
+    "problems": [],
+    "free": 59,
+    "hasMove": true,
+    "blockedRatio": 0.08
+  }
+}
