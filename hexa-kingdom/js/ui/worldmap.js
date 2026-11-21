@@ -13,6 +13,7 @@ export function renderHome(app) {
   const p = app.profile;
   p.refreshLives();
   const worldId = app.state.world;
+  app.backdrop?.setScene(worldId, 'home');
   const world = WORLDS.find(w => w.id === worldId) || WORLDS[0];
   const locked = !p.isWorldUnlocked(worldId);
   const restored = p.worldTaskCount(worldId);

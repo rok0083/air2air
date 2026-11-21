@@ -16,6 +16,7 @@ import { openBlitz } from './ui/blitz.js';
 import { openPreLevel } from './ui/prelevel.js';
 import { GameSession } from './ui/gameplay.js';
 import { toast, $, el, closeAllModals, PLAY_BADGE } from './ui/dom.js';
+import { Backdrop } from './ui/backdrop.js';
 
 class App {
   constructor() {
@@ -30,9 +31,16 @@ class App {
     };
     this.syncTimer = null;
     this._livesTimer = null;
+    // 월드별 살아있는 배경 — 모든 화면 뒤에서 움직인다
+    this.backdrop = new Backdrop($('#bg'));
   }
 
   async boot() {
+    this.backdrop.resize();
+    this.backdrop.setScene(this.state.world || 1, 'home');
+    this.backdrop.start();
+    window.addEventListener('resize', () => this.backdrop.resize());
+    window.addEventListener('orientationchange', () => setTimeout(() => this.backdrop.resize(), 250));
     // 방 코드 자동 입력 (?room=CODE)
     const params = new URLSearchParams(location.search);
     const room = params.get('room');
@@ -138,6 +146,8 @@ class App {
   }
 
   async showHome() {
+    this.backdrop?.setScene(this.state.world || 1, 'home');
+    this.backdrop?.start();
     renderHome(this);
     if (this.audio.enabled && this.profile.data.settings.music) this.audio.startMusic(this.state.world);
   }
@@ -187,7 +197,7 @@ const pipiArt = () => pipiSvg(66);
 
 /* ── 시작 ─────────────────────────────────────────────────── */
 const app = new App();
-window.__hk = { app, CFG, Profile, weekIdOf, GameSession };
+window.__hk = { app, CFG, Profile, weekIdOf, GameSession, backdrop: app.backdrop };
 window.addEventListener('error', (e) => {
   console.warn('[hexa-kingdom] window error', e.message);
 });

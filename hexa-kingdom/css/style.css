@@ -49,7 +49,12 @@ body {
   #app { border-left: 1px solid rgba(255, 214, 120, 0.12); border-right: 1px solid rgba(255, 214, 120, 0.12); }
 }
 
-.screen { position: absolute; inset: 0; display: flex; flex-direction: column; }
+/* 월드별 살아있는 배경 레이어 — 모든 화면 뒤(z=0) */
+#bg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  z-index: 0; display: block; pointer-events: none;
+}
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; z-index: 1; }
 .hidden { display: none !important; }
 
 /* ── 공통 ─────────────────────────────────────────────── */
@@ -325,7 +330,9 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
 .nav-btn:active { background: rgba(255, 255, 255, .05); }
 
 /* ── 게임 화면 ────────────────────────────────────────── */
-#screen-game { background: radial-gradient(120% 60% at 50% 0%, #17342a, #081410 70%); }
+#screen-game { background: none; }
+/* 배경이 비치는 화면 — 홈/게임 모두 #bg 위에 반투명 패널만 얹는다 */
+#screen-home { background: transparent; }
 .game-head { padding: 8px 12px 0; flex-shrink: 0; }
 .game-head .line1 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .game-title { display: flex; flex-direction: column; min-width: 0; }
@@ -351,8 +358,25 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
 
 .board-stage { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 8px 10px 4px; }
 .board-stage .board-inner { position: relative; width: 100%; aspect-ratio: 1 / 1; max-height: 100%; }
-#board, #fx { position: absolute; inset: 0; }
-#fx { pointer-events: none; }
+/* 보드 캔버스는 손가락 제스처(스크롤·확대)를 브라우저에 뺏기지 않아야 한다.
+   touch-action: none 이 없으면 모바일에서 드래그가 pointercancel 로 끊겨
+   '한 번 톡 눌러 선택한 뒤 다음 터치로 이동'처럼 느껴진다. */
+#board {
+  position: absolute; inset: 0;
+  touch-action: none;
+  -ms-touch-action: none;
+  user-select: none; -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+#fx { position: absolute; inset: 0; pointer-events: none; }
+/* 보드 뒤 어둡게 — 어떤 배경에서도 보석 대비를 지킨다 */
+.board-stage::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(60% 60% at 50% 50%, rgba(4, 10, 8, 0.55), rgba(4, 10, 8, 0.12) 72%, transparent 88%);
+}
+.board-inner { border-radius: 16px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5); }
 .board-shake { animation: shakeBoard .28s ease; }
 @keyframes shakeBoard {
   0%,100% { transform: translate(0,0); } 20% { transform: translate(-4px, 2px); }

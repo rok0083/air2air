@@ -62,6 +62,7 @@ export class BoardView {
     this.w = 320; this.h = 320;
     this.hover = null;
     this.selected = null;
+    this.press = null;
     this.flashT = 0;
     this.zoom = 1;
   }
@@ -99,13 +100,13 @@ export class BoardView {
 
     // 보드 배경
     const g = ctx.createLinearGradient(0, 0, 0, this.h);
-    g.addColorStop(0, 'rgba(16,32,26,0.86)');
-    g.addColorStop(1, 'rgba(8,18,15,0.92)');
+    g.addColorStop(0, 'rgba(13,26,21,0.9)');
+    g.addColorStop(1, 'rgba(6,14,11,0.94)');
     ctx.fillStyle = g;
     ctx.beginPath();
     if (ctx.roundRect) ctx.roundRect(0, 0, this.w, this.h, 16); else ctx.rect(0, 0, this.w, this.h);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,214,120,0.22)';
+    ctx.strokeStyle = 'rgba(255,214,120,0.28)';
     ctx.lineWidth = 1.5; ctx.stroke();
 
     // 체커
@@ -209,6 +210,22 @@ export class BoardView {
         else ctx.rect(x - this.cell / 2 + 3, y - this.cell / 2 + 3, this.cell - 6, this.cell - 6);
         ctx.stroke();
       }
+    }
+
+    // 누르는 중(스와이프 시작) — 선택 표시와 구분되는 옅은 테두리
+    if (this.press) {
+      const tile = b.grid[this.press.r]?.[this.press.c];
+      if (tile) {
+        const { x, y } = this.cellCenter(this.press.r, this.press.c);
+        this.drawTile(ctx, tile, x, y, this.cell * 1.08, 0.4);
+      }
+      const { x, y } = this.cellCenter(this.press.r, this.press.c);
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x - this.cell / 2 + 3, y - this.cell / 2 + 3, this.cell - 6, this.cell - 6, 10);
+      else ctx.rect(x - this.cell / 2 + 3, y - this.cell / 2 + 3, this.cell - 6, this.cell - 6);
+      ctx.stroke();
     }
 
     // 선택

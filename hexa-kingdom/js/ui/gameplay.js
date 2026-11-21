@@ -26,6 +26,7 @@ export class GameSession {
     this.selectedBooster = null;
     this.tapCell = null;
     this.drag = null;
+    this.pendingSwap = null;
     this.lastAction = performance.now();
     this.raf = 0;
     this.lastT = 0;
@@ -51,6 +52,9 @@ export class GameSession {
     if (this.mode === 'level') {
       this.world = this.levelData.world || this.world;
     }
+    // 배경 — 월드별 풍경 (블리츠는 전용 아케이드)
+    this.app.backdrop?.setScene(this.mode === 'blitz' ? 'blitz' : this.world, 'game');
+    this.app.backdrop?.start();
     buildHud(this);
 
     this.resize();
@@ -202,68 +206,121 @@ export class GameSession {
   }
 
   /* ── 입력 ─────────────────────────────────────────────── */
+  /* 손가락을 대자마자 곧바로 밀어서 바꿀 수 있어야 한다.
+     · pointerdown : 누른 칸만 기억한다. (미리 선택/포커스 표시 없음)
+     · pointermove : 10~14px 만 넘으면 그 자리에서 즉시 교체 — 손을 떼 기다리지 않는다.
+     · pointerup   : 안 밀었으면 탭으로 처리(탭→탭 교체도 그대로 동작)
+     · 연쇄 중     : 끝난 스와이프 1개만 큐에 두고 보드가 한가해지는 순간 실행 */
+  swipeThreshold() {
+    return Math.max(10, Math.min(18, this.view.cell * 0.22));
+  }
+
   bindInput() {
     const canvas = $('#board');
     const getCell = (e) => {
       const rect = canvas.getBoundingClientRect();
       return this.view.cellAt(e.clientX - rect.left, e.clientY - rect.top);
     };
-    this.onDown = async (e) => {
+    this.onDown = (e) => {
       if (this.finished) return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
       this.lastAction = performance.now();
       this.board.hintCells = null;
       const cell = getCell(e);
       if (!cell) return;
       if (this.selectedBooster) {
-        const key = this.selectedBooster;
-        this.selectedBooster = null;
-        document.querySelectorAll('[data-booster]').forEach(b => b.classList.remove('active'));
-        this.app.profile.useBooster(key);
-        this.app.profile.save();
-        updateBoosterCounts(this);
-        const ok = await this.board.useBooster(key, cell.r, cell.c);
-        if (ok) this.app.audio.sfx('booster');
-        this.markHud();
+        if (this.board.busy || this.board.state !== 'playing') return; // 연쇄 중에는 쓰지 않는다(부스터 낭비 방지)
+        this.useBoosterAt(cell);
         return;
       }
-      if (this.board.busy || this.board.state !== 'playing') return;
-      this.drag = { cell, x: e.clientX, y: e.clientY, moved: false };
-      this.view.selected = cell;
-      canvas.setPointerCapture?.(e.pointerId);
+      this.drag = { cell, x: e.clientX, y: e.clientY, moved: false, id: e.pointerId };
+      this.view.press = this.board.state === 'playing' ? cell : null;
+      try { canvas.setPointerCapture?.(e.pointerId); } catch { /* 미지원 브라우저 */ }
     };
     this.onMove = (e) => {
-      if (!this.drag || this.drag.moved) return;
-      const dx = e.clientX - this.drag.x;
-      const dy = e.clientY - this.drag.y;
-      if (Math.hypot(dx, dy) < this.view.cell * 0.32) return;
-      this.drag.moved = true;
-      let r2 = this.drag.cell.r, c2 = this.drag.cell.c;
-      if (Math.abs(dx) > Math.abs(dy)) c2 += dx > 0 ? 1 : -1;
-      else r2 += dy > 0 ? 1 : -1;
-      const from = this.drag.cell;
+      const d = this.drag;
+      if (!d || d.moved) return;
+      if (this.finished || this.board.state !== 'playing') { this.drag = null; this.view.press = null; return; }
+      const dx = e.clientX - d.x;
+      const dy = e.clientY - d.y;
+      const dist = this.swipeThreshold();
+      if (Math.abs(dx) < dist && Math.abs(dy) < dist) return;
+      // 임계를 넘는 순간, 더 크게 움직인 축이 방향이 된다.
+      const horizontal = Math.abs(dx) >= Math.abs(dy);
+      const r2 = d.cell.r + (horizontal ? 0 : dy > 0 ? 1 : -1);
+      const c2 = d.cell.c + (horizontal ? (dx > 0 ? 1 : -1) : 0);
+      const from = d.cell;
+      d.moved = true;
       this.drag = null;
+      this.view.press = null;
       this.view.selected = null;
-      this.doSwap(from.r, from.c, r2, c2);
+      this.tapCell = null;
+      this.requestSwap(from.r, from.c, r2, c2);
     };
-    this.onUp = (e) => {
-      if (!this.drag) { this.view.selected = null; return; }
-      const { cell } = this.drag;
+    this.onUp = () => {
+      const d = this.drag;
       this.drag = null;
-      if (this.board.busy || this.board.state !== 'playing') return;
-      const prev = this.tapCell;
-      if (prev && Math.abs(prev.r - cell.r) + Math.abs(prev.c - cell.c) === 1) {
-        this.tapCell = null;
-        this.view.selected = null;
-        this.doSwap(prev.r, prev.c, cell.r, cell.c);
-      } else {
-        this.tapCell = cell;
-        this.view.selected = cell;
-      }
+      this.view.press = null;
+      if (!d || d.moved) return;          // 이미 스와이프로 처리됨 → 중복 실행 없음
+      this.handleTap(d.cell);
     };
+    // 브라우저가 제스처를 가져가 취소한 경우 = 탭이 아니다. 선택만 남기지 않는다.
+    this.onCancel = () => { this.drag = null; this.view.press = null; };
     canvas.addEventListener('pointerdown', this.onDown);
     canvas.addEventListener('pointermove', this.onMove);
     canvas.addEventListener('pointerup', this.onUp);
-    canvas.addEventListener('pointercancel', this.onUp);
+    canvas.addEventListener('pointercancel', this.onCancel);
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
+
+  /* 탭 → 탭 으로도 교체 (스와이프 대체 수단) */
+  handleTap(cell) {
+    if (this.finished || this.board.state !== 'playing') return;
+    const prev = this.tapCell;
+    if (prev && prev.r === cell.r && prev.c === cell.c) {
+      this.tapCell = null; this.view.selected = null; return;      // 같은 칸 다시 탭 = 선택 해제
+    }
+    if (prev && Math.abs(prev.r - cell.r) + Math.abs(prev.c - cell.c) === 1) {
+      this.tapCell = null;
+      this.view.selected = null;
+      this.requestSwap(prev.r, prev.c, cell.r, cell.c);
+      return;
+    }
+    this.tapCell = cell;
+    this.view.selected = cell;
+  }
+
+  /* 교체 요청 — 보드가 바쁘면(연쇄 중) 마지막 1개만 큐에 남긴다 */
+  requestSwap(r1, c1, r2, c2) {
+    if (this.finished || this.board.state !== 'playing') return;
+    const { rows, cols } = this.board;
+    if (r1 < 0 || c1 < 0 || r2 < 0 || c2 < 0 || r1 >= rows || c1 >= cols || r2 >= rows || c2 >= cols) return;
+    this.lastAction = performance.now();
+    if (this.board.busy) { this.pendingSwap = { r1, c1, r2, c2 }; return; }
+    this.pendingSwap = null;
+    this.doSwap(r1, c1, r2, c2);
+  }
+
+  /* 큐에 남은 스와이프를 보드가 한가해진 즉시 실행 */
+  flushPendingSwap() {
+    if (!this.pendingSwap || this.finished) return;
+    if (this.board.busy || this.board.state !== 'playing') return;
+    const p = this.pendingSwap;
+    this.pendingSwap = null;
+    this.doSwap(p.r1, p.c1, p.r2, p.c2).catch((err) => console.warn('[hexa-kingdom] 교체 오류', err));
+  }
+
+  async useBoosterAt(cell) {
+    const key = this.selectedBooster;
+    this.selectedBooster = null;
+    document.querySelectorAll('[data-booster]').forEach(b => b.classList.remove('active'));
+    if (this.app.profile.boosterCount(key) <= 0) { toast('부스터가 없어요.', 'bad'); return; }
+    this.app.profile.useBooster(key);
+    this.app.profile.save();
+    updateBoosterCounts(this);
+    const ok = await this.board.useBooster(key, cell.r, cell.c);
+    if (ok) this.app.audio.sfx('booster');
+    this.markHud();
   }
 
   async doSwap(r1, c1, r2, c2) {
@@ -344,6 +401,8 @@ export class GameSession {
     this.effects.update(dt);
     this.effects.draw();
 
+    this.flushPendingSwap();
+
     if (this.board.state === 'playing' && !this.board.busy && !this.finished) {
       const idle = t - this.lastAction;
       if (idle > CFG.anim.hintDelay && !this.board.hintCells) this.board.getHint();
@@ -369,6 +428,7 @@ export class GameSession {
   finish(win) {
     if (this.finished || this.destroyed) return;
     this.finished = true;
+    this.pendingSwap = null;
     this.board.busy = true;
     const p = this.app.profile;
     const score = this.board.score;
@@ -508,6 +568,8 @@ export class GameSession {
 
   destroy() {
     this.destroyed = true;
+    this.pendingSwap = null;
+    this.app.backdrop?.setScene(this.app.state.world || 1, 'home');
     closeAllModals();
     cancelAnimationFrame(this.raf);
     clearInterval(this.timer);
