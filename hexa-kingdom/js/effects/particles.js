@@ -91,6 +91,43 @@ export class Effects {
     this.burst(x, y, { color, count, speed: 90, size: 3, life: 0.9, gravity: -40, kind: 'star' });
   }
 
+  /* 로켓 애프터버너 — 지나간 줄을 따라 불꽃과 연기가 남는다 */
+  afterburner(x1, y1, x2, y2, color = '#ffb703') {
+    this.trail(x1, y1, x2, y2, color, 14);
+    const n = 16;
+    for (let i = 0; i < n; i++) {
+      const k = i / (n - 1);
+      const x = x1 + (x2 - x1) * k, y = y1 + (y2 - y1) * k;
+      this.get(p => {
+        p.x = x; p.y = y;
+        p.vx = rand(-34, 34); p.vy = rand(-80, -16);
+        p.life = p.maxLife = rand(0.24, 0.52);
+        p.size = rand(1.6, 3.8);
+        p.color = i % 3 ? '#ffd166' : '#ff7a3d';
+        p.gravity = -36; p.kind = 'dot';
+        p.rot = rand(0, TAU); p.spin = rand(-6, 6);
+      });
+    }
+  }
+
+  /* TNT — 링 두 겹 + 튀는 스파크 */
+  shockwave(x, y, color = '#ff9f43', radius = 90) {
+    this.rings.push({ x, y, r0: 6, r1: radius, color, life: 0.42, max: 0.42 });
+    this.rings.push({ x, y, r0: 2, r1: radius * 1.5, color: '#fff3c4', life: 0.62, max: 0.62 });
+    this.burst(x, y, { color, count: 26, speed: 300, size: 4.6, life: 0.55, gravity: 120 });
+    this.burst(x, y, { color: '#ffe066', count: 12, speed: 430, size: 2.6, life: 0.4, gravity: 60, kind: 'star' });
+  }
+
+  /* 무지개 프리즘 — 색이 퍼지는 동심원 + 하얀 별 */
+  prism(x, y, radius = 90) {
+    const cols = ['#ff5b7f', '#ffc93c', '#3ddc84', '#4d9dff', '#b06cff'];
+    cols.forEach((c, i) => {
+      const life = 0.55 + i * 0.05;
+      this.rings.push({ x, y, r0: 4 + i * 3, r1: radius * (1 + i * 0.14), color: c, life, max: life });
+    });
+    this.burst(x, y, { color: '#ffffff', count: 20, speed: 250, size: 4, life: 0.55, gravity: -60, kind: 'star' });
+  }
+
   punch(strength = 6) { this.shake = Math.max(this.shake, strength); }
   screenFlash(v = 0.4) { this.flash = Math.max(this.flash, v); }
 

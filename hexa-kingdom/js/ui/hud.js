@@ -63,15 +63,17 @@ export function buildHud(session) {
       </div>`).join('');
   }
 
-  // 부스터
+  // 부스터 (8종 + 힌트) — 가로 스크롤 바
   const boosters = $('#game-boosters');
   boosters.innerHTML = inGameButtons().map(b => `
-    <button class="booster-btn" data-booster="${b.key}" aria-label="${b.name}">
+    <button class="booster-btn" data-booster="${b.key}" data-target="${b.target || 'cell'}" aria-label="${b.name} — ${b.desc}">
       ${boosterSvg(b.key)}
-      <span class="bn">${b.name}</span>
+      <span class="bn">${shortName(b.key, b.name)}</span>
       <span class="cnt" data-count="${b.key}">${session.app.profile.boosterCount(b.key)}</span>
     </button>`).join('') + `
     <button class="booster-btn hint-btn" id="hud-hint" aria-label="힌트">${ICONS.hint}<span class="bn">힌트</span></button>`;
+  // 스크롤이 가능하다는 것을 알려 주는 힌트(양옆 페이드)
+  boosters.classList.add('scrollable');
 }
 
 export function updateHud(session) {
@@ -107,13 +109,23 @@ export function updateBoosterCounts(session) {
   const p = session.app.profile;
   document.querySelectorAll('[data-count]').forEach(node => {
     const key = node.dataset.count;
-    node.textContent = p.boosterCount(key);
-    node.style.display = p.boosterCount(key) ? 'grid' : 'none';
+    const n = p.boosterCount(key);
+    node.textContent = n;
+    node.style.display = n ? 'grid' : 'none';
+    const btn = node.closest('[data-booster]');
+    if (btn) btn.classList.toggle('empty', n <= 0);
   });
   document.querySelectorAll('[data-booster]').forEach(btn => {
     const key = btn.dataset.booster;
     btn.disabled = p.boosterCount(key) <= 0;
   });
+}
+
+/* 바에 표시하는 짧은 이름 */
+function shortName(key, fallback) {
+  return {
+    magicHat: '마법모자', swap: '자유교체', lightning: '번개', prism: '프리즘', hourglass: '모래시계',
+  }[key] || fallback;
 }
 
 function goalText(g) {
@@ -139,6 +151,10 @@ export function boosterSvg(key) {
     drill: `<svg ${common}><path d="M12 3l2 4v8h-4V7z" fill="#9fb6c8"/><path d="M10 15h4l-2 6z" fill="#ffd166"/><path d="M8 6h8" stroke="#c9d3e0" stroke-width="2"/></svg>`,
     bomber: `<svg ${common}><circle cx="11" cy="14" r="6.4" fill="#ff5e57"/><path d="M15 9c2-3 4-2 4-2" stroke="#ffd166" stroke-width="2" fill="none"/><circle cx="20" cy="6" r="2.2" fill="#ffe066"/></svg>`,
     magicHat: `<svg ${common}><path d="M5 17h14l-2-8-4-4H9L7 9z" fill="#3b2d5c"/><path d="M4 18h16" stroke="#b06cff" stroke-width="2.4" stroke-linecap="round"/><path d="M12 5l1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="#ffe066"/></svg>`,
+    swap: `<svg ${common}><path d="M4 9h11l-2.6-2.6" fill="none" stroke="#8ee6ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 15H9l2.6 2.6" fill="none" stroke="#ffd166" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="19" cy="8.4" r="1.8" fill="#8ee6ff"/><circle cx="5" cy="15.6" r="1.8" fill="#ffd166"/></svg>`,
+    lightning: `<svg ${common}><path d="M13 2.5L5 13.5h5l-1 8 8-11h-5z" fill="#ffe066" stroke="#ffb703" stroke-width="1"/><path d="M3 4l2 2M21 4l-2 2M3 20l2-2M21 20l-2-2" stroke="#8ee6ff" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+    prism: `<svg ${common}><circle cx="12" cy="12" r="7" fill="url(#pg)"/><defs><linearGradient id="pg" x1="4" y1="4" x2="20" y2="20"><stop offset="0" stop-color="#ff7ab6"/><stop offset=".35" stop-color="#ffd166"/><stop offset=".65" stop-color="#3ddc84"/><stop offset="1" stop-color="#8ee6ff"/></linearGradient></defs><circle cx="12" cy="12" r="7" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="1.4"/><path d="M12 6.5l4 3.4-2 5.6h-4l-2-5.6z" fill="rgba(255,255,255,.55)"/></svg>`,
+    hourglass: `<svg ${common}><path d="M7 3h10v2l-4 5 4 5v2H7v-2l4-5-4-5z" fill="#d8c3a5" stroke="#8a6b45" stroke-width="1.2"/><path d="M9 20h6" stroke="#8a6b45" stroke-width="2" stroke-linecap="round"/><path d="M10 8.5c.8-.9 3.2-.9 4 0L12 11z" fill="#ffd166"/><path d="M9.6 17.4c1-1.4 3.8-1.4 4.8 0z" fill="#ffd166"/><path d="M19 6l-2 2 2 2" stroke="#3ddc84" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>`,
   };
   return map[key] || '';
 }

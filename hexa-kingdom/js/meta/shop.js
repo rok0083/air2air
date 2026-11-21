@@ -28,15 +28,24 @@ export function buy(item, profile) {
   } else if (item.kind === 'lives') {
     profile.refillLives();
     rewards.lives = true;
+  } else if (item.kind === 'pack') {
+    for (const [k, n] of Object.entries(item.items || {})) {
+      profile.addBooster(k, n);
+      rewards.boosters[k] = (rewards.boosters[k] || 0) + n;
+    }
   } else if (item.kind === 'chest') {
     if (item.chest === 'level') {
-      const pool = ['hammer', 'drill', 'bomber', 'magicHat', 'startRocket', 'startTnt'];
+      const pool = ['hammer', 'drill', 'bomber', 'magicHat', 'swap', 'lightning', 'prism', 'hourglass', 'startRocket', 'startTnt'];
       const picks = pool.sort(() => RNG() - 0.5).slice(0, 2);
       picks.forEach(k => { profile.addBooster(k, 1); rewards.boosters[k] = 1; });
       profile.addCoins(120);
       rewards.coins = 120;
     } else {
       ['hammer', 'drill', 'bomber', 'magicHat'].forEach(k => { profile.addBooster(k, 1); rewards.boosters[k] = (rewards.boosters[k] || 0) + 1; });
+      // 구역 상자에는 새 전술 부스터도 1종 들어 있다
+      const bonusPick = ['swap', 'lightning', 'prism', 'hourglass'][Math.floor(RNG() * 4)];
+      profile.addBooster(bonusPick, 1);
+      rewards.boosters[bonusPick] = (rewards.boosters[bonusPick] || 0) + 1;
       profile.addHammers(2);
       rewards.hammers = 2;
       profile.addCoins(150);
@@ -49,5 +58,5 @@ export function buy(item, profile) {
 }
 
 export function boosterShopList() {
-  return CFG.shop.items.filter(i => ['booster', 'hammer', 'chest', 'lives'].includes(i.kind));
+  return CFG.shop.items.filter(i => ['booster', 'hammer', 'chest', 'lives', 'pack'].includes(i.kind));
 }

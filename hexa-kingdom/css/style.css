@@ -54,6 +54,34 @@ body {
   position: absolute; inset: 0; width: 100%; height: 100%;
   z-index: 0; display: block; pointer-events: none;
 }
+
+/* 월드별 바다·하늘 사진 — 캔버스(#bg) 아래에서 켄 번즈로 천천히 움직인다 */
+#bg-photo {
+  position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+  background: #07120e;
+}
+#bg-photo .bp {
+  position: absolute; inset: -5%;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0; transition: opacity 1.1s ease;
+  will-change: transform;
+  filter: brightness(.92) saturate(1.06);
+}
+#bg-photo .bp.on { opacity: 1; animation: kenburnsA 46s ease-in-out infinite alternate; }
+#bg-photo .bp.on[data-kb="1"] { animation-name: kenburnsB; }
+@keyframes kenburnsA {
+  from { transform: scale(1.03) translate3d(0, 0, 0); }
+  to   { transform: scale(1.13) translate3d(-1.4%, -1.8%, 0); }
+}
+@keyframes kenburnsB {
+  from { transform: scale(1.12) translate3d(1.2%, 1.4%, 0); }
+  to   { transform: scale(1.03) translate3d(-0.6%, -0.4%, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #bg-photo .bp.on { animation: none; transform: scale(1.04); }
+}
 .screen { position: absolute; inset: 0; display: flex; flex-direction: column; z-index: 1; }
 .hidden { display: none !important; }
 
@@ -394,12 +422,25 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
 .goal .gem-dot, .goal-row .gem-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; box-shadow: inset 0 0 0 2px rgba(255,255,255,.5); flex-shrink: 0; }
 .goal .gcount { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--gold); }
 
-.game-boosters { display: flex; gap: 6px; padding: 2px 12px calc(8px + var(--safe-b)); flex-shrink: 0; }
+.game-boosters {
+  display: flex; gap: 6px; padding: 2px 12px calc(8px + var(--safe-b)); flex-shrink: 0;
+  overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.game-boosters::-webkit-scrollbar { display: none; }
+/* 오른쪽 끝 페이드 — "옆으로 더 있다"는 신호 */
+.game-boosters.scrollable {
+  -webkit-mask-image: linear-gradient(90deg, #000 0 90%, rgba(0,0,0,.25) 100%);
+  mask-image: linear-gradient(90deg, #000 0 90%, rgba(0,0,0,.25) 100%);
+}
 .booster-btn {
-  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  flex: 0 0 58px; scroll-snap-align: start;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   padding: 7px 2px; border-radius: 13px; background: rgba(255, 255, 255, .055);
   border: 1px solid rgba(255, 255, 255, .1); position: relative; min-height: 52px;
 }
+.booster-btn > svg { width: 24px; height: 24px; }
+.booster-btn.empty > svg { opacity: .55; }
 .booster-btn .bic { width: 24px; height: 24px; display: grid; place-items: center; }
 .booster-btn .bn { font-size: 9.5px; color: var(--muted); }
 .booster-btn .cnt {
@@ -409,7 +450,7 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
 }
 .booster-btn.active { border-color: var(--gold); background: rgba(255, 209, 102, .18); box-shadow: 0 0 0 2px rgba(255,209,102,.2); }
 .booster-btn:disabled { opacity: .35; }
-.hint-btn { flex: 0 0 46px; }
+.hint-btn { flex: 0 0 50px; }
 
 /* ── 모달 ─────────────────────────────────────────────── */
 #modal-root { position: absolute; inset: 0; z-index: 100; pointer-events: none; }
@@ -461,7 +502,13 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
 .stars-row { display: flex; justify-content: center; gap: 10px; padding: 6px 0; }
 .star-slot { position: relative; width: 40px; height: 40px; }
 .star-slot svg { width: 100%; height: 100%; filter: grayscale(1) brightness(.5); }
-.star-slot.on svg { filter: none; animation: starPop .4s ease; }
+.star-slot.on svg { filter: none; animation: starStamp .62s cubic-bezier(.2,.9,.3,1.35) both; }
+@keyframes starStamp {
+  0%   { transform: scale(.15) rotate(-32deg); opacity: .15; }
+  55%  { transform: scale(1.28) rotate(7deg); opacity: 1; }
+  78%  { transform: scale(.96) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
 @keyframes starPop { 0% { transform: scale(.4) rotate(-20deg); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
 .pre-boosters { display: flex; gap: 8px; }
 .pre-booster {
@@ -538,6 +585,62 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
 }
 .combo-pop { position: absolute; pointer-events: none; font-weight: 900; color: var(--gold); font-size: 16px; text-shadow: 0 2px 6px #000; animation: comboUp .8s ease-out forwards; z-index: 31; }
 @keyframes comboUp { 0% { opacity: 0; transform: translateY(6px) scale(.8); } 25% { opacity: 1; transform: translateY(-4px) scale(1.1); } 100% { opacity: 0; transform: translateY(-34px) scale(1); } }
+
+/* ── v2 연출: 점수 팝업 · 콤보 콜아웃 · 목표로 날아가는 보석 ── */
+.score-pop {
+  position: absolute; pointer-events: none; z-index: 32;
+  font-weight: 900; font-size: 17px; color: #ffe066; letter-spacing: .3px;
+  text-shadow: 0 2px 0 rgba(0,0,0,.6), 0 0 14px rgba(255,209,102,.6);
+  animation: scorePop 1s cubic-bezier(.2,.7,.3,1) forwards;
+  font-variant-numeric: tabular-nums;
+}
+@keyframes scorePop {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(.5); }
+  20%  { opacity: 1; transform: translate(-50%,-125%) scale(1.22); }
+  45%  { transform: translate(-50%,-150%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-280%) scale(.95); }
+}
+.combo-callout {
+  position: absolute; left: 0; right: 0; top: 36%; text-align: center;
+  pointer-events: none; z-index: 33; font-weight: 900; font-size: 30px; letter-spacing: .5px;
+  color: #fff; text-shadow: 0 3px 0 rgba(0,0,0,.45), 0 0 26px currentColor;
+  animation: comboCall 1s cubic-bezier(.2,.8,.3,1) forwards;
+}
+.combo-callout .sub { display: block; font-size: 11px; letter-spacing: 3px; margin-top: 3px; opacity: .9; text-shadow: 0 1px 4px rgba(0,0,0,.8); }
+.combo-callout.t2 { color: #8ef0b0; font-size: 24px; }
+.combo-callout.t3 { color: #8ee6ff; font-size: 27px; }
+.combo-callout.t4 { color: #ffd166; font-size: 30px; }
+.combo-callout.t5 { color: #ff9f43; font-size: 33px; }
+.combo-callout.t6 { color: #ff5b7f; font-size: 37px; }
+@keyframes comboCall {
+  0%   { opacity: 0; transform: scale(.4) rotate(-8deg); }
+  16%  { opacity: 1; transform: scale(1.24) rotate(2deg); }
+  34%  { transform: scale(.97) rotate(-1deg); }
+  52%  { transform: scale(1.04) rotate(0); }
+  74%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.08) translateY(-20px); }
+}
+.fly-gem {
+  position: absolute; width: 18px; height: 18px; border-radius: 50%;
+  pointer-events: none; z-index: 34;
+  background: radial-gradient(circle at 32% 26%, #ffffff, var(--gc, #3ddc84) 58%, rgba(0,0,0,.5));
+  box-shadow: 0 0 12px var(--gc, #3ddc84);
+}
+.goal.hit { animation: goalHit .5s ease; }
+@keyframes goalHit {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.14); box-shadow: 0 0 0 3px rgba(255,209,102,.45); }
+  100% { transform: scale(1); }
+}
+.confetti {
+  position: absolute; width: 8px; height: 13px; border-radius: 2px; pointer-events: none; z-index: 121;
+  animation: confettiFall var(--dur, 2.6s) linear forwards;
+}
+@keyframes confettiFall {
+  0%   { opacity: 0; transform: translate3d(0, -30px, 0) rotate(0deg); }
+  8%   { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--dx, 0px), 104vh, 0) rotate(var(--rot, 720deg)); }
+}
 
 /* ── 월드 지도 캐릭터/보스 연출 ───────────────────────── */
 .fade-in { animation: fadeIn .3s ease; }

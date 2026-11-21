@@ -226,18 +226,33 @@ function restoreTask(app, node) {
 function showLivesInfo(app) {
   const p = app.profile;
   const info = p.livesInfo();
+  const canRefill = info.count < info.max && p.coins >= CFG.lives.refillCoinCost;
+  const actions = [{ label: '닫기', class: 'btn-ghost' }];
+  if (info.count < info.max) {
+    actions.unshift({
+      label: canRefill ? `코인 ${fmt(CFG.lives.refillCoinCost)}로 가득 충전` : `코인 ${fmt(CFG.lives.refillCoinCost)} 필요`,
+      class: canRefill ? 'btn-green' : 'btn-ghost',
+      disabled: !canRefill,
+      onClick: (close) => {
+        if (!p.buyLivesWithCoins()) { toast('코인이 부족해요.', 'bad'); return; }
+        p.save();
+        app.syncSoon();
+        toast('목숨을 가득 채웠어요!', 'gold');
+        close();
+        renderHome(app);
+      },
+    });
+  }
   openModal({
     title: '목숨',
-    subtitle: `30분마다 목숨 1개가 회복됩니다. (최대 ${info.max}개)`,
+    subtitle: `15분마다 목숨 1개가 회복됩니다. (최대 ${info.max}개)`,
     body: `
       <div class="center" style="padding:10px 0 4px;font-size:34px;color:#ff9db3">
         ${'♥'.repeat(info.count)}${'♡'.repeat(Math.max(0, info.max - info.count))}
       </div>
       <p class="center tiny muted">${info.nextIn ? `다음 목숨까지 ${timeLeft(info.nextIn)}` : '목숨이 가득 찼어요!'}</p>
+      <p class="center tiny muted" style="line-height:1.55">스테이지를 시작할 때는 목숨을 쓰지 않아요.<br>실패했을 때만 1개가 줄어들기 때문에, 이길 때까지 계속 이어서 플레이할 수 있어요.</p>
     `,
-    actions: [
-      { label: '닫기', class: 'btn-ghost' },
-      { label: '상점에서 회복', class: 'btn', onClick: (close) => { close(); app.openShop(); } },
-    ],
+    actions,
   });
 }

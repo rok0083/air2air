@@ -60,42 +60,63 @@ export async function openPreLevel(app, world, level) {
     </div>
 
     <div class="spread tiny muted" style="padding-top:2px">
-      <span>${ICONS.heart} 목숨 ${lives.count}/${lives.max} · 시작 시 1 소모</span>
+      <span>${ICONS.heart} 목숨 ${lives.count}/${lives.max} · 실패 시에만 1 소모</span>
       <span>${lives.nextIn ? `다음 회복 ${Math.ceil(lives.nextIn / 60000)}분` : '가득 참'}</span>
     </div>
+    <div class="tiny muted center" style="line-height:1.5">스테이지를 시작할 때는 목숨을 쓰지 않아요.<br>클리어하면 그대로라 질 때까지 계속 이어서 할 수 있어요.</div>
     ${boss ? `<div class="tiny" style="color:#d9c2ff">${ICONS.boss} ${boss.name} — ${boss.summonEvery ?? 2}수마다 장애물을 소환합니다.</div>` : ''}
   `;
+
+  const actions = [];
+  if (lives.count <= 0) {
+    actions.push({
+      label: `코인 ${fmt(CFG.lives.refillCoinCost)}로 목숨 가득 충전`,
+      class: 'btn btn-sm',
+      full: true,
+      onClick: (close) => {
+        if (p.coins < CFG.lives.refillCoinCost) { toast('코인이 부족해요. 블리츠나 복구로 모을 수 있어요.', 'bad'); return; }
+        p.spendCoins(CFG.lives.refillCoinCost);
+        p.refillLives();
+        p.save();
+        app.syncSoon();
+        app.audio.sfx('coin');
+        toast('목숨을 가득 채웠어요!', 'gold');
+        close();
+        openPreLevel(app, world, level);
+      },
+    });
+  }
+  actions.push({
+    label: '플레이',
+    // ▶ 배지 + 굵은 라벨을 실제 HTML 로 (예전엔 SVG 문자열이 글자로 보였음)
+    html: lives.count > 0
+      ? `${PLAY_BADGE}<span class="start-lbl">플레이</span>`
+      : `<span class="start-lbl">목숨 부족</span>`,
+    ariaLabel: lives.count > 0 ? '플레이 — 이 스테이지 시작' : '목숨 부족',
+    class: 'btn-start',
+    full: true,
+    disabled: lives.count <= 0,
+    onClick: (close) => {
+      // v2: 시작할 때 목숨을 쓰지 않는다 (실패했을 때만 1개)
+      if (lives.count <= 0) { toast('목숨이 없어요. 15분마다 회복되거나 코인으로 충전할 수 있어요.', 'bad'); return; }
+      // 선택한 시작 부스터 차감
+      const extra = {};
+      for (const key of Object.keys(selected)) {
+        if (selected[key] && p.useBooster(key)) extra[key] = (extra[key] || 0) + 1;
+      }
+      p.save();
+      close();
+      app.startLevel(world, level, data, extra);
+    },
+  });
+  actions.push({ label: '지도로', class: 'btn-ghost full' });
 
   const modal = openModal({
     title: '출발 준비',
     subtitle: `${world}월드 · ${levelName(world, level)}`,
     body,
     className: 'prelevel-modal',
-    actions: [
-      {
-        label: '플레이',
-        // ▶ 배지 + 굵은 라벨을 실제 HTML 로 (예전엔 SVG 문자열이 글자로 보였음)
-        html: lives.count > 0
-          ? `${PLAY_BADGE}<span class="start-lbl">플레이</span>`
-          : `<span class="start-lbl">목숨 부족</span>`,
-        ariaLabel: lives.count > 0 ? '플레이 — 이 스테이지 시작' : '목숨 부족',
-        class: 'btn-start',
-        full: true,
-        disabled: lives.count <= 0,
-        onClick: (close) => {
-          if (!p.consumeLife()) { toast('목숨이 없어요. 30분마다 회복됩니다.', 'bad'); return; }
-          // 선택한 시작 부스터 차감
-          const extra = {};
-          for (const key of Object.keys(selected)) {
-            if (selected[key] && p.useBooster(key)) extra[key] = (extra[key] || 0) + 1;
-          }
-          p.save();
-          close();
-          app.startLevel(world, level, data, extra);
-        },
-      },
-      { label: '지도로', class: 'btn-ghost full' },
-    ],
+    actions,
   });
 
   // 부스터 토글
@@ -109,7 +130,7 @@ export async function openPreLevel(app, world, level) {
     });
   });
   if (lives.count <= 0) {
-    toast('목숨이 모두 떨어졌어요. 30분마다 1개씩 회복됩니다.', 'bad');
+    toast('목숨이 모두 떨어졌어요. 15분마다 1개씩 회복되고, 코인으로 바로 충전할 수 있어요.', 'bad', 3000);
   }
 }
 

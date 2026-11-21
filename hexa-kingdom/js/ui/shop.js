@@ -12,7 +12,8 @@ export function openShop(app) {
     const items = shopItems(p);
     const groups = [
       { name: '인게임 부스터', list: items.filter(i => i.kind === 'booster' && !i.id.includes('3') && !i.id.startsWith('start')) },
-      { name: '3개 묶음', list: items.filter(i => i.id.endsWith('3')) },
+      { name: '3개 묶음', list: items.filter(i => i.kind === 'booster' && i.id.includes('3')) },
+      { name: '세트', list: items.filter(i => i.kind === 'pack') },
       { name: '상자', list: items.filter(i => i.kind === 'chest') },
       { name: '복구·기타', list: items.filter(i => i.kind === 'hammer' || i.kind === 'lives') },
     ];
@@ -60,11 +61,13 @@ function shopCard(i) {
   const icon = i.kind === 'booster' ? boosterSvg(i.key)
     : i.kind === 'hammer' ? ICONS.hammer
     : i.kind === 'lives' ? ICONS.heart
+    : i.kind === 'pack' ? ICONS.star
     : ICONS.shop;
   const desc = i.kind === 'chest'
-    ? (i.chest === 'level' ? '부스터 2종 + 코인 120' : '부스터 4종 + 망치 토큰 2 + 코인 150')
+    ? (i.chest === 'level' ? '부스터 2종 + 코인 120' : '부스터 5종 + 망치 토큰 2 + 코인 150')
     : i.kind === 'lives' ? '목숨을 즉시 가득 채웁니다.'
     : i.kind === 'hammer' ? '마을 복구에 쓰는 토큰입니다.'
+    : i.kind === 'pack' ? '새 전술 부스터 4종(자유 교체·번개 지팡이·무지개 프리즘·시간 모래시계)을 한 번에.'
     : (CFG.boosters[i.key]?.desc || '');
   return `
     <div class="shop-card ${i.affordable ? '' : 'no'}">

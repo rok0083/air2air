@@ -63,6 +63,7 @@ export class BoardView {
     this.hover = null;
     this.selected = null;
     this.press = null;
+    this.swapAnchor = null;
     this.flashT = 0;
     this.zoom = 1;
   }
@@ -163,14 +164,21 @@ export class BoardView {
       this.drawOverlayObstacle(ctx, obs, x, y, this.cell);
     }
 
-    // 움직이는 타일
+    // 움직이는 타일 — 낙하/교체에 스쿼시·스트레치(찌부러졌다 튀는) 탄성을 준다
     for (const [id, { anim, t }] of moving) {
       const e = anim.ease === 'inout' ? easeInOut(t) : anim.ease === 'drop' ? easeDrop(t) : easeOut(t);
       const x0 = this.bx + anim.from.c * this.cell + this.cell / 2;
       const y0 = this.by + anim.from.r * this.cell + this.cell / 2;
       const x1 = this.bx + anim.to.c * this.cell + this.cell / 2;
       const y1 = this.by + anim.to.r * this.cell + this.cell / 2;
-      this.drawTile(ctx, anim.tile, x0 + (x1 - x0) * e, y0 + (y1 - y0) * e, this.cell, 1);
+      let squash = 0;
+      if (anim.ease === 'drop') {
+        if (t < 0.22) squash = -0.20 * (1 - t / 0.22);                                  // 떨어질 때 세로로 늘어남
+        else if (t > 0.80) squash = 0.36 * Math.sin(((t - 0.80) / 0.20) * Math.PI);     // 착지 반동
+      } else if (anim.ease !== 'inout') {
+        squash = 0.14 * Math.sin(Math.min(1, t * 1.6) * Math.PI);                        // 교체 시 살짝 반동
+      }
+      this.drawTile(ctx, anim.tile, x0 + (x1 - x0) * e, y0 + (y1 - y0) * e, this.cell, 1, squash);
     }
 
     // 제거 팝
@@ -228,6 +236,20 @@ export class BoardView {
       ctx.stroke();
     }
 
+    // 자유 교체 — 첫 번째로 고른 칸 표시
+    if (this.swapAnchor) {
+      const { x, y } = this.cellCenter(this.swapAnchor.r, this.swapAnchor.c);
+      const pulse = 0.5 + 0.5 * Math.sin(now / 130);
+      ctx.strokeStyle = `rgba(142,230,255,${0.55 + pulse * 0.45})`;
+      ctx.lineWidth = 3;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x - this.cell / 2 + 2, y - this.cell / 2 + 2, this.cell - 4, this.cell - 4, 10);
+      else ctx.rect(x - this.cell / 2 + 2, y - this.cell / 2 + 2, this.cell - 4, this.cell - 4);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
     // 선택
     if (this.selected) {
       const { x, y } = this.cellCenter(this.selected.r, this.selected.c);
@@ -250,7 +272,13 @@ export class BoardView {
   }
 
   /* 보석 */
-  drawTile(ctx, tile, x, y, cell, alpha = 1) {
+  drawTile(ctx, tile, x, y, cell, alpha = 1, squash = 0) {
+    if (squash) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(1 + squash * 0.55, 1 - squash * 0.40);
+      ctx.translate(-x, -y);
+    }
     const gem = GEMS[tile.color] || GEMS[0];
     const r = cell * 0.36;
     const hue = gem.color;
@@ -279,7 +307,13 @@ export class BoardView {
     ctx.globalAlpha = alpha;
 
     // 특수 보석 표시
-    if (tile.pu) this.drawPowerupBadge(ctx, tile.pu, x, y, r);
+    if (tile.pu) {
+      this.drawPowerupBadge(ctx, tile.pu, x, y, r);
+      this.drawPowerupShimmer(ctx, x, y, r, alpha);
+    }
+
+    // 보너스 보석 배지(코인·이동·별빛 타격·2배 점수)
+    if (tile.bonus) this.drawBonusBadge(ctx, tile.bonus, x, y, r);
 
     // 아이템(도토리·씨앗)
     if (tile.item) {
@@ -292,6 +326,65 @@ export class BoardView {
       ctx.beginPath(); ctx.moveTo(x + r * 0.62, y - r * 0.95); ctx.lineTo(x + r * 0.74, y - r * 1.15); ctx.stroke();
     }
     ctx.globalAlpha = 1;
+    if (squash) ctx.restore();
+  }
+
+  /* 특수 보석의 은은한 반짝임 — 가만히 있어도 살아 있게 */
+  drawPowerupShimmer(ctx, x, y, r, alpha = 1) {
+    const now = performance.now();
+    const k = 0.5 + 0.5 * Math.sin(now / 360);
+    ctx.globalAlpha = alpha * (0.16 + k * 0.26);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(x, y, r * (1.06 + k * 0.12), 0, TAU); ctx.stroke();
+    // 돌아가는 작은 별
+    const a = now / 900;
+    const sx = x + Math.cos(a) * r * 1.15, sy = y + Math.sin(a) * r * 1.15;
+    ctx.globalAlpha = alpha * (0.45 + k * 0.5);
+    ctx.fillStyle = '#fffbe6';
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const ang = -Math.PI / 2 + (i * Math.PI) / 4;
+      const rr = i % 2 ? r * 0.07 : r * 0.20;
+      const px = sx + Math.cos(ang) * rr, py = sy + Math.sin(ang) * rr;
+      i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+    }
+    ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = alpha;
+  }
+
+  /* 보너스 보석 배지 */
+  drawBonusBadge(ctx, type, x, y, r) {
+    const meta = (CFG.bonus?.types || []).find(t => t.id === type);
+    const col = meta?.color || '#ffe066';
+    const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 280);
+    const bx = x + r * 0.66, by = y - r * 0.74, br = r * 0.44;
+    ctx.save();
+    ctx.globalAlpha = 0.28 + pulse * 0.34;
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(bx, by, br * 2.3, 0, TAU); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = 'rgba(10,18,14,0.88)';
+    ctx.beginPath(); ctx.arc(bx, by, br, 0, TAU); ctx.fill();
+    ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.stroke();
+    ctx.fillStyle = col;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (type === 'x2') {
+      ctx.font = `900 ${Math.round(br * 1.05)}px system-ui, sans-serif`;
+      ctx.fillText('×2', bx, by + 0.5);
+    } else if (type === 'coin') {
+      ctx.beginPath(); ctx.arc(bx, by, br * 0.55, 0, TAU); ctx.fill();
+      ctx.fillStyle = 'rgba(10,18,14,0.9)';
+      ctx.font = `900 ${Math.round(br * 1.0)}px system-ui, sans-serif`;
+      ctx.fillText('C', bx, by + 0.5);
+    } else if (type === 'moves') {
+      ctx.font = `900 ${Math.round(br * 1.15)}px system-ui, sans-serif`;
+      ctx.fillText('+2', bx, by + 0.5);
+    } else {
+      ctx.font = `900 ${Math.round(br * 1.2)}px system-ui, sans-serif`;
+      ctx.fillText('★', bx, by + 0.5);
+    }
+    ctx.restore();
   }
 
   drawPowerupBadge(ctx, pu, x, y, r) {

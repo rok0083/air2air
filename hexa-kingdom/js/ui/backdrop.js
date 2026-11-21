@@ -1001,6 +1001,376 @@ const SCENES = {
   blitz: sceneBlitz,
 };
 
+/* =========================================================================
+   대기(atmosphere) 레이어 — 배경 '사진' 위에 얹는 빛과 입자
+   -------------------------------------------------------------------------
+   월드별 사진은 DOM 레이어(#bg-photo)에 깔리고(켄 번즈 느린 드리프트),
+   이 캔버스는 투명하게 비운 채 빛무리·눈·불티·안개만 그립니다.
+   사진을 못 불러오면 예전의 캔버스 풍경(SCENES)으로 자연스럽게 되돌아갑니다.
+   ========================================================================= */
+export const PHOTOS = {
+  1: './assets/bg/world1.jpg',
+  2: './assets/bg/world2.jpg',
+  3: './assets/bg/world3.jpg',
+  4: './assets/bg/world4.jpg',
+  5: './assets/bg/world5.jpg',
+  blitz: './assets/bg/blitz.jpg',
+};
+
+/* 사진 위에 살짝 얹는 색조 — 보석과 글자가 항상 또렷하도록 */
+const TINTS = {
+  1: '10,40,24,0.10',
+  2: '8,24,54,0.18',
+  3: '58,14,8,0.16',
+  4: '6,40,26,0.14',
+  5: '16,8,38,0.24',
+  blitz: '20,10,46,0.30',
+};
+
+/* 사진 로딩 전/실패 시 바탕 그라디언트 */
+const FALLBACK = {
+  1: ['#2d7f9c', '#0b2a20'],
+  2: ['#12325f', '#081726'],
+  3: ['#7a2a17', '#1c0b06'],
+  4: ['#15654a', '#05180f'],
+  5: ['#2a1348', '#0a0514'],
+  blitz: ['#341f74', '#07040f'],
+};
+
+function atmosMeadow(ctx, W, H, t, st) {
+  // 햇살
+  ctx.globalCompositeOperation = 'lighter';
+  const sunX = W * 0.74, sunY = H * 0.13, sr = W * 0.62;
+  const g = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sr);
+  g.addColorStop(0, 'rgba(255,248,214,0.34)');
+  g.addColorStop(0.22, 'rgba(255,236,170,0.13)');
+  g.addColorStop(1, 'rgba(255,220,140,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(sunX, sunY, sr, 0, TAU); ctx.fill();
+
+  // 흘러가는 구름 그림자
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 0.10;
+  ctx.fillStyle = '#04241a';
+  for (const c of st.clouds) {
+    const x = (((c.x + t * c.v * 0.6) % 1.3) - 0.15) * W;
+    ctx.beginPath();
+    ctx.ellipse(x, c.y * H * 1.35, c.s * W * 2.2, c.s * W * 0.6, 0, 0, TAU);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // 반딧불 · 꽃가루
+  ctx.globalCompositeOperation = 'lighter';
+  for (const f of st.flies) {
+    const x = (f.x + Math.sin(t * f.sx + f.ph) * f.dx) * W;
+    const y = (f.y + Math.cos(t * f.sy + f.ph * 1.7) * f.dy) * H;
+    const pulse = 0.5 + 0.5 * Math.sin(t * f.p + f.ph);
+    const r = f.r * (0.7 + pulse * 1.0);
+    ctx.globalAlpha = 0.30 + pulse * 0.55;
+    ctx.drawImage(sprite('gold'), x - r, y - r, r * 2, r * 2);
+  }
+  // 먼 새
+  ctx.globalAlpha = 0.35;
+  ctx.strokeStyle = '#0d2a22';
+  ctx.lineWidth = 1.5;
+  for (const b of st.birds) {
+    const x = (((b.x + t * b.v) % 1.3) - 0.15) * W;
+    const y = b.y * H + Math.sin(t * 0.8 + b.ph) * 4;
+    const sz = b.s;
+    ctx.beginPath();
+    ctx.moveTo(x - sz, y);
+    ctx.quadraticCurveTo(x - sz * 0.4, y - sz * 0.7, x, y);
+    ctx.quadraticCurveTo(x + sz * 0.4, y - sz * 0.7, x + sz, y);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+function atmosFrost(ctx, W, H, t, st) {
+  // 오로라 — 사진 위에 겹치는 빛의 띠
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'round';
+  const bands = [
+    { y: 0.11, amp: 0.030, k: 0.0075, sp: 0.20, color: '92,240,200', w: 58 },
+    { y: 0.175, amp: 0.036, k: 0.0058, sp: -0.16, color: '110,165,255', w: 72 },
+    { y: 0.24, amp: 0.028, k: 0.0098, sp: 0.12, color: '176,108,255', w: 44 },
+  ];
+  for (const b of bands) {
+    for (let layer = 0; layer < 3; layer++) {
+      ctx.strokeStyle = `rgba(${b.color},${0.10 - layer * 0.02})`;
+      ctx.lineWidth = b.w * (1 - layer * 0.24);
+      ctx.beginPath();
+      for (let x = -20; x <= W + 20; x += 14) {
+        const y = b.y * H
+          + Math.sin(x * b.k + t * b.sp + layer * 0.5) * b.amp * H
+          + Math.sin(x * b.k * 2.4 + t * b.sp * 0.7) * b.amp * H * 0.45;
+        x === -20 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+  }
+
+  // 달빛 번짐
+  const mx = W * 0.79, my = H * 0.1, mr = W * 0.062;
+  ctx.globalAlpha = 0.35;
+  ctx.drawImage(sprite('snow'), mx - mr * 4, my - mr * 4, mr * 8, mr * 8);
+  ctx.globalAlpha = 1;
+
+  // 눈발
+  ctx.globalCompositeOperation = 'source-over';
+  for (const f of st.snow) {
+    const y = ((f.y + t * f.v) % 1.12) * H;
+    const x = (f.x + Math.sin(t * f.sp + f.ph) * f.dx) * W;
+    ctx.globalAlpha = f.a * 0.9;
+    ctx.fillStyle = '#eaf7ff';
+    ctx.beginPath(); ctx.arc(x, y, f.r, 0, TAU); ctx.fill();
+  }
+
+  // 서리 반짝임
+  ctx.globalCompositeOperation = 'lighter';
+  for (const s of st.sparkle) {
+    const tw = Math.sin(t * s.p + s.ph);
+    if (tw < 0.45) continue;
+    const k = (tw - 0.45) / 0.55;
+    const x = s.x * W, y = s.y * H, r = s.r * (0.6 + k * 0.9);
+    ctx.globalAlpha = k * 0.8;
+    ctx.drawImage(sprite('snow'), x - r * 2.4, y - r * 2.4, r * 4.8, r * 4.8);
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    ctx.moveTo(x - r, y); ctx.lineTo(x + r, y);
+    ctx.moveTo(x, y - r); ctx.lineTo(x, y + r);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+function atmosDesert(ctx, W, H, t, st) {
+  // 노을 빛 번짐
+  ctx.globalCompositeOperation = 'lighter';
+  const sunX = W * 0.31, sunY = H * 0.16, sunR = W * 0.09;
+  ctx.globalAlpha = 0.75;
+  ctx.drawImage(sprite('ember'), sunX - sunR * 4.5, sunY - sunR * 4.5, sunR * 9, sunR * 9);
+  ctx.globalAlpha = 1;
+
+  // 피어오르는 불티
+  for (const e of st.embers) {
+    const y = ((e.y - t * e.v) % 1.1 + 1.1) % 1.1;
+    const x = (e.x + Math.sin(t * e.sp + e.ph) * e.dx) * W;
+    const flick = 0.45 + 0.55 * Math.sin(t * e.p + e.ph);
+    const r = e.r * (0.7 + flick * 0.7);
+    ctx.globalAlpha = (1 - y) * flick * 0.9;
+    ctx.drawImage(sprite('ember'), x - r, y * H - r, r * 2, r * 2);
+  }
+
+  // 모래 먼지
+  ctx.globalCompositeOperation = 'source-over';
+  for (const d of st.dust) {
+    const x = (((d.x + t * d.v) % 1.2) - 0.1) * W;
+    const y = (d.y + Math.sin(t * d.sp + d.ph) * 0.012) * H;
+    ctx.globalAlpha = d.a * (0.35 + 0.35 * Math.sin(t * d.p + d.ph));
+    ctx.fillStyle = '#ffe3a8';
+    ctx.beginPath(); ctx.arc(x, y, d.r, 0, TAU); ctx.fill();
+  }
+
+  // 지평선의 열기 물결
+  ctx.globalAlpha = 0.06;
+  ctx.strokeStyle = '#ffe0a8';
+  ctx.lineWidth = 3;
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += 10) {
+      const y = H * (0.62 + i * 0.03) + Math.sin(x * 0.02 + t * 1.5 + i) * 4;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function atmosJungle(ctx, W, H, t, st) {
+  // 수정 빛무리
+  ctx.globalCompositeOperation = 'lighter';
+  for (const c of st.halos) {
+    const pulse = 0.55 + 0.45 * Math.sin(t * c.p + c.ph);
+    const r = c.r * W * (0.9 + pulse * 0.15);
+    ctx.globalAlpha = 0.10 + pulse * 0.12;
+    ctx.drawImage(sprite(c.tint), c.x * W - r, c.y * H - r, r * 2, r * 2);
+  }
+
+  // 위에서 쏟아지는 빛줄기
+  for (const b of st.beams) {
+    const pulse = 0.5 + 0.5 * Math.sin(t * b.p + b.ph);
+    const x0 = b.x * W + Math.sin(t * 0.15 + b.ph) * W * 0.02;
+    const wTop = W * b.w, wBot = W * b.w * 2.6;
+    const g = ctx.createLinearGradient(x0, 0, x0 + W * 0.1, H * 0.75);
+    g.addColorStop(0, `rgba(212,255,232,${0.16 + pulse * 0.13})`);
+    g.addColorStop(0.7, `rgba(150,245,200,${0.05 + pulse * 0.05})`);
+    g.addColorStop(1, 'rgba(140,240,190,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(x0 - wTop / 2, 0);
+    ctx.lineTo(x0 + wTop / 2, 0);
+    ctx.lineTo(x0 + wBot / 2 + W * 0.1, H * 0.75);
+    ctx.lineTo(x0 - wBot / 2 + W * 0.1, H * 0.75);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // 떠다니는 포자
+  for (const s of st.spores) {
+    const y = ((s.y - t * s.v) % 1.1 + 1.1) % 1.1;
+    const x = (s.x + Math.sin(t * s.sp + s.ph) * s.dx) * W;
+    const pulse = 0.5 + 0.5 * Math.sin(t * s.p + s.ph);
+    const r = s.r * (0.7 + pulse * 0.7);
+    ctx.globalAlpha = (0.35 + pulse * 0.5) * s.a;
+    ctx.drawImage(sprite(s.tint), x - r, y * H - r, r * 2, r * 2);
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+
+  // 위쪽 잎 그늘(사진 위에 살짝)
+  ctx.globalAlpha = 0.16;
+  ctx.fillStyle = '#04241a';
+  for (const c of st.canopy) {
+    ctx.beginPath();
+    ctx.ellipse(c.x * W, c.y * H, c.w * W * 1.5, c.h * H * 1.4, 0, 0, TAU);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function atmosShadow(ctx, W, H, t, st) {
+  // 보랏빛 룬 봉인 (사진 위 마법진)
+  runeRing(ctx, W * 0.5, H * 0.15, W * 0.2, t, '#c08cff', 0.26);
+  runeRing(ctx, W * 0.5, H * 0.15, W * 0.13, -t * 0.8, '#8fe0ff', 0.16);
+
+  // 폭풍 구름 그림자
+  ctx.globalAlpha = 0.18;
+  for (const c of st.clouds) {
+    const x = (((c.x + t * c.v) % 1.3) - 0.15) * W;
+    cloudBlob(ctx, x, c.y * H, c.s * W * 1.4, c.a, '30,14,54');
+  }
+  ctx.globalAlpha = 1;
+
+  // 보랏빛 불티
+  ctx.globalCompositeOperation = 'lighter';
+  for (const e of st.embers) {
+    const y = ((e.y - t * e.v) % 1.15 + 1.15) % 1.15;
+    const x = (e.x + Math.sin(t * e.sp + e.ph) * e.dx) * W;
+    const flick = 0.4 + 0.6 * Math.sin(t * e.p + e.ph);
+    const r = e.r * (0.6 + flick * 0.8);
+    ctx.globalAlpha = (1 - y) * flick * 0.85;
+    ctx.drawImage(sprite('violet'), x - r, y * H - r, r * 2, r * 2);
+  }
+  ctx.globalAlpha = 1;
+
+  // 7초마다 번개
+  const cycle = 7;
+  const ph = t % cycle;
+  if (ph < 0.55) {
+    const f = ph < 0.1 ? 1 : Math.max(0, 1 - (ph - 0.1) / 0.45);
+    ctx.fillStyle = `rgba(200,175,255,${0.16 * f})`;
+    ctx.fillRect(0, 0, W, H);
+    if (ph < 0.28) {
+      const r = seeded(Math.floor(t / cycle) + 7);
+      let x = W * (0.15 + r() * 0.7), y = 0;
+      ctx.save();
+      ctx.strokeStyle = `rgba(238,229,255,${0.85 * f})`;
+      ctx.lineWidth = 2.4;
+      ctx.shadowColor = 'rgba(190,150,255,0.9)';
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      while (y < H * 0.35) {
+        x += (r() - 0.5) * W * 0.1;
+        y += H * (0.03 + r() * 0.05);
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+  ctx.globalCompositeOperation = 'source-over';
+
+  // 바닥 안개
+  const fog = ctx.createLinearGradient(0, H * 0.6, 0, H * 0.84);
+  fog.addColorStop(0, 'rgba(90,50,140,0)');
+  fog.addColorStop(0.55, 'rgba(104,60,158,0.22)');
+  fog.addColorStop(1, 'rgba(70,36,110,0)');
+  ctx.fillStyle = fog;
+  ctx.fillRect(0, H * 0.6, W, H * 0.24);
+}
+
+function atmosBlitz(ctx, W, H, t, st) {
+  const cx = W * 0.5, cy = H * 0.46;
+  const pulse = 0.5 + 0.5 * Math.sin(t * 2.2);
+
+  ctx.globalCompositeOperation = 'lighter';
+  // 중심 오라
+  const ar = Math.max(W, H) * (0.34 + pulse * 0.03);
+  ctx.globalAlpha = 0.38;
+  ctx.drawImage(sprite('gold'), cx - ar, cy - ar, ar * 2, ar * 2);
+  ctx.globalAlpha = 0.22;
+  ctx.drawImage(sprite('cobalt'), cx - ar * 1.5, cy - ar * 1.5, ar * 3, ar * 3);
+  ctx.globalAlpha = 1;
+
+  // 퍼져 나가는 충격 링
+  for (let i = 0; i < 3; i++) {
+    const p = ((t * 0.42 + i / 3) % 1);
+    const r = p * Math.max(W, H) * 0.62;
+    ctx.strokeStyle = `rgba(120,200,255,${(1 - p) * 0.14})`;
+    ctx.lineWidth = 2 + (1 - p) * 4;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.stroke();
+  }
+
+  // 회전하는 방사형 광선
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.lineCap = 'round';
+  for (const s of st.streaks) {
+    const a = s.a + t * s.v;
+    const len = Math.max(W, H) * s.len * (0.85 + 0.15 * Math.sin(t * s.p + s.ph));
+    const ex = Math.cos(a) * len, ey = Math.sin(a) * len;
+    const col = s.hue === 'gold' ? '255,209,102' : '120,175,255';
+    const grad = ctx.createLinearGradient(0, 0, ex, ey);
+    grad.addColorStop(0, `rgba(${col},0)`);
+    grad.addColorStop(0.35, `rgba(${col},${0.10 + s.o})`);
+    grad.addColorStop(1, `rgba(${col},0)`);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = s.w * 3.2;
+    ctx.globalAlpha = 0.45;
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(ex, ey); ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+  ctx.restore();
+
+  // 반짝이는 입자
+  for (const s of st.sparkles) {
+    const p = ((t * s.v + s.ph) % 1);
+    const a = s.a + s.swirl * Math.sin(t * 0.8 + s.ph);
+    const d = p * Math.max(W, H) * 0.68;
+    const x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d * 0.9;
+    const r = s.r * (1 - p * 0.4);
+    ctx.globalAlpha = (1 - p) * 0.8;
+    ctx.drawImage(sprite(s.hue === 'gold' ? 'gold' : 'aqua'), x - r, y - r, r * 2, r * 2);
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+const ATMOS = {
+  1: atmosMeadow,
+  2: atmosFrost,
+  3: atmosDesert,
+  4: atmosJungle,
+  5: atmosShadow,
+  blitz: atmosBlitz,
+};
+
 /* ── 장면별 입자 만들기 (seed 고정) ───────────────────────── */
 function buildState(id) {
   const r = seeded(1000 + (typeof id === 'number' ? id : 9) * 37);
@@ -1012,19 +1382,19 @@ function buildState(id) {
       x: r(), h: 0.03 + r() * 0.07, amp: 2 + r() * 6, ph: r() * TAU, sp: 0.8 + r() * 1.2,
       w: 1 + r() * 1.6, a: 0.4 + r() * 0.4, c: ['#3fae5c', '#6ceb96', '#2b8450'][Math.floor(r() * 3)],
     }));
-    st.flies = Array.from({ length: 30 }, () => ({
-      x: r(), y: 0.08 + r() * 0.75, r: 2.2 + r() * 3.2, dx: 0.01 + r() * 0.03, dy: 0.01 + r() * 0.04,
+    st.flies = Array.from({ length: 34 }, () => ({
+      x: r(), y: 0.08 + r() * 0.78, r: 2.0 + r() * 3.0, dx: 0.01 + r() * 0.03, dy: 0.01 + r() * 0.04,
       sx: 0.2 + r() * 0.5, sy: 0.15 + r() * 0.4, p: 1 + r() * 2.2, ph: r() * TAU,
     }));
   } else if (id === 2) {
     st.stars = Array.from({ length: 70 }, () => ({ x: r(), y: r() * 0.5, r: 0.5 + r() * 1.2, p: 0.6 + r() * 2, ph: r() * TAU, a: 0.3 + r() * 0.7 }));
-    st.snow = Array.from({ length: 70 }, () => ({ x: r(), y: r() * 1.1, v: 0.02 + r() * 0.06, r: 0.8 + r() * 1.9, a: 0.35 + r() * 0.55, sp: 0.4 + r() * 1.1, ph: r() * TAU, dx: 0.01 + r() * 0.03 }));
-    st.sparkle = Array.from({ length: 16 }, () => ({ x: r(), y: r() * 0.85, r: 2 + r() * 3, p: 1.2 + r() * 2, ph: r() * TAU }));
+    st.snow = Array.from({ length: 90 }, () => ({ x: r(), y: r() * 1.1, v: 0.02 + r() * 0.06, r: 0.8 + r() * 1.9, a: 0.35 + r() * 0.55, sp: 0.4 + r() * 1.1, ph: r() * TAU, dx: 0.01 + r() * 0.03 }));
+    st.sparkle = Array.from({ length: 18 }, () => ({ x: r(), y: r() * 0.85, r: 2 + r() * 3, p: 1.2 + r() * 2, ph: r() * TAU }));
   } else if (id === 3) {
     st.birds = Array.from({ length: 4 }, () => ({ x: r(), y: 0.1 + r() * 0.14, s: 5 + r() * 5, v: 0.004 + r() * 0.006, ph: r() * TAU }));
     st.haze = Array.from({ length: 5 }, () => ({ x: r(), y: 0.3 + r() * 0.16, w: 0.18 + r() * 0.2, h: 0.006 + r() * 0.012, v: 0.003 + r() * 0.005 }));
-    st.embers = Array.from({ length: 40 }, () => ({ x: r(), y: 0.25 + r() * 0.7, v: 0.02 + r() * 0.05, r: 1.6 + r() * 2.8, sp: 0.4 + r() * 0.9, ph: r() * TAU, dx: 0.01 + r() * 0.03, p: 1.5 + r() * 2.5 }));
-    st.dust = Array.from({ length: 44 }, () => ({ x: r(), y: 0.4 + r() * 0.55, v: 0.004 + r() * 0.01, r: 0.6 + r() * 1.2, a: 0.2 + r() * 0.4, sp: 0.3 + r() * 0.8, ph: r() * TAU, p: 1 + r() * 2 }));
+    st.embers = Array.from({ length: 44 }, () => ({ x: r(), y: 0.25 + r() * 0.7, v: 0.02 + r() * 0.05, r: 1.6 + r() * 2.8, sp: 0.4 + r() * 0.9, ph: r() * TAU, dx: 0.01 + r() * 0.03, p: 1.5 + r() * 2.5 }));
+    st.dust = Array.from({ length: 46 }, () => ({ x: r(), y: 0.4 + r() * 0.55, v: 0.004 + r() * 0.01, r: 0.6 + r() * 1.2, a: 0.2 + r() * 0.4, sp: 0.3 + r() * 0.8, ph: r() * TAU, p: 1 + r() * 2 }));
   } else if (id === 4) {
     st.halos = Array.from({ length: 5 }, () => ({ x: 0.12 + r() * 0.76, y: 0.1 + r() * 0.35, r: 0.14 + r() * 0.16, tint: r() > 0.5 ? 'mint' : 'violet', p: 0.4 + r() * 0.8, ph: r() * TAU }));
     st.beams = Array.from({ length: 4 }, () => ({ x: 0.15 + r() * 0.7, w: 0.05 + r() * 0.07, p: 0.3 + r() * 0.6, ph: r() * TAU }));
@@ -1042,11 +1412,11 @@ function buildState(id) {
       tint: r() > 0.5 ? 'mint' : 'violet', rgb: r() > 0.5 ? '120,245,190' : '180,150,255',
       p: 0.5 + r() * 0.8, ph: r() * TAU,
     }));
-    st.spores = Array.from({ length: 52 }, () => ({ x: r(), y: r() * 1.1, v: 0.008 + r() * 0.025, r: 1.4 + r() * 2.4, sp: 0.3 + r() * 0.8, ph: r() * TAU, dx: 0.015 + r() * 0.04, p: 1 + r() * 2, a: 0.4 + r() * 0.5, tint: r() > 0.5 ? 'mint' : 'violet' }));
+    st.spores = Array.from({ length: 56 }, () => ({ x: r(), y: r() * 1.1, v: 0.008 + r() * 0.025, r: 1.4 + r() * 2.4, sp: 0.3 + r() * 0.8, ph: r() * TAU, dx: 0.015 + r() * 0.04, p: 1 + r() * 2, a: 0.4 + r() * 0.5, tint: r() > 0.5 ? 'mint' : 'violet' }));
   } else if (id === 5) {
     st.clouds = Array.from({ length: 6 }, () => ({ x: r(), y: 0.02 + r() * 0.22, s: 0.12 + r() * 0.14, v: 0.006 + r() * 0.012, a: 0.34 + r() * 0.24 }));
     st.rocks = Array.from({ length: 7 }, () => ({ x: 0.06 + r() * 0.88, y: 0.9 + r() * 0.08, w: 0.02 + r() * 0.05, h: 0.02 + r() * 0.05 }));
-    st.embers = Array.from({ length: 30 }, () => ({ x: r(), y: 0.1 + r() * 0.9, v: 0.012 + r() * 0.035, r: 1.4 + r() * 2.4, sp: 0.3 + r() * 0.7, ph: r() * TAU, dx: 0.008 + r() * 0.025, p: 1.2 + r() * 2.4 }));
+    st.embers = Array.from({ length: 34 }, () => ({ x: r(), y: 0.1 + r() * 0.9, v: 0.012 + r() * 0.035, r: 1.4 + r() * 2.4, sp: 0.3 + r() * 0.7, ph: r() * TAU, dx: 0.008 + r() * 0.025, p: 1.2 + r() * 2.4 }));
   } else {
     st.streaks = Array.from({ length: 30 }, (_, i) => ({
       a: (i / 30) * TAU + r() * 0.2, v: (r() > 0.5 ? 1 : -1) * (0.12 + r() * 0.3),
@@ -1078,6 +1448,13 @@ export class Backdrop {
     this.fps = 0;
     this._fpsT = 0;
 
+    // 사진 레이어 (index.html 의 #bg-photo-a / #bg-photo-b)
+    this.layers = [document.getElementById('bg-photo-a'), document.getElementById('bg-photo-b')].filter(Boolean);
+    this.activeLayer = 0;
+    this.photoKey = null;
+    this.photoReady = false;
+    this._photoToken = 0;
+
     const mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
     this.mq = mq;
     this.reduced = !!(mq && mq.matches);
@@ -1104,20 +1481,55 @@ export class Backdrop {
   /* 장면 전환: 월드 번호(1~5) 또는 'blitz' */
   setScene(id, mode = 'game') {
     const next = id === 'blitz' ? 'blitz' : (Number(id) || 1);
-    const dim = mode === 'home' ? 0.5 : 0;
-    if (next === this.sceneId && this.st && mode === this.mode) { this.dim = dim; return; }
+    const dim = mode === 'home' ? 0.42 : 0;
+    if (next === this.sceneId && mode === this.mode && this.st) { this.dim = dim; return; }
     this.sceneId = next;
     this.mode = mode;
     this.dim = dim;
     this.st = buildState(next);
     this._scrim = null;
     this.t = 0;
+    this.setPhoto(next);
     if (this.raf) this.draw(0);
+  }
+
+  /* 월드 사진으로 크로스페이드 */
+  setPhoto(key) {
+    if (!this.layers.length) return;
+    const url = PHOTOS[key];
+    if (!url || url === this.photoKey) return;
+    this.photoKey = url;
+    const token = ++this._photoToken;
+    const nextIdx = (this.activeLayer + 1) % this.layers.length;
+    const next = this.layers[nextIdx];
+    const prev = this.layers[this.activeLayer];
+    const apply = () => {
+      if (token !== this._photoToken) return;      // 더 새로운 장면이 들어왔음
+      next.style.backgroundImage = `url("${url}")`;
+      next.dataset.kb = String(token % 2);
+      next.classList.add('on');
+      if (prev && prev !== next) prev.classList.remove('on');
+      this.activeLayer = nextIdx;
+      this.photoReady = true;
+      this.draw(0);
+    };
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = apply;
+    img.onerror = () => {
+      if (token !== this._photoToken) return;
+      this.photoReady = false;
+      console.warn('[hexa-kingdom] 배경 사진을 불러오지 못했습니다:', url);
+      this.draw(0);
+    };
+    img.src = url;
+    if (img.complete && img.naturalWidth) apply();
   }
 
   start(force = false) {
     if (!this.canvas || !this.ctx) return;
     this.resize();
+    this.setPhoto(this.sceneId);
     if (this.reduced && !force) { this.draw(0); return; }  // 정지 화면 한 장
     if (this.raf) return;
     this.lastDraw = 0;
@@ -1154,12 +1566,26 @@ export class Backdrop {
     if (!ctx || !this.w) return;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, this.w, this.h);
-    const fn = SCENES[this.sceneId] || SCENES[1];
-    try {
-      fn.call(this, ctx, this.w, this.h, this.t, this.st);
-    } catch (err) {
-      console.warn('[hexa-kingdom] 배경 렌더 오류', err);
-      this.stop();
+
+    if (this.photoReady) {
+      // 사진 위 색조
+      const tint = TINTS[this.sceneId] || TINTS[1];
+      ctx.fillStyle = `rgba(${tint})`;
+      ctx.fillRect(0, 0, this.w, this.h);
+      const fn = ATMOS[this.sceneId] || ATMOS[1];
+      try { fn.call(this, ctx, this.w, this.h, this.t, this.st); }
+      catch (err) { console.warn('[hexa-kingdom] 대기 연출 오류', err); }
+    } else {
+      // 사진이 없을 때: 예전의 캔버스 풍경으로 자연스럽게 대체
+      const fb = FALLBACK[this.sceneId] || FALLBACK[1];
+      const g = ctx.createLinearGradient(0, 0, 0, this.h);
+      g.addColorStop(0, fb[0]);
+      g.addColorStop(1, fb[1]);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, this.w, this.h);
+      const fn = SCENES[this.sceneId] || SCENES[1];
+      try { fn.call(this, ctx, this.w, this.h, this.t, this.st); }
+      catch (err) { console.warn('[hexa-kingdom] 배경 렌더 오류', err); this.stop(); }
     }
     this.scrim(ctx, this.w, this.h);
   }
@@ -1167,22 +1593,26 @@ export class Backdrop {
   /* 위(점수·목표)·아래(부스터) 가독성 + 가장자리 비네트 */
   scrim(ctx, W, H) {
     if (!this._scrim) {
-      const top = ctx.createLinearGradient(0, 0, 0, H * 0.22);
-      top.addColorStop(0, 'rgba(5,12,9,0.5)');
-      top.addColorStop(0.55, 'rgba(5,12,9,0.18)');
+      const top = ctx.createLinearGradient(0, 0, 0, H * 0.24);
+      top.addColorStop(0, 'rgba(5,12,9,0.62)');
+      top.addColorStop(0.55, 'rgba(5,12,9,0.22)');
       top.addColorStop(1, 'rgba(5,12,9,0)');
-      const bottom = ctx.createLinearGradient(0, H * 0.64, 0, H);
+      const bottom = ctx.createLinearGradient(0, H * 0.62, 0, H);
       bottom.addColorStop(0, 'rgba(5,12,9,0)');
-      bottom.addColorStop(0.55, 'rgba(5,12,9,0.36)');
-      bottom.addColorStop(1, 'rgba(5,12,9,0.74)');
+      bottom.addColorStop(0.55, 'rgba(5,12,9,0.42)');
+      bottom.addColorStop(1, 'rgba(5,12,9,0.82)');
+      const mid = ctx.createRadialGradient(W / 2, H * 0.5, Math.min(W, H) * 0.30, W / 2, H * 0.5, Math.min(W, H) * 0.78);
+      mid.addColorStop(0, 'rgba(3,9,7,0.30)');
+      mid.addColorStop(1, 'rgba(3,9,7,0)');
       const vig = ctx.createRadialGradient(W / 2, H * 0.46, Math.min(W, H) * 0.72, W / 2, H * 0.46, Math.max(W, H) * 0.98);
       vig.addColorStop(0, 'rgba(0,0,0,0)');
-      vig.addColorStop(1, 'rgba(0,0,0,0.3)');
-      this._scrim = { top, bottom, vig };
+      vig.addColorStop(1, 'rgba(0,0,0,0.34)');
+      this._scrim = { top, bottom, mid, vig };
     }
     const s = this._scrim;
-    ctx.fillStyle = s.top; ctx.fillRect(0, 0, W, H * 0.22);
-    ctx.fillStyle = s.bottom; ctx.fillRect(0, H * 0.64, W, H * 0.36);
+    ctx.fillStyle = s.top; ctx.fillRect(0, 0, W, H * 0.24);
+    ctx.fillStyle = s.bottom; ctx.fillRect(0, H * 0.62, W, H * 0.38);
+    ctx.fillStyle = s.mid; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = s.vig; ctx.fillRect(0, 0, W, H);
     if (this.dim > 0) {
       ctx.fillStyle = `rgba(5,12,9,${this.dim})`;

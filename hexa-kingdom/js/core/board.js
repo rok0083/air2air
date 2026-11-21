@@ -9,7 +9,7 @@
 import { CFG } from '../config.js';
 import { RNG } from './rng.js';
 import { findMatches, withPreferredSpawn } from './match.js';
-import { applyGravity } from './gravity.js';
+import { applyGravity, countEmptyPlayable } from './gravity.js';
 import { findHint } from './hint.js';
 import { shuffleGrid } from './shuffle.js';
 import { makeObstacle, OBSTACLES, debrisColor } from '../obstacles/index.js';
@@ -52,6 +52,9 @@ export class Board {
     this.flash = 0;
     this.shake = 0;
     this.pendingFx = [];
+    /* v2 보너스 보석 상태 — x2(남은 턴), pendingStrike(자동 타격 대기) */
+    this.bonusFx = { x2: 0, pendingStrike: 0, coins: 0 };
+    this._resolveNest = 0;
   }
 
   /* ── 초기화 ────────────────────────────────────────────── */
@@ -220,6 +223,16 @@ export class Board {
       if (groups.length) await sleep(CFG.anim.cascadeGap);
     }
     this.cascade = 0;
+    // 보너스 '별빛 타격' → 그로 인해 생긴 연쇄까지 마저 정리
+    await this.processStrikes();
+    if (this._resolveNest < 3 && this.state === 'playing') {
+      const rest = findMatches(this.grid, this.cols, this.rows);
+      if (rest.length) {
+        this._resolveNest++;
+        await this.resolveBoard(0, rest);
+        this._resolveNest--;
+      }
+    }
     this.checkGoals();
   }
 
@@ -267,9 +280,10 @@ export class Board {
   async clearCells(list, meta = {}) {
     const cascade = meta.cascade || 1;
     const mult = 1 + CFG.score.cascadeStep * (cascade - 1);
+    const buff = this.bonusFx.x2 > 0 ? 2 : 1;      // 2배 점수 버프
     let gained = 0;
     const adjacentObstacles = new Map();
-    const center = meta.spawn || (list[0] ? { r: list[0].r, c: list[0].c } : null);
+    const center = meta.center || meta.spawn || (list[0] ? { r: list[0].r, c: list[0].c } : null);
 
     for (const { r, c, tile } of list) {
       const cur = this.grid[r]?.[c];
@@ -289,7 +303,12 @@ export class Board {
       this.grid[r][c] = null;
       this.anims.push({ kind: 'pop', tile, r, c, t0: performance.now(), dur: CFG.anim.clear, color: tile.color, pu: tile.pu });
       this.goals.onTileCleared(tile);
-      gained += CFG.score.perTile * mult * (slow ? 0.7 : 1);
+      // 목표 색이면 HUD 목표 칩으로 보석이 날아가는 연출
+      const goalIdx = this.goalIndexFor(tile);
+      if (goalIdx >= 0) this.hooks.onGoalFly?.(r, c, tile.color, goalIdx);
+      // 보너스 보석 획득
+      if (tile.bonus) this.collectBonus(r, c, tile);
+      gained += CFG.score.perTile * mult * buff * (slow ? 0.7 : 1);
       this.stats.tilesCleared++;
       if (this.boss) this.damageBoss(CFG.score.bossPerTile, 'tile');
       if (tile.item) this.collectItem(r, c, tile);
@@ -300,7 +319,7 @@ export class Board {
     for (const o of adjacentObstacles.values()) o.onAdjacentMatch({ cause: 'adjacent' });
 
     this.score += Math.round(gained);
-    this.hooks.onScore?.(this.score, { gained, cascade });
+    this.hooks.onScore?.(this.score, { gained, cascade, center, buff });
     if (gained > 400) { this.shake = Math.min(6, gained / 400); this.hooks.onShake?.(this.shake); }
     this.checkGoals();
     await sleep(CFG.anim.clear - CFG.anim.clearStagger * Math.min(list.length, 6));
@@ -424,9 +443,36 @@ export class Board {
     await this.resolveBoard(0);
   }
 
+  /* 목표 색 보석이면 그 목표의 인덱스(없으면 -1) */
+  goalIndexFor(tile) {
+    const list = this.goals.list;
+    for (let i = 0; i < list.length; i++) {
+      const g = list[i];
+      if (g.type === 'collect' && g.color === tile.color) return i;
+    }
+    return -1;
+  }
+
+  /* 보드에 남은 플레이 가능한 빈 칸을 즉시 채운다 — 검은 빈 칸 0 보장 */
+  fillEmptyCells(spawns) {
+    let n = 0;
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        if (this.grid[r][c] || this.isBlockedCell(r, c)) continue;
+        const t = this.makeTile();
+        this.grid[r][c] = t;
+        spawns.push({ tile: t, r, c, fromRow: r - 0.9 });
+        n++;
+      }
+    }
+    return n;
+  }
+
   /* ── 낙하 ─────────────────────────────────────────────── */
   async collapse() {
     const { moves, spawns } = applyGravity(this);
+    // 이중 안전망: 중력 계산 뒤에도 남은 빈 칸은 반드시 채운다
+    this.fillEmptyCells(spawns);
     if (!moves.length && !spawns.length) return;
     const now = performance.now();
     let maxDur = 0;
@@ -445,6 +491,8 @@ export class Board {
     this.hooks.onDrop?.();
     await sleep(maxDur);
     this.collectBottomItems();
+    // 연쇄 중 가끔 보너스 보석이 떨어진다
+    if (this.cascade >= 2 && this.rng.next() < CFG.bonus.chanceCascade) this.maybeSpawnBonus();
     // 오래된 애니메이션 정리(메모리·잔상 방지)
     const now2 = performance.now();
     this.anims = this.anims.filter(a => now2 - a.t0 < (a.dur || 400) + 800);
@@ -488,6 +536,10 @@ export class Board {
     if (this.state !== 'playing') return;
     // 아이템 스폰(드롭 목표)
     if (this.dropSpawnsLeft > 0 && this.turn % 2 === 1) this.spawnDropItem();
+    // 2배 점수 버프는 수를 쓸 때마다 1씩 줄어든다
+    if (this.bonusFx.x2 > 0) this.bonusFx.x2--;
+    // 3수마다 보너스 보석 등장 확률
+    if (this.turn % 3 === 0 && this.rng.next() < CFG.bonus.chanceTurn) this.maybeSpawnBonus();
 
     // 장애물 턴 종료
     for (const o of [...this.obstacles.values()]) {
@@ -593,6 +645,107 @@ export class Board {
     }
   }
 
+  /* ── 보너스 보석 (보드에 떨어지는 특별 보석) ───────────── */
+  bonusTiles() {
+    const out = [];
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        const t = this.grid[r][c];
+        if (t?.bonus) out.push({ r, c, tile: t });
+      }
+    }
+    return out;
+  }
+
+  maybeSpawnBonus() {
+    if (this.bonusTiles().length >= CFG.bonus.maxOnBoard) return null;
+    const cands = [];
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        const t = this.grid[r][c];
+        if (!t || t.bonus || t.pu) continue;
+        cands.push({ r, c, tile: t });
+      }
+    }
+    if (!cands.length) return null;
+    const pick = this.rng.pick(cands);
+    const type = this.rng.pick(CFG.bonus.types).id;
+    pick.tile.bonus = type;
+    this.anims.push({ kind: 'itemspawn', r: pick.r, c: pick.c, t0: performance.now(), dur: 620 });
+    this.hooks.onBonusSpawn?.(type, pick.r, pick.c);
+    return type;
+  }
+
+  collectBonus(r, c, tile) {
+    const type = tile.bonus;
+    tile.bonus = null;
+    this.stats.bonusCollected = (this.stats.bonusCollected || 0) + 1;
+    if (type === 'coin') this.bonusFx.coins += CFG.bonus.coin;
+    else if (type === 'moves') this.moves += CFG.bonus.moves;
+    else if (type === 'strike') this.bonusFx.pendingStrike += CFG.bonus.strike;
+    else if (type === 'x2') this.bonusFx.x2 = CFG.bonus.x2Turns;
+    this.hooks.onBonus?.(type, r, c);
+  }
+
+  /* 목표를 향해 자동으로 칠 칸 고르기 */
+  pickStrikeTargets(n = 1) {
+    const out = [];
+    const used = new Set();
+    const missing = this.goals.list.filter(g => g.done < g.total);
+    for (const g of missing) {
+      if (g.type !== 'collect') continue;
+      for (let r = 0; r < this.rows && out.length < n; r++) {
+        for (let c = 0; c < this.cols && out.length < n; c++) {
+          const t = this.grid[r][c];
+          const k = r + ',' + c;
+          if (t && t.color === g.color && !used.has(k)) { used.add(k); out.push({ r, c }); }
+        }
+      }
+      if (out.length >= n) break;
+    }
+    if (out.length < n) {
+      for (const g of missing) {
+        if (g.type !== 'clear') continue;
+        for (const o of this.obstacles.values()) {
+          if (o.dead || o.overlay) continue;
+          if (g.obstacle && g.obstacle !== 'any' && o.type !== g.obstacle) continue;
+          if (used.has(o.cell)) continue;
+          used.add(o.cell);
+          out.push({ r: o.r, c: o.c });
+          if (out.length >= n) break;
+        }
+      }
+    }
+    if (!out.length) {
+      for (let i = 0; i < 240 && out.length < n; i++) {
+        const r = this.rng.int(this.rows), c = this.rng.int(this.cols);
+        const k = r + ',' + c;
+        if (this.grid[r][c] && !used.has(k)) { used.add(k); out.push({ r, c }); }
+      }
+    }
+    return out;
+  }
+
+  /* 보너스 '별빛 타격' 처리 — 연쇄 루프 밖에서 안전하게 실행 */
+  async processStrikes() {
+    let guard = 0;
+    while (this.bonusFx.pendingStrike > 0 && guard++ < 6) {
+      this.bonusFx.pendingStrike--;
+      const targets = this.pickStrikeTargets(1);
+      if (!targets.length) break;
+      this.hooks.onStrike?.(targets);
+      for (const tk of targets) {
+        const o = this.obstacleAt(tk.r, tk.c);
+        if (o) o.onPowerupHit({ cause: 'strike' });
+      }
+      const list = targets
+        .map(tk => ({ r: tk.r, c: tk.c, tile: this.grid[tk.r][tk.c] }))
+        .filter(x => x.tile);
+      if (list.length) await this.clearCells(list, { cascade: 2, center: targets[0] });
+      await this.collapse();
+    }
+  }
+
   /* ── 부스터 ───────────────────────────────────────────── */
   async useBooster(kind, r, c) {
     if (this.busy || this.state !== 'playing') return false;
@@ -643,10 +796,77 @@ export class Board {
           }
         }
         this.hooks.onBoosterUse?.(kind, r, c);
+      } else if (kind === 'lightning') {
+        // 가로 + 세로 + 대각선 4방향 = 8방향 별 모양 타격
+        const list = [];
+        const seen = new Set();
+        const push = (rr, cc) => {
+          if (!inBounds(this, rr, cc)) return;
+          const k = rr + ',' + cc;
+          if (seen.has(k)) return;
+          seen.add(k);
+          const t = this.grid[rr][cc];
+          if (t) list.push({ r: rr, c: cc, tile: t });
+          const o = this.obstacleAt(rr, cc);
+          if (o) o.onPowerupHit({ cause: 'booster' });
+        };
+        for (let cc = 0; cc < this.cols; cc++) push(r, cc);
+        for (let rr = 0; rr < this.rows; rr++) push(rr, c);
+        for (let d = 1; d < Math.max(this.rows, this.cols); d++) {
+          push(r + d, c + d); push(r - d, c - d); push(r + d, c - d); push(r - d, c + d);
+        }
+        this.hooks.onPowerupFx?.('lightning', r, c, list.map(x => [x.r, x.c]), 0);
+        this.flash = 0.55; this.shake = 7;
+        this.hooks.onFlash?.(0.55); this.hooks.onShake?.(7);
+        await this.clearCells(list, { cascade: 2, center: { r, c } });
+        this.hooks.onBoosterUse?.(kind, r, c);
+      } else if (kind === 'prism') {
+        const t = this.grid[r]?.[c];
+        if (!t) return false;
+        const color = t.color;
+        this.grid[r][c] = makePowerupTile('electro', color);
+        this.hooks.onPrism?.(r, c, color);
+        await this.detonate([{ r, c, tile: this.grid[r][c] }], color);
+        this.hooks.onBoosterUse?.(kind, r, c);
+      } else if (kind === 'hourglass') {
+        this.moves += 3;
+        this.hooks.onBonusMoves?.(3);
+        this.hooks.onBoosterUse?.(kind, r, c);
       } else return false;
       await this.collapse();
       await this.resolveBoard(0);
       this.checkGoals();
+      return true;
+    } finally {
+      this.busy = false;
+      this.hooks.onStateChange?.(this.state);
+    }
+  }
+
+  /* 자유 교체 — 이동 수를 쓰지 않고 이웃한 두 보석을 바꾼다 */
+  async freeSwap(r1, c1, r2, c2) {
+    if (this.busy || this.state !== 'playing') return false;
+    if (Math.abs(r1 - r2) + Math.abs(c1 - c2) !== 1) return false;
+    const t1 = this.grid[r1][c1];
+    const t2 = this.grid[r2][c2];
+    if (!t1 || !t2) return false;
+    this.busy = true;
+    try {
+      this.hintCells = null;
+      this.grid[r1][c1] = t2;
+      this.grid[r2][c2] = t1;
+      this.anims.push(
+        { kind: 'move', tile: t1, from: { r: r1, c: c1 }, to: { r: r2, c: c2 }, t0: performance.now(), dur: CFG.anim.swap },
+        { kind: 'move', tile: t2, from: { r: r2, c: c2 }, to: { r: r1, c: c1 }, t0: performance.now(), dur: CFG.anim.swap },
+      );
+      this.hooks.onSwap?.(r1, c1, r2, c2);
+      await sleep(CFG.anim.swap);
+      const groups = findMatches(this.grid, this.cols, this.rows, { squares: true });
+      if (groups.length) {
+        withPreferredSpawn(groups, { r: r1, c: c1 }, { r: r2, c: c2 });
+        await this.resolveBoard(0, groups);
+      }
+      this.lastSwap = { a: { r: r1, c: c1 }, b: { r: r2, c: c2 } };
       return true;
     } finally {
       this.busy = false;
@@ -720,6 +940,8 @@ export class Board {
       goals: this.goals.toJSON(), boss: this.boss ? { hp: this.boss.hp, max: this.boss.maxHp } : null,
       obstacles: [...this.obstacles.values()].map(o => o.toJSON()),
       stats: { ...this.stats }, itemsCollected: this.itemsCollected,
+      emptyCells: countEmptyPlayable(this),          // 0 이어야 정상(검은 빈 칸 없음)
+      bonus: { x2: this.bonusFx.x2, pendingStrike: this.bonusFx.pendingStrike, onBoard: this.bonusTiles().length },
     };
   }
 }

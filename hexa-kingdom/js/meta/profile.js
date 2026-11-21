@@ -23,7 +23,12 @@ function defaults() {
     tasks: {},            // { 'w1d1t1': true }
     lives: { count: CFG.lives.max, nextAt: 0 },
     streak: { levelId: '', count: 0 },
-    boosters: { hammer: 2, drill: 1, bomber: 1, magicHat: 0, startRocket: 1, startTnt: 1, startSpinner: 0 },
+    boosters: {
+      hammer: 2, drill: 1, bomber: 1, magicHat: 0,
+      // v2 신규 전술 부스터 — 처음 시작하는 기사에게도 1개씩 맛보기 제공
+      swap: 1, lightning: 1, prism: 1, hourglass: 1,
+      startRocket: 1, startTnt: 1, startSpinner: 0,
+    },
     settings: { muted: false, music: true, sfx: true },
     lastPlayed: { world: 1, level: 1 },
     weekly: { weekId: '', best: 0 },
@@ -166,12 +171,15 @@ export class Profile {
       this.data.playerLevel++;
       ups.push(this.data.playerLevel);
       this.data.lives.count = Math.min(CFG.lives.max, this.data.lives.count + CFG.lives.refillOnLevelUp);
+      // 레벨업 기념 부스터 1개 — 새 전술 부스터도 당첨 풀에 포함
+      const pool = ['hammer', 'drill', 'bomber', 'magicHat', 'swap', 'lightning', 'prism', 'hourglass'];
+      this.addBooster(pool[Math.floor(Math.random() * pool.length)], 1);
     }
     if (this.data.playerLevel >= CFG.xp.maxPlayerLevel) this.data.xp = Math.min(this.data.xp, this.xpNeeded());
     return ups;
   }
 
-  /* ── 목숨 (30분 회복) ─────────────────────────────────── */
+  /* ── 목숨 (15분 회복) ─────────────────────────────────── */
   refreshLives(now = Date.now()) {
     const L = this.data.lives;
     const max = CFG.lives.max;
@@ -203,6 +211,24 @@ export class Profile {
     if (this.data.lives.count < CFG.lives.max && !this.data.lives.nextAt) {
       this.data.lives.nextAt = Date.now() + CFG.lives.recoveryMs;
     }
+    return true;
+  }
+
+  /* 목숨 되돌려주기(이어하기·레벨업 등) */
+  grantLife(n = 1) {
+    this.refreshLives();
+    this.data.lives.count = Math.min(CFG.lives.max, this.data.lives.count + n);
+    if (this.data.lives.count >= CFG.lives.max) this.data.lives.nextAt = 0;
+    return this.data.lives.count;
+  }
+
+  /* 코인으로 목숨 가득 충전 — 성공하면 true */
+  buyLivesWithCoins() {
+    this.refreshLives();
+    if (this.data.lives.count >= CFG.lives.max) return false;
+    if (this.data.coins < CFG.lives.refillCoinCost) return false;
+    this.data.coins -= CFG.lives.refillCoinCost;
+    this.refillLives();
     return true;
   }
 

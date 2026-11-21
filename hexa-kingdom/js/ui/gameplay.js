@@ -13,6 +13,9 @@ import { starCount } from '../meta/levels.js';
 import { levelName, isBossLevel } from '../meta/worldmap.js';
 import { saveBlitzScore } from '../firebase/rankings.js';
 
+/* 연쇄 단계별 콜아웃 */
+const COMBO_LABELS = ['', '', 'GOOD!', 'GREAT!', 'AMAZING!', 'FANTASTIC!', 'UNBELIEVABLE!'];
+
 export class GameSession {
   constructor(app, opts) {
     this.app = app;
@@ -90,13 +93,20 @@ export class GameSession {
       onSwap: () => this.app.audio.sfx('swap'),
       onInvalidSwap: () => this.app.audio.sfx('invalid'),
       onCascade: (n) => { this.app.audio.sfx('match', { cascade: n }); if (n >= 2) this.app.audio.sfx('cascade', { cascade: n }); },
-      onComboBanner: (n) => this.showBanner(`${n} 연쇄!`),
-      onScore: () => this.markHud(),
+      onComboBanner: (n) => this.comboCall(n),
+      onScore: (score, meta) => {
+        this.markHud();
+        if (meta?.gained >= 90 && meta.center) {
+          this.popScore(meta.center.r, meta.center.c, '+' + fmt(meta.gained), meta.buff > 1 ? '#d9a6ff' : null);
+        }
+      },
       onClear: (tile, r, c) => {
         const { x, y } = cellFx(r, c);
         const gem = GEMS[tile.color] || GEMS[0];
         this.effects.burst(x, y, { color: gem.color, count: 6, speed: 110, size: 3.6, life: 0.5, gravity: 260 });
       },
+      // 목표 색이면 HUD 목표 칩으로 보석이 날아간다
+      onGoalFly: (r, c, color, idx) => this.flyToGoal(r, c, color, idx),
       onPowerupCreate: (type, r, c) => {
         const { x, y } = cellFx(r, c);
         this.effects.sparkle(x, y, type === 'tnt' ? '#ff8b6b' : type === 'electro' ? '#c56cf0' : '#ffe066', 12);
@@ -106,26 +116,80 @@ export class GameSession {
       onPowerupActivate: (type, r, c) => {
         const { x, y } = cellFx(r, c);
         this.app.audio.sfx(type === 'tnt' ? 'tnt' : type === 'electro' ? 'electro' : type === 'spinner' ? 'spinner' : 'rocket');
-        if (type === 'tnt') this.effects.shock(x, y, '#ff9f43', this.view.cell * 1.6);
+        if (type === 'tnt') this.effects.shockwave(x, y, '#ff9f43', this.view.cell * 2.1);
+        if (type === 'electro') this.effects.shockwave(x, y, '#c56cf0', this.view.cell * 1.7);
       },
       onPowerupFx: (type, r, c, cells) => {
         const from = cellFx(r, c);
         if (type === 'rocket') {
-          const ends = cells.length ? cells[cells.length - 1] : null;
-          for (const [rr, cc] of [...cells.slice(0, 1), ...cells.slice(-1)]) {
+          for (const [rr, cc] of [cells[0], cells[cells.length - 1]]) {
+            if (rr == null) continue;
             const to = cellFx(rr, cc);
-            this.effects.trail(from.x, from.y, to.x, to.y, '#ffb703', 9);
+            this.effects.afterburner(from.x, from.y, to.x, to.y, '#ffb703');
           }
+        } else if (type === 'tnt') {
+          this.effects.shockwave(from.x, from.y, '#ff9f43', this.view.cell * 2.2);
         } else if (type === 'electro') {
-          for (const [rr, cc] of cells.slice(0, 14)) {
+          for (const [rr, cc] of cells.slice(0, 18)) {
             const to = cellFx(rr, cc);
             this.effects.arc(from.x, from.y, to.x, to.y, '#c56cf0');
           }
-          this.effects.screenFlash(0.35);
+          this.effects.shockwave(from.x, from.y, '#c56cf0', this.view.cell * 2.4);
+          this.effects.screenFlash(0.42);
+        } else if (type === 'lightning') {
+          for (const [rr, cc] of cells) {
+            const to = cellFx(rr, cc);
+            this.effects.trail(from.x, from.y, to.x, to.y, '#fff3c4', 5);
+            this.effects.arc(from.x, from.y, to.x, to.y, '#ffe066');
+          }
+          this.effects.shockwave(from.x, from.y, '#ffe066', this.view.cell * 2.6);
+          this.effects.screenFlash(0.5);
+          this.app.audio.sfx('electro');
         } else if (type === 'drill') {
           const to = cellFx(cells[0]?.[0] ?? r, c);
           this.effects.trail(from.x, from.y, to.x, to.y, '#9fe8ff', 12);
         }
+      },
+      onPrism: (r, c) => {
+        const { x, y } = cellFx(r, c);
+        this.effects.prism(x, y, this.view.cell * 1.9);
+        this.effects.screenFlash(0.4);
+        this.app.audio.sfx('powerup');
+      },
+      onBonus: (type, r, c) => {
+        const meta = (CFG.bonus.types || []).find(t => t.id === type);
+        const { x, y } = cellFx(r, c);
+        const col = meta?.color || '#ffe066';
+        this.effects.sparkle(x, y, col, 18);
+        this.effects.shockwave(x, y, col, this.view.cell * 1.5);
+        this.app.audio.sfx('item');
+        if (type === 'coin') {
+          this.app.profile.addCoins(CFG.bonus.coin);
+          this.app.profile.save();
+          this.app.syncSoon();
+        }
+        toast(`${meta?.name || '보너스 보석'}! ${meta?.desc || ''}`, 'gold', 1500);
+        this.markHud();
+      },
+      onBonusSpawn: (type, r, c) => {
+        const { x, y } = cellFx(r, c);
+        this.effects.sparkle(x, y, '#fff2a8', 10);
+        this.app.audio.sfx('powerup');
+      },
+      onBonusMoves: (n) => {
+        this.effects.screenFlash(0.2);
+        toast(`이동 +${n}!`, 'gold', 1200);
+        this.markHud();
+      },
+      onStrike: (targets) => {
+        for (const tk of targets) {
+          const { x, y } = cellFx(tk.r, tk.c);
+          this.effects.sparkle(x, y, '#ffe066', 16);
+          this.effects.shockwave(x, y, '#ffe066', this.view.cell * 1.5);
+        }
+        this.effects.screenFlash(0.3);
+        this.showBanner('별빛 타격!');
+        this.app.audio.sfx('powerup');
       },
       onSpinnerFly: (r, c, tr, tc) => {
         const a = cellFx(r, c), b = cellFx(tr, tc);
@@ -324,8 +388,43 @@ export class GameSession {
 
   async useBoosterAt(cell) {
     const key = this.selectedBooster;
-    this.selectedBooster = null;
-    document.querySelectorAll('[data-booster]').forEach(b => b.classList.remove('active'));
+    if (!key) return;
+    const target = CFG.boosters[key]?.target || 'cell';
+
+    /* 자유 교체 — 두 칸을 차례로 고른다 */
+    if (target === 'pair') {
+      const anchor = this.board.swapAnchor;
+      if (!anchor) {
+        this.board.swapAnchor = { r: cell.r, c: cell.c };
+        this.view.swapAnchor = this.board.swapAnchor;
+        this.app.audio.sfx('click');
+        toast('이웃한 두 번째 보석을 탭하세요.', 'info', 1500);
+        return;
+      }
+      if (anchor.r === cell.r && anchor.c === cell.c) {
+        this.board.swapAnchor = null; this.view.swapAnchor = null;
+        return;
+      }
+      if (Math.abs(anchor.r - cell.r) + Math.abs(anchor.c - cell.c) !== 1) {
+        this.board.swapAnchor = { r: cell.r, c: cell.c };
+        this.view.swapAnchor = this.board.swapAnchor;
+        toast('바로 이웃한 칸을 골라 주세요.', 'bad', 1300);
+        return;
+      }
+      if (this.app.profile.boosterCount(key) <= 0) { toast('부스터가 없어요.', 'bad'); return; }
+      this.app.profile.useBooster(key);
+      this.app.profile.save();
+      updateBoosterCounts(this);
+      this.board.swapAnchor = null;
+      this.view.swapAnchor = null;
+      this.clearBoosterSelection();
+      const ok = await this.board.freeSwap(anchor.r, anchor.c, cell.r, cell.c);
+      if (ok) this.app.audio.sfx('booster');
+      this.markHud();
+      return;
+    }
+
+    this.clearBoosterSelection();
     if (this.app.profile.boosterCount(key) <= 0) { toast('부스터가 없어요.', 'bad'); return; }
     this.app.profile.useBooster(key);
     this.app.profile.save();
@@ -333,6 +432,26 @@ export class GameSession {
     const ok = await this.board.useBooster(key, cell.r, cell.c);
     if (ok) this.app.audio.sfx('booster');
     this.markHud();
+  }
+
+  /* 칸을 고르지 않는 부스터(시간 모래시계 등) */
+  async useSelfBooster(key) {
+    if (this.board.busy || this.board.state !== 'playing') return;
+    if (this.app.profile.boosterCount(key) <= 0) { toast('부스터가 없어요.', 'bad'); return; }
+    this.clearBoosterSelection();
+    this.app.profile.useBooster(key);
+    this.app.profile.save();
+    updateBoosterCounts(this);
+    await this.board.useBooster(key, 0, 0);
+    this.app.audio.sfx('booster');
+    this.markHud();
+  }
+
+  clearBoosterSelection() {
+    this.selectedBooster = null;
+    this.board.swapAnchor = null;
+    if (this.view) this.view.swapAnchor = null;
+    document.querySelectorAll('[data-booster]').forEach(b => b.classList.remove('active'));
   }
 
   async doSwap(r1, c1, r2, c2) {
@@ -359,15 +478,19 @@ export class GameSession {
     document.querySelectorAll('[data-booster]').forEach(btn => {
       btn.addEventListener('click', () => {
         const key = btn.dataset.booster;
+        const meta = CFG.boosters[key] || {};
         if (this.app.profile.boosterCount(key) <= 0) { toast('부스터가 없어요. 상점에서 살 수 있어요.', 'bad'); return; }
-        if (this.selectedBooster === key) {
-          this.selectedBooster = null; btn.classList.remove('active'); return;
-        }
+        // 칸 없이 바로 쓰는 부스터
+        if (meta.target === 'self') { this.useSelfBooster(key); return; }
+        if (this.selectedBooster === key) { this.clearBoosterSelection(); return; }
+        this.clearBoosterSelection();
         this.selectedBooster = key;
-        document.querySelectorAll('[data-booster]').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         this.app.audio.sfx('click');
-        toast(`${CFG.boosters[key].name}: 사용할 칸을 탭하세요.`, 'info', 1600);
+        const hint = meta.target === 'pair'
+          ? '자유 교체: 바꿀 첫 번째 보석을 탭하세요.'
+          : `${meta.name}: 쓸 칸을 탭하세요.`;
+        toast(hint, 'info', 1800);
       });
     });
     $('#hud-hint')?.addEventListener('click', () => {
@@ -378,13 +501,28 @@ export class GameSession {
 
   confirmQuit() {
     if (this.finished) { this.app.goHome(); return; }
+    const played = (this.board?.stats?.moves || 0) > 0;
     openModal({
       title: '스테이지에서 나갈까요?',
-      subtitle: '지금 나가면 이번 판 기록은 사라집니다. (목숨은 돌아오지 않아요)',
-      body: `<p class="tiny muted center">다시 도전하려면 목숨 1개가 필요합니다.</p>`,
+      subtitle: played ? '지금 나가면 이번 판 기록이 사라지고 목숨 1개를 잃어요.' : '아직 둔 수가 없어요. 목숨은 그대로예요.',
+      body: `<p class="tiny muted center">${played ? '실패했거나 중도 포기할 때만 목숨이 줄어듭니다.' : '다시 들어와도 목숨이 줄지 않아요.'}</p>`,
       actions: [
         { label: '계속 하기', class: 'btn-green' },
-        { label: '나가기', class: 'btn-ghost', onClick: (close) => { close(); this.destroy(); this.app.goHome(); } },
+        {
+          label: '나가기',
+          class: 'btn-ghost',
+          onClick: (close) => {
+            close();
+            if (played && this.board.state === 'playing') {
+              this.app.profile.consumeLife();
+              this.app.profile.save();
+              this.app.syncSoon();
+              toast('중도 포기로 목숨 1개를 사용했어요.', 'bad', 1700);
+            }
+            this.destroy();
+            this.app.goHome();
+          },
+        },
       ],
     });
   }
@@ -422,6 +560,101 @@ export class GameSession {
     if (this._hudDirty && t % 3 < 1.2) { this._hudDirty = false; updateHud(this); }
   }
 
+  /* ── 연출 도우미 ─────────────────────────────────────── */
+  /* 보드 좌표 → #screen-game 기준 좌상단 */
+  screenPoint(r, c) {
+    const screen = $('#screen-game');
+    const cv = this.view?.canvas;
+    if (!screen || !cv) return null;
+    const scr = screen.getBoundingClientRect();
+    const rect = cv.getBoundingClientRect();
+    const { x, y } = this.view.cellCenter(r, c);
+    return { sx: rect.left - scr.left, sy: rect.top - scr.top, x, y, screen, scr };
+  }
+
+  /* 점수 팝업 (+150) */
+  popScore(r, c, text, color) {
+    const p = this.screenPoint(r, c);
+    if (!p) return;
+    const node = document.createElement('div');
+    node.className = 'score-pop';
+    node.textContent = text;
+    if (color) node.style.color = color;
+    node.style.left = (p.sx + p.x) + 'px';
+    node.style.top = (p.sy + p.y) + 'px';
+    p.screen.appendChild(node);
+    setTimeout(() => node.remove(), 1080);
+  }
+
+  /* 보석이 보드에서 HUD 목표 칩까지 포물선으로 날아간다 */
+  flyToGoal(r, c, color, idx) {
+    const chip = document.getElementById(`goal-${idx}`);
+    const p = this.screenPoint(r, c);
+    if (!chip || !p) return;
+    this._flyers = (this._flyers || 0);
+    if (this._flyers > 7) return;
+    const cr = chip.getBoundingClientRect();
+    const sx = p.sx + p.x, sy = p.sy + p.y;
+    const tx = cr.left - p.scr.left + cr.width / 2;
+    const ty = cr.top - p.scr.top + cr.height / 2;
+    const node = document.createElement('div');
+    node.className = 'fly-gem';
+    node.style.setProperty('--gc', (GEMS[color] || GEMS[0]).color);
+    node.style.left = (sx - 9) + 'px';
+    node.style.top = (sy - 9) + 'px';
+    p.screen.appendChild(node);
+    this._flyers++;
+    const dx = tx - sx, dy = ty - sy;
+    let anim;
+    try {
+      anim = node.animate([
+        { transform: 'translate(0,0) scale(.55)', opacity: 0.3, offset: 0 },
+        { transform: `translate(${dx * 0.45}px, ${dy * 0.45 - 48}px) scale(1.2)`, opacity: 1, offset: 0.5 },
+        { transform: `translate(${dx}px, ${dy}px) scale(.32)`, opacity: 0.2, offset: 1 },
+      ], { duration: 640, easing: 'cubic-bezier(.3,.6,.35,1)' });
+    } catch { node.remove(); this._flyers--; return; }
+    const done = () => {
+      node.remove();
+      this._flyers = Math.max(0, this._flyers - 1);
+      chip.classList.remove('hit');
+      void chip.offsetWidth;
+      chip.classList.add('hit');
+    };
+    anim.onfinish = done;
+    anim.oncancel = done;
+  }
+
+  /* 연쇄 콜아웃 — GOOD! → GREAT! → AMAZING! → FANTASTIC! → UNBELIEVABLE! */
+  comboCall(n) {
+    const screen = $('#screen-game');
+    if (!screen) return;
+    const idx = Math.min(COMBO_LABELS.length - 1, Math.max(2, n));
+    const node = document.createElement('div');
+    node.className = `combo-callout t${idx}`;
+    node.innerHTML = `${COMBO_LABELS[idx]}<span class="sub">${n} 연쇄</span>`;
+    screen.appendChild(node);
+    setTimeout(() => node.remove(), 1120);
+  }
+
+  /* 승리 컨페티 */
+  confetti(root) {
+    if (!root) return;
+    const colors = ['#ffd166', '#3ddc84', '#4d9dff', '#ff5b7f', '#b06cff', '#2fe3d5', '#ffffff'];
+    for (let i = 0; i < 46; i++) {
+      const node = document.createElement('i');
+      node.className = 'confetti';
+      node.style.left = (Math.random() * 100) + '%';
+      node.style.top = '-12px';
+      node.style.background = colors[i % colors.length];
+      node.style.setProperty('--dx', ((Math.random() - 0.5) * 170).toFixed(0) + 'px');
+      node.style.setProperty('--rot', ((Math.random() * 900) - 450).toFixed(0) + 'deg');
+      node.style.setProperty('--dur', (1.9 + Math.random() * 1.7).toFixed(2) + 's');
+      node.style.animationDelay = (Math.random() * 0.5).toFixed(2) + 's';
+      root.appendChild(node);
+      setTimeout(() => node.remove(), 4400);
+    }
+  }
+
   showBanner(text) {
     const b = $('#banner');
     if (!b) return;
@@ -455,6 +688,10 @@ export class GameSession {
       this.showWinModal(stars, rewards, score);
     } else {
       p.recordFail(this.world, this.level, score);
+      // v2: 실패했을 때만 목숨 1개 소모
+      p.consumeLife();
+      p.save();
+      this.lifeLost = true;
       this.app.audio.sfx('lose');
       this.app.syncSoon(true);
       this.showLoseModal(score);
@@ -482,8 +719,9 @@ export class GameSession {
         <div class="reward">${ICONS.hammer}<b>+${rewards.hammers}</b>망치 토큰</div>
       </div>
       <p class="tiny muted center">연승 ${this.app.profile.data.streak.count}회 · 별 ${this.app.profile.starsOf(world, level)}/3</p>
+      <p class="tiny tiny muted center" style="color:#8ef0b0">목숨은 그대로 ${this.app.profile.livesInfo().count}/${CFG.lives.max} · 다음 스테이지도 바로 도전!</p>
     `;
-    openModal({
+    const modal = openModal({
       title: '스테이지 클리어!',
       subtitle: `${world}월드 · ${level}번째 길`,
       body,
@@ -495,11 +733,17 @@ export class GameSession {
           : { label: '다시 하기', class: 'btn-green', onClick: (close) => { close(); this.destroy(); openPreLevel(this.app, world, level); } },
       ],
     });
+    // 승리 컨페티
+    this.confetti(modal?.overlay);
   }
 
   showLoseModal(score) {
     const { world, level } = this;
-    const canContinue = this.continues < CFG.lives.continueMax && this.app.profile.coins >= CFG.lives.continueCost;
+    const p = this.app.profile;
+    const lives = p.livesInfo();
+    const canContinue = this.continues < CFG.lives.continueMax && p.coins >= CFG.lives.continueCost;
+    const needsRefill = lives.count <= 0;
+    const canRefill = needsRefill && p.coins >= CFG.lives.refillCoinCost;
     const body = el('div', {});
     body.innerHTML = `
       <div class="result-score">
@@ -509,33 +753,54 @@ export class GameSession {
       <div class="goal-list">
         ${this.board.goals.list.map(g => `<div class="goal-row">${this.board.goals.icon(g)}<span>${this.board.goals.label(g)}</span><span class="gcount">${Math.min(g.done, g.total)}/${g.total}</span></div>`).join('')}
       </div>
-      <p class="tiny muted center">${canContinue ? `코인 ${fmt(CFG.lives.continueCost)}개로 +${CFG.lives.continueMoves} 이동을 받을 수 있어요.` : '이번 판은 여기까지예요. 다시 도전해 봐요!'}</p>
+      <p class="center tiny" style="color:#ffb3c4">목숨 −1 · 남은 목숨 ${lives.count}/${lives.max}</p>
+      <p class="tiny muted center">${canContinue ? `코인 ${fmt(CFG.lives.continueCost)}개로 +${CFG.lives.continueMoves} 이동을 받아 이어갈 수 있어요.` : '이번 판은 여기까지예요. 다시 도전해 봐요!'}</p>
     `;
+    const actions = [
+      { label: '지도로', class: 'btn-ghost', onClick: (close) => { close(); this.destroy(); this.app.goHome(); } },
+    ];
+    if (canContinue) {
+      actions.push({
+        label: `+${CFG.lives.continueMoves} 이동 (${fmt(CFG.lives.continueCost)} 코인)`, class: 'btn',
+        onClick: (close) => {
+          if (!p.spendCoins(CFG.lives.continueCost)) { toast('코인이 부족해요.', 'bad'); return; }
+          this.continues++;
+          p.grantLife(1);          // 이어서 계속하는 판이므로 잃었던 목숨은 돌려준다
+          p.save();
+          this.app.syncSoon();
+          close();
+          this.finished = false;
+          this.board.busy = false;
+          this.board.addMoves(CFG.lives.continueMoves);
+          this.lastAction = performance.now();
+          this.app.audio.sfx('coin');
+          toast(`+${CFG.lives.continueMoves} 이동! 마지막 힘을 내요.`, 'gold');
+          this.markHud();
+        },
+      });
+    }
+    if (needsRefill) {
+      actions.push({
+        label: canRefill ? `목숨 가득 충전 (${fmt(CFG.lives.refillCoinCost)} 코인)` : '목숨 충전은 상점에서',
+        class: canRefill ? 'btn-green' : 'btn-ghost',
+        disabled: !canRefill,
+        onClick: (close) => {
+          if (!p.buyLivesWithCoins()) { toast('코인이 부족해요.', 'bad'); return; }
+          p.save();
+          this.app.syncSoon();
+          toast('목숨을 가득 채웠어요!', 'gold');
+          close();
+          this.destroy();
+          openPreLevel(this.app, world, level);
+        },
+      });
+    }
     openModal({
       title: '아쉬워요!',
       subtitle: `${levelName(world, level)} · 목표를 거의 다 채웠어요`,
       body,
       closable: false,
-      actions: [
-        { label: '지도로', class: 'btn-ghost', onClick: (close) => { close(); this.destroy(); this.app.goHome(); } },
-        ...(canContinue ? [{
-          label: `+${CFG.lives.continueMoves} 이동 (${fmt(CFG.lives.continueCost)} 코인)`, class: 'btn',
-          onClick: (close) => {
-            if (!this.app.profile.spendCoins(CFG.lives.continueCost)) { toast('코인이 부족해요.', 'bad'); return; }
-            this.continues++;
-            this.app.profile.save();
-            this.app.syncSoon();
-            close();
-            this.finished = false;
-            this.board.busy = false;
-            this.board.addMoves(CFG.lives.continueMoves);
-            this.lastAction = performance.now();
-            this.app.audio.sfx('coin');
-            toast(`+${CFG.lives.continueMoves} 이동! 마지막 힘을 내요.`, 'gold');
-            this.markHud();
-          },
-        }] : []),
-      ],
+      actions,
     });
   }
 

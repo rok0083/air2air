@@ -7,7 +7,7 @@
    ========================================================================= */
 
 export const CFG = {
-  version: '1.0.0',
+  version: '2.0.0',
   title: '헥사 킹덤',
   titleEn: 'HEXA KINGDOM',
   storageKey: 'hexaKingdom.profile.v1',
@@ -79,11 +79,20 @@ export const CFG = {
     shopPrice: 120,          // 상점에서 망치 토큰 1개 가격
   },
 
+  /* 목숨 규칙 (로열 킹덤·캔디크러시 방식)
+     · 스테이지를 시작할 때는 목숨을 쓰지 않습니다.
+     · 실패했을 때만 1개, 이동을 1번 이상 둔 뒤 중도 포기했을 때만 1개.
+     · 클리어하면 그대로 유지 → 질 때까지 계속 이어서 플레이할 수 있습니다. */
   lives: {
     max: 5,                  // 최대 목숨
-    recoveryMs: 30 * 60 * 1000, // 목숨 1개 회복 = 30분
+    recoveryMs: 15 * 60 * 1000, // 목숨 1개 회복 = 15분
     refillOnLevelUp: 1,      // 플레이어 레벨업 시 목숨 +1
     refillOnStar: false,     // 별 획득으로는 회복하지 않음
+    costOnStart: 0,          // 시작 비용 없음
+    costOnFail: 1,           // 실패 시 1 소모
+    costOnQuit: 1,           // 이동 1회 이상 후 중도 포기 시 1 소모
+    refillCoinCost: 400,     // 코인으로 목숨 가득 충전 가격
+    refillToFull: true,      // 충전 시 최대치까지
     continueCost: 500,       // "+5 이동" 이어하기 코인 가격
     continueMoves: 5,        // 이어하기 시 지급 이동 수
     continueMax: 2,          // 이어하기 최대 횟수
@@ -105,13 +114,37 @@ export const CFG = {
      인게임 부스터 — 이동 수를 쓰지 않고 1회 사용, 개수는 프로필에 저장
      --------------------------------------------------------------------- */
   boosters: {
-    hammer:    { name: '망치',      desc: '칸 하나를 부숩니다. 장애물에도 피해.', price: 120, icon: '🔨' },
-    drill:     { name: '드릴',      desc: '세로 한 줄을 뚫습니다. 장애물 관통.', price: 180, icon: '🪛' },
-    bomber:    { name: '폭탄',      desc: '3×3 범위를 폭발시킵니다.',            price: 200, icon: '💥' },
-    magicHat:  { name: '마법 모자', desc: '같은 색 보석을 모두 특수 보석으로!',   price: 260, icon: '🎩' },
+    hammer:    { name: '망치',      desc: '칸 하나를 부숩니다. 장애물에도 피해.', price: 120, icon: '🔨', target: 'cell' },
+    drill:     { name: '드릴',      desc: '세로 한 줄을 뚫습니다. 장애물 관통.', price: 180, icon: '🪛', target: 'cell' },
+    bomber:    { name: '폭탄',      desc: '3×3 범위를 폭발시킵니다.',            price: 200, icon: '💥', target: 'cell' },
+    magicHat:  { name: '마법 모자', desc: '같은 색 보석을 모두 특수 보석으로!',   price: 260, icon: '🎩', target: 'cell' },
+    // ── v2 신규 전술 부스터 ──
+    swap:      { name: '자유 교체', desc: '이동 수 없이 이웃한 두 보석을 바꿉니다.', price: 160, icon: '🧤', target: 'pair', tag: 'NEW' },
+    lightning: { name: '번개 지팡이', desc: '가로·세로·대각선 8방향을 한 번에 지웁니다.', price: 240, icon: '⚡', target: 'cell', tag: 'NEW' },
+    prism:     { name: '무지개 프리즘', desc: '칸 하나를 전기구로 바꿔 즉시 터뜨립니다.', price: 280, icon: '🔮', target: 'cell', tag: 'NEW' },
+    hourglass: { name: '시간 모래시계', desc: '이동 수 +3을 바로 받습니다.', price: 200, icon: '⌛', target: 'self', tag: 'NEW' },
     startRocket: { name: '시작 로켓', desc: '시작 시 로켓 1개를 놓습니다.',     price: 100, icon: '🚀' },
     startTnt:    { name: '시작 폭탄', desc: '시작 시 폭탄 1개를 놓습니다.',     price: 140, icon: '🧨' },
     startSpinner:{ name: '시작 프로펠러', desc: '시작 시 프로펠러 1개를 놓습니다.', price: 160, icon: '🌀' },
+  },
+
+  /* ---------------------------------------------------------------------
+     보드에 떨어지는 보너스 보석 — 연쇄/콤보 중 가끔 등장합니다.
+     --------------------------------------------------------------------- */
+  bonus: {
+    coin: 50,          // 코인 보석이 주는 코인
+    moves: 2,          // 이동 +2
+    strike: 2,         // 목표 2개 자동 타격
+    x2Turns: 3,        // 다음 3수 점수 2배
+    chanceCascade: 0.34, // 연쇄 2단계 이상일 때 등장 확률
+    chanceTurn: 0.5,     // 3수마다 등장 확률
+    maxOnBoard: 2,       // 동시에 보드에 있을 수 있는 수
+    types: [
+      { id: 'coin',  name: '코인 보석',  desc: '코인 +50',        color: '#ffc93c' },
+      { id: 'moves', name: '이동 보석',  desc: '이동 수 +2',      color: '#48dbfb' },
+      { id: 'strike',name: '별빛 타격',  desc: '목표 2개 자동 타격', color: '#ffe066' },
+      { id: 'x2',    name: '2배 점수',   desc: '다음 3수 점수 2배', color: '#c56cf0' },
+    ],
   },
 
   /* ---------------------------------------------------------------------
@@ -150,10 +183,20 @@ export const CFG = {
       { id: 'drill1',     kind: 'booster', key: 'drill',     amount: 1, price: 180, name: '드릴 1개',        tag: '단품' },
       { id: 'bomber1',    kind: 'booster', key: 'bomber',    amount: 1, price: 200, name: '폭탄 1개',        tag: '단품' },
       { id: 'magicHat1',  kind: 'booster', key: 'magicHat',  amount: 1, price: 260, name: '마법 모자 1개',   tag: '단품' },
+      { id: 'swap1',      kind: 'booster', key: 'swap',      amount: 1, price: 160, name: '자유 교체 1개',   tag: 'NEW · 이동 수 0' },
+      { id: 'lightning1', kind: 'booster', key: 'lightning', amount: 1, price: 240, name: '번개 지팡이 1개', tag: 'NEW · 8방향' },
+      { id: 'prism1',     kind: 'booster', key: 'prism',     amount: 1, price: 280, name: '무지개 프리즘 1개', tag: 'NEW · 전기구 즉시' },
+      { id: 'hourglass1', kind: 'booster', key: 'hourglass', amount: 1, price: 200, name: '시간 모래시계 1개', tag: 'NEW · 이동 +3' },
       { id: 'hammer3',    kind: 'booster', key: 'hammer',    amount: 3, price: 320, name: '망치 3개',        tag: '3개 묶음 · 11% 할인' },
       { id: 'drill3',     kind: 'booster', key: 'drill',     amount: 3, price: 480, name: '드릴 3개',        tag: '3개 묶음 · 11% 할인' },
       { id: 'bomber3',    kind: 'booster', key: 'bomber',    amount: 3, price: 540, name: '폭탄 3개',        tag: '3개 묶음 · 10% 할인' },
       { id: 'magicHat3',  kind: 'booster', key: 'magicHat',  amount: 3, price: 700, name: '마법 모자 3개',   tag: '3개 묶음 · 10% 할인' },
+      { id: 'swap3',      kind: 'booster', key: 'swap',      amount: 3, price: 420, name: '자유 교체 3개',   tag: '3개 묶음 · 12% 할인' },
+      { id: 'lightning3', kind: 'booster', key: 'lightning', amount: 3, price: 640, name: '번개 지팡이 3개', tag: '3개 묶음 · 11% 할인' },
+      { id: 'prism3',     kind: 'booster', key: 'prism',     amount: 3, price: 740, name: '무지개 프리즘 3개', tag: '3개 묶음 · 12% 할인' },
+      { id: 'hourglass3', kind: 'booster', key: 'hourglass', amount: 3, price: 520, name: '시간 모래시계 3개', tag: '3개 묶음 · 13% 할인' },
+      { id: 'tacticPack', kind: 'pack',    amount: 1, price: 700, name: '전술 부스터 세트', tag: 'NEW 4종 각 1개 · 27% 할인',
+        items: { swap: 1, lightning: 1, prism: 1, hourglass: 1 } },
       { id: 'startPack3', kind: 'booster', key: 'startRocket', amount: 3, price: 260, name: '시작 로켓 3개', tag: '3개 묶음' },
       { id: 'hammerToken',kind: 'hammer',  amount: 1, price: 120, name: '망치 토큰 1개', tag: '마을 복구용' },
       { id: 'hammerToken5',kind:'hammer',  amount: 5, price: 500, name: '망치 토큰 5개', tag: '마을 복구용 · 17% 할인' },
