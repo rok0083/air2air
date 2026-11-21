@@ -445,7 +445,9 @@ export class Board {
     this.hooks.onDrop?.();
     await sleep(maxDur);
     this.collectBottomItems();
-    this.anims = this.anims.filter(a => a.kind !== 'pop');
+    // 오래된 애니메이션 정리(메모리·잔상 방지)
+    const now2 = performance.now();
+    this.anims = this.anims.filter(a => now2 - a.t0 < (a.dur || 400) + 800);
   }
 
   collectBottomItems() {

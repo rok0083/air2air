@@ -135,7 +135,8 @@ export class BoardView {
     const moving = new Map();
     for (const a of b.anims) {
       if (a.kind !== 'move') continue;
-      const t = Math.min(1, (now - a.t0) / a.dur);
+      const t = (now - a.t0) / a.dur;
+      if (t >= 1) continue; // 끝난 이동은 정지 상태로만 그린다(잔상 방지)
       moving.set(a.tile.id, { anim: a, t });
     }
 
