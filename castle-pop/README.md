@@ -140,6 +140,6 @@ python3 tools/verify-local.py http://127.0.0.1:8765/index.html ./screenshots
 | 파워업 조합 전부 동작 | 8조합 + 연쇄 반응, 조합마다 슬로모션·콜아웃·효과음 |
 | 목표물이 목표 패널로 날아감 | `flyGoals` 곡선 비행 + 숫자 감소 + 완료 체크 |
 | 피날레에서 남은 이동이 폭발 | 남은 이동 → 로켓/TNT 연쇄 + 코인 샤워 + 탭 건너뛰기 |
-| 클리어율 목표 범위 | `levels/balance-report.json` 참고(92/100 이 목표 범위) |
+| 클리어율 목표 범위 | **100/100 레벨이 목표 범위**(보통 78.3% · 어려움 48.6% · 매우 어려움 30.6%), 빈 칸 오류 0 — `levels/balance-report.json` |
 | 60fps | DPR 반영 스프라이트 캐시·파티클 풀·"효과 줄이기" 옵션 |
 | 다른 기기와 같은 랭킹 | cp_leaderboard + onSnapshot 실시간 갱신 |

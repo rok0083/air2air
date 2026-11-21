@@ -3,7 +3,7 @@
   "area": 1,
   "level": 15,
   "name": "1-15",
-  "moves": 18,
+  "moves": 20,
   "colors": 5,
   "cols": 9,
   "rows": 8,
@@ -198,6 +198,6 @@
   "drops": 2,
   "seed": 1118,
   "note": "",
-  "tunedClearRate": 0.67,
+  "tunedClearRate": 0.73,
   "tunedAt": "2026-11-21"
 }

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-21T17:06:46.231Z",
+  "generatedAt": "2026-11-21T17:46:23.773Z",
   "simsPerLevel": 200,
   "engine": "tools/autoplay-bot.mjs (내장 봇)",
   "bands": {
@@ -18,24 +18,24 @@
   },
   "summary": {
     "levels": 100,
-    "inBand": 92,
+    "inBand": 100,
     "emptyCellErrors": 0,
-    "avgClearAll": 0.684,
+    "avgClearAll": 0.673,
     "byTier": {
       "normal": {
         "levels": 69,
-        "inBand": 65,
-        "avgClear": 0.789
+        "inBand": 69,
+        "avgClear": 0.783
       },
       "hard": {
         "levels": 21,
-        "inBand": 19,
-        "avgClear": 0.507
+        "inBand": 21,
+        "avgClear": 0.486
       },
       "veryhard": {
         "levels": 10,
-        "inBand": 8,
-        "avgClear": 0.334
+        "inBand": 10,
+        "avgClear": 0.306
       }
     }
   },
@@ -135,14 +135,14 @@
       "area": 1,
       "level": 7,
       "difficulty": "normal",
-      "moves": 18,
-      "clearRate": 0.91,
+      "moves": 14,
+      "clearRate": 0.775,
       "band": [
         70,
         85
       ],
-      "inBand": false,
-      "avgMovesLeft": 7.7,
+      "inBand": true,
+      "avgMovesLeft": 4.8,
       "emptyCellErrors": 0
     },
     {
@@ -180,14 +180,14 @@
       "area": 1,
       "level": 10,
       "difficulty": "veryhard",
-      "moves": 8,
-      "clearRate": 0.375,
+      "moves": 9,
+      "clearRate": 0.255,
       "band": [
         25,
         35
       ],
-      "inBand": false,
-      "avgMovesLeft": 1.6,
+      "inBand": true,
+      "avgMovesLeft": 1.9,
       "emptyCellErrors": 0
     },
     {
@@ -255,14 +255,14 @@
       "area": 1,
       "level": 15,
       "difficulty": "normal",
-      "moves": 18,
-      "clearRate": 0.67,
+      "moves": 20,
+      "clearRate": 0.73,
       "band": [
         70,
         85
       ],
-      "inBand": false,
-      "avgMovesLeft": 6.7,
+      "inBand": true,
+      "avgMovesLeft": 8,
       "emptyCellErrors": 0
     },
     {
@@ -420,14 +420,14 @@
       "area": 2,
       "level": 6,
       "difficulty": "hard",
-      "moves": 22,
-      "clearRate": 0.555,
+      "moves": 19,
+      "clearRate": 0.425,
       "band": [
         40,
         55
       ],
-      "inBand": false,
-      "avgMovesLeft": 7.3,
+      "inBand": true,
+      "avgMovesLeft": 6.2,
       "emptyCellErrors": 0
     },
     {
@@ -765,14 +765,14 @@
       "area": 3,
       "level": 9,
       "difficulty": "normal",
-      "moves": 35,
-      "clearRate": 0.86,
+      "moves": 31,
+      "clearRate": 0.76,
       "band": [
         70,
         85
       ],
-      "inBand": false,
-      "avgMovesLeft": 13.3,
+      "inBand": true,
+      "avgMovesLeft": 10.9,
       "emptyCellErrors": 0
     },
     {
@@ -795,14 +795,14 @@
       "area": 3,
       "level": 11,
       "difficulty": "normal",
-      "moves": 22,
-      "clearRate": 0.935,
+      "moves": 14,
+      "clearRate": 0.745,
       "band": [
         70,
         85
       ],
-      "inBand": false,
-      "avgMovesLeft": 12.1,
+      "inBand": true,
+      "avgMovesLeft": 6,
       "emptyCellErrors": 0
     },
     {
@@ -1500,14 +1500,14 @@
       "area": 5,
       "level": 18,
       "difficulty": "hard",
-      "moves": 8,
-      "clearRate": 0.8,
+      "moves": 9,
+      "clearRate": 0.485,
       "band": [
         40,
         55
       ],
-      "inBand": false,
-      "avgMovesLeft": 3.1,
+      "inBand": true,
+      "avgMovesLeft": 2.5,
       "emptyCellErrors": 0
     },
     {
@@ -1530,14 +1530,14 @@
       "area": 5,
       "level": 20,
       "difficulty": "veryhard",
-      "moves": 8,
-      "clearRate": 0.445,
+      "moves": 10,
+      "clearRate": 0.285,
       "band": [
         25,
         35
       ],
-      "inBand": false,
-      "avgMovesLeft": 2.3,
+      "inBand": true,
+      "avgMovesLeft": 2.9,
       "emptyCellErrors": 0
     }
   ]

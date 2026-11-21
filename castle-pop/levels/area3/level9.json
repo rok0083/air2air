@@ -3,7 +3,7 @@
   "area": 3,
   "level": 9,
   "name": "3-9",
-  "moves": 35,
+  "moves": 31,
   "colors": 5,
   "cols": 9,
   "rows": 8,
@@ -188,6 +188,6 @@
   "drops": 3,
   "seed": 3076,
   "note": "",
-  "tunedClearRate": 0.86,
+  "tunedClearRate": 0.76,
   "tunedAt": "2026-11-21"
 }
