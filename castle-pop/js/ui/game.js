@@ -1111,7 +1111,7 @@ export class GameScreen {
   showWinModal(coins, movesLeft) {
     const body = document.createElement('div');
     body.innerHTML = `
-      <div class="result-stars">⭐</div>
+      <div class="result-stars" style="color:#ffd23f;-webkit-text-stroke:7px #c9971f;paint-order:stroke fill;text-shadow:0 4px 0 #a87b0c">★</div>
       <div class="result-coins">🪙 <b>+${fmt(coins)}</b></div>
       <p>남은 이동 ${movesLeft}발이 로켓과 TNT로 터졌어요.</p>
       <div class="result-goals">${this.board.goals.map(g => `<span class="result-goal">${goalRibbon(g)} ${g.done}/${g.need}</span>`).join('')}</div>

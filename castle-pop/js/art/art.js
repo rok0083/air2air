@@ -902,7 +902,12 @@ export function drawCastle(ctx, W, H, area, tasksDone = [], t = 0) {
   rr(ctx, cx - W * 0.34, baseY - H * 0.10, W * 0.68, H * 0.16, 8);
   ctx.fill();
   ctx.strokeStyle = shade(stone, -40); ctx.lineWidth = 2; ctx.stroke();
-  // 총안
+  // 성벽 총안(위쪽 merlon) + 화살 구멍
+  ctx.fillStyle = shade(stone, 6);
+  for (let i = 0; i < 8; i++) {
+    rr(ctx, cx - W * 0.335 + i * W * 0.095, baseY - H * 0.118, W * 0.052, H * 0.022, 3);
+    ctx.fill();
+  }
   ctx.fillStyle = '#6d5f4a';
   for (let i = 0; i < 9; i++) {
     rr(ctx, cx - W * 0.31 + i * W * 0.077, baseY - H * 0.075, W * 0.028, H * 0.026, 3);
@@ -930,13 +935,13 @@ export function drawCastle(ctx, W, H, area, tasksDone = [], t = 0) {
   ctx.restore();
 
   // 창문 (닦으면 반짝)
-  for (const [dx, dy, r] of [[-0.05, -0.30, 0.022], [0.05, -0.30, 0.022], [-0.26, -0.16, 0.016], [0.26, -0.16, 0.016]]) {
+  for (const [dx, dy, r] of [[-0.055, -0.30, 0.034], [0.055, -0.30, 0.034], [-0.255, -0.14, 0.030], [0.255, -0.14, 0.030], [-0.255, -0.02, 0.024], [0.255, -0.02, 0.024]]) {
     const lit = done.has('window') || done.has('iceWindow');
     ctx.save();
     ctx.fillStyle = lit ? '#ffe9a3' : '#5a6b8f';
     rr(ctx, cx + W * dx - W * r, baseY + H * dy - W * r * 1.4, W * r * 2, W * r * 2.6, W * r);
     ctx.fill();
-    ctx.strokeStyle = '#3f4a68'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.strokeStyle = '#f2c94c'; ctx.lineWidth = 2.6; ctx.stroke();
     if (lit) {
       ctx.globalAlpha = .5;
       ctx.fillStyle = '#fff';
@@ -1034,6 +1039,9 @@ export function drawCastle(ctx, W, H, area, tasksDone = [], t = 0) {
     }
     ctx.restore();
   }
+  // 레오와 올리 (홈 마스코트)
+  drawKing(ctx, cx - W * 0.13, baseY + H * 0.035, W * 0.075, 'smile', t);
+  drawOllie(ctx, cx + W * 0.13, baseY + H * 0.025, W * 0.055, t);
   if (done.has('boat')) {
     ctx.save();
     ctx.fillStyle = '#8a5a2b';
