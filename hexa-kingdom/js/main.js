@@ -7,7 +7,7 @@ import { CFG } from './config.js';
 import { Profile, weekIdOf } from './meta/profile.js';
 import { AudioEngine } from './audio/audio.js';
 import { waitForUser, authContext } from './firebase/auth.js';
-import { pullProfile, queueSave, saveNow } from './firebase/store.js';
+import { pullProfile, queueSave, saveNow, initStore } from './firebase/store.js';
 import { renderHome } from './ui/worldmap.js';
 import { openShop } from './ui/shop.js';
 import { openRanking } from './ui/ranking.js';
@@ -112,6 +112,7 @@ class App {
     const boot = $('#boot');
     $('#screen-name')?.classList.add('hidden');
     try {
+      await initStore();
       const ctx = await Promise.race([
         waitForUser(5000),
         new Promise(r => setTimeout(() => r({ uid: null, online: false }), 5200)),
