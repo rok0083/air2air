@@ -163,10 +163,13 @@ def main():
                   const uid = cfg.FB.uid;
                   if (!uid) return 'no-uid';
                   const out = [];
-                  for (const col of ['cp_users', 'cp_leaderboard', 'cp_rush']) {
-                    try { await fs.deleteDoc(fs.doc(cfg.FB.db, col, uid)); out.push(col); } catch (e) { out.push(col + ':skip'); }
+                  for (let round = 0; round < 3; round++) {
+                    for (const col of ['cp_users', 'cp_leaderboard', 'cp_rush']) {
+                      try { await fs.deleteDoc(fs.doc(cfg.FB.db, col, uid)); } catch (e) { /* skip */ }
+                    }
+                    await new Promise(r => setTimeout(r, 2600));   // 디바운스 저장이 다시 쓰는 것을 막고 재삭제
                   }
-                  return out.join(',');
+                  return 'cleaned:' + uid;
                 }""")
                 print("CLEANUP", res)
             except Exception as e:
