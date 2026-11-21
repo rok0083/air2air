@@ -1,0 +1,149 @@
+{
+  "id": 51,
+  "area": 3,
+  "level": 11,
+  "name": "3-11",
+  "moves": 22,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "normal",
+  "goals": [
+    {
+      "type": "honey",
+      "count": 6
+    },
+    {
+      "type": "letter",
+      "count": 1
+    },
+    {
+      "type": "box",
+      "count": 11
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "honey",
+      "x": 4,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 2,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 7,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 1,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 6,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 5,
+      "y": 3,
+      "hp": 1
+    },
+    {
+      "type": "mailbox",
+      "x": 1,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "mailbox",
+      "x": 5,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 7,
+      "hp": 1
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 4,
+  "seed": 3090,
+  "note": "",
+  "tunedClearRate": 0.935,
+  "tunedAt": "2026-11-21"
+}

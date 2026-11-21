@@ -1,0 +1,90 @@
+{
+  "id": 84,
+  "area": 5,
+  "level": 4,
+  "name": "5-4",
+  "moves": 8,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "normal",
+  "goals": [
+    {
+      "type": "colorBox",
+      "count": 1
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "curtain",
+      "x": 0,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 1,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 2,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 3,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 4,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 5,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 6,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 7,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 8,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "colorBox",
+      "x": 1,
+      "y": 5,
+      "w": 2,
+      "h": 2,
+      "hp": 3,
+      "color": "green"
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 3,
+  "seed": 5041,
+  "note": "",
+  "tunedClearRate": 0.75,
+  "tunedAt": "2026-11-21"
+}

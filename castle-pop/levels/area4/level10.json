@@ -1,0 +1,121 @@
+{
+  "id": 70,
+  "area": 4,
+  "level": 10,
+  "name": "4-10",
+  "moves": 8,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "veryhard",
+  "goals": [
+    {
+      "type": "chain",
+      "count": 8
+    },
+    {
+      "type": "ice",
+      "count": 7
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "chain",
+      "x": 3,
+      "y": 3,
+      "hp": 1
+    },
+    {
+      "type": "chain",
+      "x": 4,
+      "y": 3,
+      "hp": 1
+    },
+    {
+      "type": "chain",
+      "x": 0,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "chain",
+      "x": 0,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "chain",
+      "x": 8,
+      "y": 1,
+      "hp": 1
+    },
+    {
+      "type": "chain",
+      "x": 2,
+      "y": 3,
+      "hp": 2
+    },
+    {
+      "type": "chain",
+      "x": 3,
+      "y": 4,
+      "hp": 2
+    },
+    {
+      "type": "chain",
+      "x": 4,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 6,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 3,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 3,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 6,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 2,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 1,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 5,
+      "y": 4,
+      "hp": 2
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 4,
+  "seed": 4083,
+  "note": "",
+  "tunedClearRate": 0.3,
+  "tunedAt": "2026-11-21"
+}

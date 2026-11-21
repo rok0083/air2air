@@ -1,0 +1,131 @@
+{
+  "id": 55,
+  "area": 3,
+  "level": 15,
+  "name": "3-15",
+  "moves": 11,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "hard",
+  "goals": [
+    {
+      "type": "vase",
+      "count": 3
+    },
+    {
+      "type": "letter",
+      "count": 1
+    },
+    {
+      "type": "safe",
+      "count": 1
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "vase",
+      "x": 2,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "vase",
+      "x": 4,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "vase",
+      "x": 6,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "mailbox",
+      "x": 1,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "mailbox",
+      "x": 5,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "safe",
+      "x": 4,
+      "y": 4,
+      "hp": 3
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 7,
+      "hp": 1
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 2,
+  "seed": 3118,
+  "note": "",
+  "tunedClearRate": 0.525,
+  "tunedAt": "2026-11-21"
+}

@@ -1,0 +1,92 @@
+{
+  "id": 98,
+  "area": 5,
+  "level": 18,
+  "name": "5-18",
+  "moves": 8,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "hard",
+  "goals": [
+    {
+      "type": "honey",
+      "count": 6
+    },
+    {
+      "type": "colorBox",
+      "count": 1
+    },
+    {
+      "type": "bird",
+      "count": 2
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "honey",
+      "x": 7,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 2,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 1,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 4,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 4,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 2,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "colorBox",
+      "x": 2,
+      "y": 4,
+      "w": 2,
+      "h": 2,
+      "hp": 3,
+      "color": "green"
+    },
+    {
+      "type": "birdNest",
+      "x": 2,
+      "y": 3,
+      "hp": 2
+    },
+    {
+      "type": "birdNest",
+      "x": 6,
+      "y": 3,
+      "hp": 2
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 3,
+  "seed": 5139,
+  "note": "",
+  "tunedClearRate": 0.8,
+  "tunedAt": "2026-11-21"
+}

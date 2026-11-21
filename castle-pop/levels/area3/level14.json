@@ -1,0 +1,79 @@
+{
+  "id": 54,
+  "area": 3,
+  "level": 14,
+  "name": "3-14",
+  "moves": 12,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "normal",
+  "goals": [
+    {
+      "type": "vase",
+      "count": 3
+    },
+    {
+      "type": "honey",
+      "count": 5
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "vase",
+      "x": 2,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "vase",
+      "x": 4,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "vase",
+      "x": 6,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "honey",
+      "x": 5,
+      "y": 3,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 5,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 1,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 6,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 3,
+      "y": 7,
+      "hp": 1
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 2,
+  "seed": 3111,
+  "note": "",
+  "tunedClearRate": 0.755,
+  "tunedAt": "2026-11-21"
+}

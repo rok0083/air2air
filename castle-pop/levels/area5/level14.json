@@ -1,0 +1,116 @@
+{
+  "id": 94,
+  "area": 5,
+  "level": 14,
+  "name": "5-14",
+  "moves": 17,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "normal",
+  "goals": [
+    {
+      "type": "ice",
+      "count": 10
+    },
+    {
+      "type": "vase",
+      "count": 2
+    },
+    {
+      "type": "colorBox",
+      "count": 1
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "ice",
+      "x": 7,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 0,
+      "y": 2,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 2,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 1,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 4,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 5,
+      "y": 4,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 6,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 7,
+      "y": 3,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 8,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 4,
+      "y": 2,
+      "hp": 2
+    },
+    {
+      "type": "vase",
+      "x": 4,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "vase",
+      "x": 6,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "colorBox",
+      "x": 3,
+      "y": 4,
+      "w": 2,
+      "h": 2,
+      "hp": 3,
+      "color": "red"
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 4,
+  "seed": 5111,
+  "note": "",
+  "tunedClearRate": 0.76,
+  "tunedAt": "2026-11-21"
+}

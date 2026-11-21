@@ -1,0 +1,131 @@
+{
+  "id": 89,
+  "area": 5,
+  "level": 9,
+  "name": "5-9",
+  "moves": 16,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "normal",
+  "goals": [
+    {
+      "type": "bird",
+      "count": 2
+    },
+    {
+      "type": "colorBox",
+      "count": 2
+    },
+    {
+      "type": "box",
+      "count": 11
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "birdNest",
+      "x": 2,
+      "y": 3,
+      "hp": 2
+    },
+    {
+      "type": "birdNest",
+      "x": 6,
+      "y": 3,
+      "hp": 2
+    },
+    {
+      "type": "colorBox",
+      "x": 1,
+      "y": 2,
+      "w": 2,
+      "h": 2,
+      "hp": 3,
+      "color": "yellow"
+    },
+    {
+      "type": "colorBox",
+      "x": 2,
+      "y": 3,
+      "w": 2,
+      "h": 2,
+      "hp": 3,
+      "color": "green"
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 7,
+      "hp": 1
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 4,
+  "seed": 5076,
+  "note": "",
+  "tunedClearRate": 0.76,
+  "tunedAt": "2026-11-21"
+}

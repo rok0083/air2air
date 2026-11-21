@@ -1,0 +1,124 @@
+{
+  "id": 4,
+  "area": 1,
+  "level": 4,
+  "name": "1-4",
+  "moves": 10,
+  "colors": 4,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "normal",
+  "goals": [
+    {
+      "type": "box",
+      "count": 14
+    },
+    {
+      "type": "colorBox",
+      "count": 1
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "box",
+      "x": 0,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "colorBox",
+      "x": 1,
+      "y": 3,
+      "w": 2,
+      "h": 2,
+      "hp": 2,
+      "color": "red"
+    }
+  ],
+  "blocked": [],
+  "tutorial": "propeller",
+  "intro": null,
+  "drops": 4,
+  "seed": 1041,
+  "note": "프로펠러 안내",
+  "tunedClearRate": 0.835,
+  "tunedAt": "2026-11-21"
+}

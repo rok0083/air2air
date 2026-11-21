@@ -1,0 +1,127 @@
+{
+  "id": 9,
+  "area": 1,
+  "level": 9,
+  "name": "1-9",
+  "moves": 20,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "normal",
+  "goals": [
+    {
+      "type": "box",
+      "count": 14
+    },
+    {
+      "type": "letter",
+      "count": 1
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "box",
+      "x": 1,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 5,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 3,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 3,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 4,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 3,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 4,
+      "hp": 2
+    },
+    {
+      "type": "mailbox",
+      "x": 1,
+      "y": 7,
+      "hp": 2
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 2,
+  "seed": 1076,
+  "note": "구역 과제 첫 수행",
+  "tunedClearRate": 0.815,
+  "tunedAt": "2026-11-21"
+}

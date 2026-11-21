@@ -1,0 +1,173 @@
+{
+  "id": 82,
+  "area": 5,
+  "level": 2,
+  "name": "5-2",
+  "moves": 13,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "normal",
+  "goals": [
+    {
+      "type": "honey",
+      "count": 6
+    },
+    {
+      "type": "vase",
+      "count": 3
+    },
+    {
+      "type": "bird",
+      "count": 2
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "honey",
+      "x": 7,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 6,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 2,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 5,
+      "y": 3,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 4,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "honey",
+      "x": 5,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "vase",
+      "x": 2,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "vase",
+      "x": 4,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "vase",
+      "x": 6,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "birdNest",
+      "x": 2,
+      "y": 3,
+      "hp": 2
+    },
+    {
+      "type": "birdNest",
+      "x": 6,
+      "y": 3,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 7,
+      "hp": 1
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 4,
+  "seed": 5027,
+  "note": "",
+  "tunedClearRate": 0.735,
+  "tunedAt": "2026-11-21"
+}

@@ -1,0 +1,1544 @@
+{
+  "generatedAt": "2026-11-21T17:06:46.231Z",
+  "simsPerLevel": 200,
+  "engine": "tools/autoplay-bot.mjs (내장 봇)",
+  "bands": {
+    "normal": [
+      70,
+      85
+    ],
+    "hard": [
+      40,
+      55
+    ],
+    "veryhard": [
+      25,
+      35
+    ]
+  },
+  "summary": {
+    "levels": 100,
+    "inBand": 92,
+    "emptyCellErrors": 0,
+    "avgClearAll": 0.684,
+    "byTier": {
+      "normal": {
+        "levels": 69,
+        "inBand": 65,
+        "avgClear": 0.789
+      },
+      "hard": {
+        "levels": 21,
+        "inBand": 19,
+        "avgClear": 0.507
+      },
+      "veryhard": {
+        "levels": 10,
+        "inBand": 8,
+        "avgClear": 0.334
+      }
+    }
+  },
+  "levels": [
+    {
+      "id": 1,
+      "area": 1,
+      "level": 1,
+      "difficulty": "normal",
+      "moves": 10,
+      "clearRate": 0.82,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 4.2,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 2,
+      "area": 1,
+      "level": 2,
+      "difficulty": "normal",
+      "moves": 8,
+      "clearRate": 0.8,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 3.4,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 3,
+      "area": 1,
+      "level": 3,
+      "difficulty": "normal",
+      "moves": 12,
+      "clearRate": 0.735,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 4.3,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 4,
+      "area": 1,
+      "level": 4,
+      "difficulty": "normal",
+      "moves": 10,
+      "clearRate": 0.835,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 5,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 5,
+      "area": 1,
+      "level": 5,
+      "difficulty": "normal",
+      "moves": 10,
+      "clearRate": 0.745,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 3.6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 6,
+      "area": 1,
+      "level": 6,
+      "difficulty": "hard",
+      "moves": 12,
+      "clearRate": 0.53,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 3.8,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 7,
+      "area": 1,
+      "level": 7,
+      "difficulty": "normal",
+      "moves": 18,
+      "clearRate": 0.91,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": false,
+      "avgMovesLeft": 7.7,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 8,
+      "area": 1,
+      "level": 8,
+      "difficulty": "normal",
+      "moves": 16,
+      "clearRate": 0.78,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 6.8,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 9,
+      "area": 1,
+      "level": 9,
+      "difficulty": "normal",
+      "moves": 20,
+      "clearRate": 0.815,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 7.2,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 10,
+      "area": 1,
+      "level": 10,
+      "difficulty": "veryhard",
+      "moves": 8,
+      "clearRate": 0.375,
+      "band": [
+        25,
+        35
+      ],
+      "inBand": false,
+      "avgMovesLeft": 1.6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 11,
+      "area": 1,
+      "level": 11,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.755,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 12,
+      "area": 1,
+      "level": 12,
+      "difficulty": "hard",
+      "moves": 10,
+      "clearRate": 0.545,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 2.6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 13,
+      "area": 1,
+      "level": 13,
+      "difficulty": "normal",
+      "moves": 16,
+      "clearRate": 0.775,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 5.8,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 14,
+      "area": 1,
+      "level": 14,
+      "difficulty": "normal",
+      "moves": 16,
+      "clearRate": 0.755,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 6.6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 15,
+      "area": 1,
+      "level": 15,
+      "difficulty": "normal",
+      "moves": 18,
+      "clearRate": 0.67,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": false,
+      "avgMovesLeft": 6.7,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 16,
+      "area": 1,
+      "level": 16,
+      "difficulty": "normal",
+      "moves": 18,
+      "clearRate": 0.745,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 17,
+      "area": 1,
+      "level": 17,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.815,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 18,
+      "area": 1,
+      "level": 18,
+      "difficulty": "hard",
+      "moves": 12,
+      "clearRate": 0.41,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 3.2,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 19,
+      "area": 1,
+      "level": 19,
+      "difficulty": "normal",
+      "moves": 20,
+      "clearRate": 0.75,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 8.7,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 20,
+      "area": 1,
+      "level": 20,
+      "difficulty": "veryhard",
+      "moves": 14,
+      "clearRate": 0.335,
+      "band": [
+        25,
+        35
+      ],
+      "inBand": true,
+      "avgMovesLeft": 3,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 21,
+      "area": 2,
+      "level": 1,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.85,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 11.9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 22,
+      "area": 2,
+      "level": 2,
+      "difficulty": "normal",
+      "moves": 20,
+      "clearRate": 0.735,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 23,
+      "area": 2,
+      "level": 3,
+      "difficulty": "normal",
+      "moves": 16,
+      "clearRate": 0.8,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 7.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 24,
+      "area": 2,
+      "level": 4,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.845,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 8.9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 25,
+      "area": 2,
+      "level": 5,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.73,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 8,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 26,
+      "area": 2,
+      "level": 6,
+      "difficulty": "hard",
+      "moves": 22,
+      "clearRate": 0.555,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": false,
+      "avgMovesLeft": 7.3,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 27,
+      "area": 2,
+      "level": 7,
+      "difficulty": "normal",
+      "moves": 33,
+      "clearRate": 0.84,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 13.6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 28,
+      "area": 2,
+      "level": 8,
+      "difficulty": "normal",
+      "moves": 33,
+      "clearRate": 0.825,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 12.9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 29,
+      "area": 2,
+      "level": 9,
+      "difficulty": "normal",
+      "moves": 20,
+      "clearRate": 0.805,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 8.3,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 30,
+      "area": 2,
+      "level": 10,
+      "difficulty": "veryhard",
+      "moves": 11,
+      "clearRate": 0.32,
+      "band": [
+        25,
+        35
+      ],
+      "inBand": true,
+      "avgMovesLeft": 2.3,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 31,
+      "area": 2,
+      "level": 11,
+      "difficulty": "normal",
+      "moves": 29,
+      "clearRate": 0.77,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 11.3,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 32,
+      "area": 2,
+      "level": 12,
+      "difficulty": "hard",
+      "moves": 18,
+      "clearRate": 0.515,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 5,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 33,
+      "area": 2,
+      "level": 13,
+      "difficulty": "normal",
+      "moves": 33,
+      "clearRate": 0.785,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 13,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 34,
+      "area": 2,
+      "level": 14,
+      "difficulty": "normal",
+      "moves": 16,
+      "clearRate": 0.76,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 6.9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 35,
+      "area": 2,
+      "level": 15,
+      "difficulty": "normal",
+      "moves": 23,
+      "clearRate": 0.835,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 9.4,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 36,
+      "area": 2,
+      "level": 16,
+      "difficulty": "normal",
+      "moves": 33,
+      "clearRate": 0.775,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 12.9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 37,
+      "area": 2,
+      "level": 17,
+      "difficulty": "normal",
+      "moves": 12,
+      "clearRate": 0.78,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 4.6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 38,
+      "area": 2,
+      "level": 18,
+      "difficulty": "hard",
+      "moves": 24,
+      "clearRate": 0.545,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 6.8,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 39,
+      "area": 2,
+      "level": 19,
+      "difficulty": "normal",
+      "moves": 33,
+      "clearRate": 0.73,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 11.4,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 40,
+      "area": 2,
+      "level": 20,
+      "difficulty": "veryhard",
+      "moves": 8,
+      "clearRate": 0.295,
+      "band": [
+        25,
+        35
+      ],
+      "inBand": true,
+      "avgMovesLeft": 1.9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 41,
+      "area": 3,
+      "level": 1,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.735,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 42,
+      "area": 3,
+      "level": 2,
+      "difficulty": "normal",
+      "moves": 15,
+      "clearRate": 0.82,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 7.7,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 43,
+      "area": 3,
+      "level": 3,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.82,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 11.9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 44,
+      "area": 3,
+      "level": 4,
+      "difficulty": "normal",
+      "moves": 20,
+      "clearRate": 0.76,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 8.4,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 45,
+      "area": 3,
+      "level": 5,
+      "difficulty": "hard",
+      "moves": 16,
+      "clearRate": 0.445,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 4.4,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 46,
+      "area": 3,
+      "level": 6,
+      "difficulty": "hard",
+      "moves": 18,
+      "clearRate": 0.445,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 5.9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 47,
+      "area": 3,
+      "level": 7,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.845,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 10.4,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 48,
+      "area": 3,
+      "level": 8,
+      "difficulty": "normal",
+      "moves": 29,
+      "clearRate": 0.85,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 11.8,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 49,
+      "area": 3,
+      "level": 9,
+      "difficulty": "normal",
+      "moves": 35,
+      "clearRate": 0.86,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": false,
+      "avgMovesLeft": 13.3,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 50,
+      "area": 3,
+      "level": 10,
+      "difficulty": "veryhard",
+      "moves": 16,
+      "clearRate": 0.35,
+      "band": [
+        25,
+        35
+      ],
+      "inBand": true,
+      "avgMovesLeft": 4.2,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 51,
+      "area": 3,
+      "level": 11,
+      "difficulty": "normal",
+      "moves": 22,
+      "clearRate": 0.935,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": false,
+      "avgMovesLeft": 12.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 52,
+      "area": 3,
+      "level": 12,
+      "difficulty": "hard",
+      "moves": 16,
+      "clearRate": 0.505,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 4.6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 53,
+      "area": 3,
+      "level": 13,
+      "difficulty": "normal",
+      "moves": 16,
+      "clearRate": 0.74,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 4.6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 54,
+      "area": 3,
+      "level": 14,
+      "difficulty": "normal",
+      "moves": 12,
+      "clearRate": 0.755,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 5.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 55,
+      "area": 3,
+      "level": 15,
+      "difficulty": "hard",
+      "moves": 11,
+      "clearRate": 0.525,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 2.9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 56,
+      "area": 3,
+      "level": 16,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.75,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 8.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 57,
+      "area": 3,
+      "level": 17,
+      "difficulty": "normal",
+      "moves": 32,
+      "clearRate": 0.85,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 14,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 58,
+      "area": 3,
+      "level": 18,
+      "difficulty": "hard",
+      "moves": 16,
+      "clearRate": 0.47,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 4.4,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 59,
+      "area": 3,
+      "level": 19,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.84,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 10.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 60,
+      "area": 3,
+      "level": 20,
+      "difficulty": "veryhard",
+      "moves": 13,
+      "clearRate": 0.295,
+      "band": [
+        25,
+        35
+      ],
+      "inBand": true,
+      "avgMovesLeft": 3.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 61,
+      "area": 4,
+      "level": 1,
+      "difficulty": "normal",
+      "moves": 11,
+      "clearRate": 0.78,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 3.5,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 62,
+      "area": 4,
+      "level": 2,
+      "difficulty": "normal",
+      "moves": 12,
+      "clearRate": 0.805,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 5.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 63,
+      "area": 4,
+      "level": 3,
+      "difficulty": "normal",
+      "moves": 20,
+      "clearRate": 0.79,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 7.4,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 64,
+      "area": 4,
+      "level": 4,
+      "difficulty": "normal",
+      "moves": 22,
+      "clearRate": 0.83,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 10,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 65,
+      "area": 4,
+      "level": 5,
+      "difficulty": "hard",
+      "moves": 20,
+      "clearRate": 0.525,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 7,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 66,
+      "area": 4,
+      "level": 6,
+      "difficulty": "hard",
+      "moves": 19,
+      "clearRate": 0.46,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 4.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 67,
+      "area": 4,
+      "level": 7,
+      "difficulty": "normal",
+      "moves": 33,
+      "clearRate": 0.755,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 11.6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 68,
+      "area": 4,
+      "level": 8,
+      "difficulty": "normal",
+      "moves": 29,
+      "clearRate": 0.705,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 9.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 69,
+      "area": 4,
+      "level": 9,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.82,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 9.6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 70,
+      "area": 4,
+      "level": 10,
+      "difficulty": "veryhard",
+      "moves": 8,
+      "clearRate": 0.3,
+      "band": [
+        25,
+        35
+      ],
+      "inBand": true,
+      "avgMovesLeft": 2.5,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 71,
+      "area": 4,
+      "level": 11,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.835,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 7.4,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 72,
+      "area": 4,
+      "level": 12,
+      "difficulty": "hard",
+      "moves": 20,
+      "clearRate": 0.535,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 4.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 73,
+      "area": 4,
+      "level": 13,
+      "difficulty": "normal",
+      "moves": 26,
+      "clearRate": 0.705,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 74,
+      "area": 4,
+      "level": 14,
+      "difficulty": "normal",
+      "moves": 33,
+      "clearRate": 0.81,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 12,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 75,
+      "area": 4,
+      "level": 15,
+      "difficulty": "hard",
+      "moves": 13,
+      "clearRate": 0.5,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 5.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 76,
+      "area": 4,
+      "level": 16,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.78,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 8.6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 77,
+      "area": 4,
+      "level": 17,
+      "difficulty": "normal",
+      "moves": 18,
+      "clearRate": 0.72,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 7.4,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 78,
+      "area": 4,
+      "level": 18,
+      "difficulty": "hard",
+      "moves": 13,
+      "clearRate": 0.41,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 2.9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 79,
+      "area": 4,
+      "level": 19,
+      "difficulty": "normal",
+      "moves": 23,
+      "clearRate": 0.845,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 10.5,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 80,
+      "area": 4,
+      "level": 20,
+      "difficulty": "veryhard",
+      "moves": 14,
+      "clearRate": 0.29,
+      "band": [
+        25,
+        35
+      ],
+      "inBand": true,
+      "avgMovesLeft": 2.8,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 81,
+      "area": 5,
+      "level": 1,
+      "difficulty": "normal",
+      "moves": 16,
+      "clearRate": 0.79,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 6.9,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 82,
+      "area": 5,
+      "level": 2,
+      "difficulty": "normal",
+      "moves": 13,
+      "clearRate": 0.735,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 4.5,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 83,
+      "area": 5,
+      "level": 3,
+      "difficulty": "normal",
+      "moves": 9,
+      "clearRate": 0.835,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 3.8,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 84,
+      "area": 5,
+      "level": 4,
+      "difficulty": "normal",
+      "moves": 8,
+      "clearRate": 0.75,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 4.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 85,
+      "area": 5,
+      "level": 5,
+      "difficulty": "hard",
+      "moves": 12,
+      "clearRate": 0.46,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 3.5,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 86,
+      "area": 5,
+      "level": 6,
+      "difficulty": "hard",
+      "moves": 24,
+      "clearRate": 0.45,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 6.5,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 87,
+      "area": 5,
+      "level": 7,
+      "difficulty": "normal",
+      "moves": 12,
+      "clearRate": 0.725,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 4.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 88,
+      "area": 5,
+      "level": 8,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.845,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 11.2,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 89,
+      "area": 5,
+      "level": 9,
+      "difficulty": "normal",
+      "moves": 16,
+      "clearRate": 0.76,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 7.3,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 90,
+      "area": 5,
+      "level": 10,
+      "difficulty": "veryhard",
+      "moves": 9,
+      "clearRate": 0.335,
+      "band": [
+        25,
+        35
+      ],
+      "inBand": true,
+      "avgMovesLeft": 2.7,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 91,
+      "area": 5,
+      "level": 11,
+      "difficulty": "normal",
+      "moves": 20,
+      "clearRate": 0.76,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 8,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 92,
+      "area": 5,
+      "level": 12,
+      "difficulty": "hard",
+      "moves": 24,
+      "clearRate": 0.485,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 6.6,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 93,
+      "area": 5,
+      "level": 13,
+      "difficulty": "normal",
+      "moves": 20,
+      "clearRate": 0.78,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 8.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 94,
+      "area": 5,
+      "level": 14,
+      "difficulty": "normal",
+      "moves": 17,
+      "clearRate": 0.76,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 6.5,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 95,
+      "area": 5,
+      "level": 15,
+      "difficulty": "hard",
+      "moves": 16,
+      "clearRate": 0.535,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": true,
+      "avgMovesLeft": 5.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 96,
+      "area": 5,
+      "level": 16,
+      "difficulty": "normal",
+      "moves": 29,
+      "clearRate": 0.73,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 10.3,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 97,
+      "area": 5,
+      "level": 17,
+      "difficulty": "normal",
+      "moves": 24,
+      "clearRate": 0.85,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 7.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 98,
+      "area": 5,
+      "level": 18,
+      "difficulty": "hard",
+      "moves": 8,
+      "clearRate": 0.8,
+      "band": [
+        40,
+        55
+      ],
+      "inBand": false,
+      "avgMovesLeft": 3.1,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 99,
+      "area": 5,
+      "level": 19,
+      "difficulty": "normal",
+      "moves": 16,
+      "clearRate": 0.795,
+      "band": [
+        70,
+        85
+      ],
+      "inBand": true,
+      "avgMovesLeft": 5.8,
+      "emptyCellErrors": 0
+    },
+    {
+      "id": 100,
+      "area": 5,
+      "level": 20,
+      "difficulty": "veryhard",
+      "moves": 8,
+      "clearRate": 0.445,
+      "band": [
+        25,
+        35
+      ],
+      "inBand": false,
+      "avgMovesLeft": 2.3,
+      "emptyCellErrors": 0
+    }
+  ]
+}

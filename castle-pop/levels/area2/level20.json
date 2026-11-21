@@ -1,0 +1,103 @@
+{
+  "id": 40,
+  "area": 2,
+  "level": 20,
+  "name": "2-20",
+  "moves": 8,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "veryhard",
+  "goals": [
+    {
+      "type": "colorBox",
+      "count": 2
+    },
+    {
+      "type": "ice",
+      "count": 9
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "colorBox",
+      "x": 3,
+      "y": 3,
+      "w": 2,
+      "h": 2,
+      "hp": 2,
+      "color": "yellow"
+    },
+    {
+      "type": "colorBox",
+      "x": 4,
+      "y": 3,
+      "w": 2,
+      "h": 2,
+      "hp": 2,
+      "color": "blue"
+    },
+    {
+      "type": "ice",
+      "x": 2,
+      "y": 4,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 2,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 4,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 1,
+      "y": 5,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 1,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 7,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 3,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 8,
+      "y": 3,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 5,
+      "y": 7,
+      "hp": 2
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 2,
+  "seed": 2153,
+  "note": "",
+  "tunedClearRate": 0.295,
+  "tunedAt": "2026-11-21"
+}

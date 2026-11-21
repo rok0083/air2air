@@ -1,0 +1,179 @@
+{
+  "id": 30,
+  "area": 2,
+  "level": 10,
+  "name": "2-10",
+  "moves": 11,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "veryhard",
+  "goals": [
+    {
+      "type": "colorBox",
+      "count": 2
+    },
+    {
+      "type": "vase",
+      "count": 2
+    },
+    {
+      "type": "ice",
+      "count": 10
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "colorBox",
+      "x": 1,
+      "y": 4,
+      "w": 2,
+      "h": 2,
+      "hp": 2,
+      "color": "green"
+    },
+    {
+      "type": "colorBox",
+      "x": 4,
+      "y": 5,
+      "w": 2,
+      "h": 2,
+      "hp": 2,
+      "color": "green"
+    },
+    {
+      "type": "vase",
+      "x": 2,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "vase",
+      "x": 6,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 1,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 3,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 3,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 0,
+      "y": 2,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 5,
+      "y": 4,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 0,
+      "y": 4,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 7,
+      "y": 2,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 6,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 0,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 2,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 7,
+      "hp": 1
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 3,
+  "seed": 2083,
+  "note": "",
+  "tunedClearRate": 0.32,
+  "tunedAt": "2026-11-21"
+}

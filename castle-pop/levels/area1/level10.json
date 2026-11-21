@@ -1,0 +1,199 @@
+{
+  "id": 10,
+  "area": 1,
+  "level": 10,
+  "name": "1-10",
+  "moves": 8,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "veryhard",
+  "goals": [
+    {
+      "type": "box",
+      "count": 18
+    },
+    {
+      "type": "grass",
+      "count": 4
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "box",
+      "x": 0,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 5,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 5,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 5,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 2,
+      "y": 3,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 7,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 1,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 5,
+      "y": 3,
+      "hp": 1
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 3,
+  "seed": 1083,
+  "note": "10레벨 기념 상자",
+  "tunedClearRate": 0.375,
+  "tunedAt": "2026-11-21"
+}

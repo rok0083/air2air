@@ -1,0 +1,193 @@
+{
+  "id": 8,
+  "area": 1,
+  "level": 8,
+  "name": "1-8",
+  "moves": 16,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "normal",
+  "goals": [
+    {
+      "type": "box",
+      "count": 12
+    },
+    {
+      "type": "grass",
+      "count": 10
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "box",
+      "x": 0,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 5,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 8,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 8,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 3,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 0,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 1,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 8,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 4,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 0,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "grass",
+      "x": 8,
+      "y": 3,
+      "hp": 1
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 3,
+  "seed": 1069,
+  "note": "자유 플레이",
+  "tunedClearRate": 0.78,
+  "tunedAt": "2026-11-21"
+}

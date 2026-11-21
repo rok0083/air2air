@@ -1,0 +1,193 @@
+{
+  "id": 49,
+  "area": 3,
+  "level": 9,
+  "name": "3-9",
+  "moves": 35,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "normal",
+  "goals": [
+    {
+      "type": "box",
+      "count": 26
+    },
+    {
+      "type": "safe",
+      "count": 1
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "box",
+      "x": 0,
+      "y": 5,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 5,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 5,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 5,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "safe",
+      "x": 4,
+      "y": 4,
+      "hp": 3
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 7,
+      "hp": 1
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 3,
+  "seed": 3076,
+  "note": "",
+  "tunedClearRate": 0.86,
+  "tunedAt": "2026-11-21"
+}

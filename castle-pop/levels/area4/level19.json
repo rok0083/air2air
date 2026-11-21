@@ -1,0 +1,217 @@
+{
+  "id": 79,
+  "area": 4,
+  "level": 19,
+  "name": "4-19",
+  "moves": 23,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "normal",
+  "goals": [
+    {
+      "type": "ice",
+      "count": 8
+    },
+    {
+      "type": "box",
+      "count": 14
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "curtain",
+      "x": 0,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 1,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 2,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 3,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 4,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 5,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 6,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 7,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "curtain",
+      "x": 8,
+      "y": 2,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 4,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 6,
+      "y": 7,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 7,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 2,
+      "y": 3,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 0,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 1,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "ice",
+      "x": 8,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "ice",
+      "x": 2,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 7,
+      "hp": 1
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 4,
+  "seed": 4146,
+  "note": "",
+  "tunedClearRate": 0.845,
+  "tunedAt": "2026-11-21"
+}

@@ -1,0 +1,201 @@
+{
+  "id": 1,
+  "area": 1,
+  "level": 1,
+  "name": "1-1",
+  "moves": 10,
+  "colors": 4,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "normal",
+  "goals": [
+    {
+      "type": "box",
+      "count": 27
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "box",
+      "x": 1,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 4,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 7,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 5,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 4,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 6,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 0,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 1,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 2,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 3,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 5,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 6,
+      "y": 7,
+      "hp": 1
+    },
+    {
+      "type": "box",
+      "x": 8,
+      "y": 7,
+      "hp": 1
+    }
+  ],
+  "blocked": [],
+  "tutorial": "swap",
+  "intro": null,
+  "drops": 4,
+  "seed": 1020,
+  "note": "상자만 깨는 첫 레벨",
+  "tunedClearRate": 0.82,
+  "tunedAt": "2026-11-21"
+}

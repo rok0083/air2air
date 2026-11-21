@@ -1,0 +1,58 @@
+{
+  "id": 37,
+  "area": 2,
+  "level": 17,
+  "name": "2-17",
+  "moves": 12,
+  "colors": 5,
+  "cols": 9,
+  "rows": 8,
+  "difficulty": "normal",
+  "goals": [
+    {
+      "type": "vase",
+      "count": 3
+    },
+    {
+      "type": "colorBox",
+      "count": 1
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "vase",
+      "x": 2,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "vase",
+      "x": 4,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "vase",
+      "x": 6,
+      "y": 6,
+      "hp": 2
+    },
+    {
+      "type": "colorBox",
+      "x": 4,
+      "y": 3,
+      "w": 2,
+      "h": 2,
+      "hp": 2,
+      "color": "red"
+    }
+  ],
+  "blocked": [],
+  "tutorial": null,
+  "intro": null,
+  "drops": 2,
+  "seed": 2132,
+  "note": "",
+  "tunedClearRate": 0.78,
+  "tunedAt": "2026-11-21"
+}
