@@ -35,14 +35,20 @@ def main():
         page.on("pageerror", lambda e: errors.append({"type": "pageerror", "text": str(e)}))
         page.on("requestfailed", lambda r: failed.append({"url": r.url, "err": r.failure}))
         page.goto(URL, wait_until="load")
-        page.wait_for_timeout(2500)
+        page.wait_for_timeout(5000)
+        for _ in range(20):
+            if page.evaluate("!document.getElementById('screen-home').classList.contains('hidden')"):
+                break
+            page.wait_for_timeout(500)
 
         inp = page.query_selector("#name-input")
         if inp:
             inp.fill("상봉")
             page.click("text=시작하기", force=True)
-            page.wait_for_timeout(1200)
-        dismiss(page)
+            page.wait_for_timeout(1500)
+        dismiss(page, 6)
+        page.wait_for_timeout(1200)
+        dismiss(page, 3)
         page.wait_for_timeout(900)
         page.screenshot(path=f"{OUT}/02-home.png")
 
@@ -51,7 +57,11 @@ def main():
         page.screenshot(path=f"{OUT}/03-prelevel.png")
         if not page.query_selector("text=플레이 ▶"):
             print("NO PRELEVEL BUTTON", page.evaluate("document.getElementById('modal-root').innerText"))
-        page.click("text=플레이 ▶", force=True)
+        play = page.query_selector("text=플레이 ▶")
+        if not play:
+            print("PRELEVEL-MISSING", page.evaluate("document.getElementById('modal-root').innerText")[:120])
+            browser.close(); return
+        play.click(force=True)
         page.wait_for_timeout(1600)
         dismiss(page)
         page.wait_for_timeout(400)
