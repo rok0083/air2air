@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><title>hexa seed2</title></head>
+<body style="background:#111;color:#0f0;font:12px monospace;padding:10px">
+<div id="o">seeding…</div>
+<script>
+/* 임시 검증용: 1월드 5스테이지까지 클리어 처리 → 2월드 해금 */
+try {
+  const KEY = 'hexaKingdom.profile.v1';
+  const raw = localStorage.getItem(KEY);
+  const d = raw ? JSON.parse(raw) : {};
+  d.cleared = d.cleared || {};
+  d.stars = d.stars || {};
+  for (let i = 1; i <= 5; i++) {
+    d.cleared['w1-' + i] = true;
+    d.stars['w1-' + i] = d.stars['w1-' + i] || 2;
+  }
+  d.lives = { count: 5, nextAt: 0 };
+  d.updatedAt = Date.now();
+  localStorage.setItem(KEY, JSON.stringify(d));
+  document.getElementById('o').textContent = 'seeded: ' + Object.keys(d.cleared).join(',');
+} catch (e) {
+  document.getElementById('o').textContent = 'ERR ' + e.message;
+}
+setTimeout(() => location.replace('../tools/mobile.html?v=seed2'), 700);
+</script>
+</body>
+</html>
