@@ -6,6 +6,7 @@
      · boss    : 보스 HP 0으로 만들기
    ========================================================================= */
 import { GEMS } from '../config.js';
+import { ICONS } from '../ui/dom.js';
 
 export class Goals {
   constructor(level) {
@@ -36,10 +37,10 @@ export class Goals {
   icon(g) {
     switch (g.type) {
       case 'collect': return '<span class="gem-dot" style="background:' + (GEMS[g.color]?.color || '#fff') + '"></span>';
-      case 'clear': return '🧱';
-      case 'drop': return '🌰';
-      case 'boss': return '👹';
-      default: return '★';
+      case 'clear': return ICONS.brick;
+      case 'drop': return ICONS.seed;
+      case 'boss': return ICONS.boss;
+      default: return ICONS.star;
     }
   }
 

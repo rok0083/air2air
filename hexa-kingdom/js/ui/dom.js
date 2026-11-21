@@ -67,9 +67,15 @@ export function openModal({ title = '', subtitle = '', body = '', actions = [], 
   panel.append(bodyWrap);
 
   if (actions.length) {
-    const foot = el('div', { class: 'modal-foot' });
+    // a.full 이 있는 모달은 세로로 쌓아 주 버튼(게임 시작)이 폭 전체를 차지합니다.
+    const stacked = actions.some(a => a.full);
+    const foot = el('div', { class: `modal-foot ${stacked ? 'stacked' : ''}` });
     for (const a of actions) {
-      const btn = el('button', { class: `btn ${a.class || 'btn-ghost'} ${a.wide ? 'wide' : ''}`, onclick: async () => { a.onClick ? await a.onClick(close) : close(); } }, a.label);
+      const btn = el('button', { class: `btn ${a.class || 'btn-ghost'} ${a.wide ? 'wide' : ''} ${a.full ? 'full' : ''}`, onclick: async () => { a.onClick ? await a.onClick(close) : close(); } });
+      // 라벨에 SVG 마크업이 섞여 들어와도 글자로 새지 않도록: html 은 innerHTML, label 은 텍스트로만.
+      if (a.html) btn.innerHTML = a.html;
+      else btn.textContent = String(a.label ?? '');
+      if (a.ariaLabel) btn.setAttribute('aria-label', a.ariaLabel);
       if (a.disabled) btn.disabled = true;
       foot.append(btn);
     }
@@ -94,6 +100,9 @@ export function closeAllModals() {
 }
 
 /* ── 아이콘 (인라인 SVG, 이모지 미사용) ─────────────────── */
+/* 게임 시작 버튼용 ▶ 배지 — 버튼 안에서 항상 또렷하게 보이도록 원형 배경 위에 얹습니다. */
+export const PLAY_BADGE = '<span class="play-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 5.2 20 12 9 18.8z" fill="currentColor"/></svg></span>';
+
 export const ICONS = {
   coin: '<svg viewBox="0 0 24 24" class="ic"><circle cx="12" cy="12" r="9" fill="#ffc93c"/><circle cx="12" cy="12" r="6.5" fill="#ffe38a"/><path d="M9.5 12.5h5M12 9.6v5.8" stroke="#a86f00" stroke-width="1.6" stroke-linecap="round"/></svg>',
   star: '<svg viewBox="0 0 24 24" class="ic"><path d="M12 3.4l2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.6l5.9-.8z" fill="#ffd166" stroke="#c98a00" stroke-width="1"/></svg>',
@@ -116,5 +125,6 @@ export const ICONS = {
   pause: '<svg viewBox="0 0 24 24" class="ic"><rect x="6" y="4" width="4" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1.5" fill="currentColor"/></svg>',
   boss: '<svg viewBox="0 0 24 24" class="ic"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z" fill="#8b6cff"/><circle cx="9.5" cy="11" r="1.4" fill="#1a1230"/><circle cx="14.5" cy="11" r="1.4" fill="#1a1230"/><path d="M9 15c2 1.4 4 1.4 6 0" stroke="#1a1230" stroke-width="1.4" fill="none"/></svg>',
   seed: '<svg viewBox="0 0 24 24" class="ic"><ellipse cx="12" cy="13" rx="6" ry="7" fill="#a4651f"/><path d="M12 6c0-2 1.5-3 3-3" stroke="#6fae4a" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',
+  brick: '<svg viewBox="0 0 24 24" class="ic"><rect x="3.5" y="6" width="17" height="5.2" rx="1.4" fill="#e07a4a"/><rect x="3.5" y="12.6" width="8" height="5.4" rx="1.4" fill="#c9613a"/><rect x="13.4" y="12.6" width="7.1" height="5.4" rx="1.4" fill="#c9613a"/></svg>',
   users: '<svg viewBox="0 0 24 24" class="ic"><circle cx="9" cy="9" r="3" fill="#cfe4ff"/><path d="M4 19c0-3 2.5-5 5-5s5 2 5 5z" fill="#cfe4ff"/><circle cx="17" cy="10" r="2.4" fill="#8b8fa3"/><path d="M14 19c0-2.4 1.4-4 3-4s3 1.6 3 4z" fill="#8b8fa3"/></svg>',
 };

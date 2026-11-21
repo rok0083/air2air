@@ -4,7 +4,7 @@
 import { CFG, GEMS } from '../config.js';
 import { loadLevel } from '../meta/levels.js';
 import { levelName, isBossLevel } from '../meta/worldmap.js';
-import { openModal, toast, ICONS, fmt, el } from './dom.js';
+import { openModal, toast, ICONS, fmt, el, PLAY_BADGE } from './dom.js';
 import { bossSvg } from './art.js';
 
 export async function openPreLevel(app, world, level) {
@@ -70,11 +70,17 @@ export async function openPreLevel(app, world, level) {
     title: '출발 준비',
     subtitle: `${world}월드 · ${levelName(world, level)}`,
     body,
+    className: 'prelevel-modal',
     actions: [
-      { label: '지도로', class: 'btn-ghost' },
       {
-        label: lives.count > 0 ? `${ICONS.play} 플레이` : '목숨 부족',
-        class: 'btn-green',
+        label: '플레이',
+        // ▶ 배지 + 굵은 라벨을 실제 HTML 로 (예전엔 SVG 문자열이 글자로 보였음)
+        html: lives.count > 0
+          ? `${PLAY_BADGE}<span class="start-lbl">플레이</span>`
+          : `<span class="start-lbl">목숨 부족</span>`,
+        ariaLabel: lives.count > 0 ? '플레이 — 이 스테이지 시작' : '목숨 부족',
+        class: 'btn-start',
+        full: true,
         disabled: lives.count <= 0,
         onClick: (close) => {
           if (!p.consumeLife()) { toast('목숨이 없어요. 30분마다 회복됩니다.', 'bad'); return; }
@@ -88,6 +94,7 @@ export async function openPreLevel(app, world, level) {
           app.startLevel(world, level, data, extra);
         },
       },
+      { label: '지도로', class: 'btn-ghost full' },
     ],
   });
 
@@ -122,18 +129,24 @@ function preBoosterHtml(key, name, count) {
 function goalRowHtml(g, data) {
   if (g.type === 'collect') {
     const gem = GEMS[g.color] || GEMS[0];
-    return `<div class="goal-row"><span class="gem-dot" style="background:${gem.color}"></span>${gem.name} ${g.count}개 모으기<span class="gcount">0/${g.count}</span></div>`;
+    return goalRow(`<span class="gem-dot" style="background:${gem.color}"></span>`, `${gem.name} ${g.count}개 모으기`, g.count);
   }
   if (g.type === 'clear') {
-    return `<div class="goal-row">${ICONS.gem}장애물 ${g.obstacle && g.obstacle !== 'any' ? obstacleName(g.obstacle) : ''} ${g.count}개 없애기<span class="gcount">0/${g.count}</span></div>`;
+    return goalRow(ICONS.brick, `장애물 ${g.obstacle && g.obstacle !== 'any' ? obstacleName(g.obstacle) : ''} ${g.count}개 없애기`, g.count);
   }
   if (g.type === 'drop') {
-    return `<div class="goal-row">${ICONS.seed}마법 씨앗 ${g.count}개를 바닥까지 떨어뜨리기<span class="gcount">0/${g.count}</span></div>`;
+    return goalRow(ICONS.seed, `마법 씨앗 ${g.count}개를 바닥까지 떨어뜨리기`, g.count);
   }
   if (g.type === 'boss') {
-    return `<div class="goal-row">${ICONS.boss}${data.boss?.name || '보스'} 처치 (HP ${data.boss?.hp || g.count})<span class="gcount">0/${data.boss?.hp || g.count}</span></div>`;
+    const hp = data.boss?.hp || g.count;
+    return goalRow(ICONS.boss, `${data.boss?.name || '보스'} 처치 (HP ${hp})`, hp);
   }
   return '';
+}
+
+/* 목표 한 줄 — 아이콘은 실제 SVG 요소로, 글자와 개수는 따로 정렬 */
+function goalRow(iconHtml, text, count) {
+  return `<div class="goal-row"><span class="gic">${iconHtml}</span><span class="gtx">${text}</span><span class="gcount">0/${count}</span></div>`;
 }
 
 function obstacleName(type) {

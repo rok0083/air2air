@@ -72,6 +72,71 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
 .btn-ghost:active { transform: translateY(1px); }
 .btn-green { background: linear-gradient(180deg, #7bf0ae, var(--green)); color: #05301a; box-shadow: 0 6px 0 #127a4a, 0 10px 18px rgba(0,0,0,.3); }
 .btn-rose { background: linear-gradient(180deg, #ff9db3, var(--rose)); color: #3a0714; box-shadow: 0 6px 0 #a01f3f; }
+
+/* ── 게임 시작 버튼 — 어두운 초록 모달 위에서도 바로 눈에 들어오게 ───────── */
+.btn-start {
+  position: relative;
+  background: linear-gradient(180deg, #b6ff6b 0%, #4aea8c 44%, #10b45c 100%);
+  color: #032e1a;
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: .4px;
+  min-height: 62px;
+  padding: 12px 20px;
+  border-radius: 18px;
+  border: 2px solid rgba(255, 255, 255, .88);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .55);
+  box-shadow: 0 8px 0 #0a7c43, 0 12px 20px rgba(61, 220, 132, .38), 0 0 0 3px rgba(255, 209, 102, .40);
+  animation: startGlow 1.9s ease-in-out infinite;
+}
+.btn-start:active {
+  transform: translateY(4px) scale(.99);
+  animation: none;
+  box-shadow: 0 3px 0 #0a7c43, 0 6px 14px rgba(61, 220, 132, .45), 0 0 0 4px rgba(255, 209, 102, .6);
+}
+.btn-start:disabled {
+  animation: none;
+  background: linear-gradient(180deg, #93a29a, #5f6d65);
+  color: #e4ede7;
+  border-color: rgba(255, 255, 255, .3);
+  text-shadow: none;
+  box-shadow: 0 6px 0 #333e38;
+}
+.btn-start .play-badge { width: 32px; height: 32px; }
+.btn-start .play-badge svg { width: 17px; height: 17px; }
+.btn-start.btn-sm { min-height: 46px; font-size: 14px; padding: 8px 14px; border-radius: 14px; animation-name: startGlowSm; box-shadow: 0 5px 0 #0a7c43, 0 6px 14px rgba(61, 220, 132, .35), 0 0 0 2px rgba(255, 209, 102, .40); }
+.btn-start.btn-sm .play-badge { width: 24px; height: 24px; }
+.btn-start.btn-sm .play-badge svg { width: 13px; height: 13px; }
+.btn-start.btn-compact { min-height: 50px; font-size: 16px; padding: 10px 14px; border-radius: 15px; }
+.btn-start.btn-compact .play-badge { width: 26px; height: 26px; }
+.btn-start.btn-compact .play-badge svg { width: 14px; height: 14px; }
+
+/* ▶ 배지 — 밝은 초록 버튼 위에서도 또렷한 진초록 원 */
+.play-badge {
+  width: 30px; height: 30px; flex-shrink: 0;
+  border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 35%, #0b5233, #04281a 75%);
+  color: #c8ff7a;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .35), 0 2px 6px rgba(4, 40, 26, .5);
+}
+.play-badge svg { width: 16px; height: 16px; margin-left: 2px; }
+.start-lbl { white-space: nowrap; }
+.qp-chip {
+  font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 99px;
+  background: rgba(3, 46, 26, .18); color: #063a22;
+}
+
+@keyframes startGlow {
+  0%, 100% { box-shadow: 0 8px 0 #0a7c43, 0 12px 20px rgba(61, 220, 132, .38), 0 0 0 3px rgba(255, 209, 102, .40); }
+  50% { box-shadow: 0 8px 0 #0a7c43, 0 16px 34px rgba(61, 220, 132, .75), 0 0 0 6px rgba(255, 209, 102, .85); }
+}
+@keyframes startGlowSm {
+  0%, 100% { box-shadow: 0 5px 0 #0a7c43, 0 6px 14px rgba(61, 220, 132, .35), 0 0 0 2px rgba(255, 209, 102, .40); }
+  50% { box-shadow: 0 5px 0 #0a7c43, 0 10px 22px rgba(61, 220, 132, .7), 0 0 0 5px rgba(255, 209, 102, .8); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-start, .btn-start.btn-sm { animation: none; }
+}
 .btn.wide { width: 100%; }
 .btn-sm { padding: 8px 12px; font-size: 13px; min-height: 36px; border-radius: 10px; }
 .icon-btn {
@@ -163,6 +228,7 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
 .hero-art .luke { position: absolute; bottom: -6px; left: 4px; }
 .hero-art .pipi { position: absolute; right: 4px; top: 4px; animation: floaty 2.8s ease-in-out infinite; }
 .hero-progress { margin-top: 8px; display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.hero-text #quick-play { margin-top: 10px; }
 .bar { flex: 1; height: 7px; border-radius: 99px; background: rgba(0,0,0,.4); overflow: hidden; }
 .bar > i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--green), var(--gold)); transition: width .5s ease; }
 
@@ -207,6 +273,13 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
 .level-node.done { background: linear-gradient(180deg, rgba(255, 209, 102, .24), rgba(255, 209, 102, .07)); border-color: rgba(255, 209, 102, .5); }
 .level-node.boss { background: linear-gradient(180deg, rgba(176, 108, 255, .3), rgba(176, 108, 255, .08)); border-color: rgba(176, 108, 255, .55); }
 .level-node.locked { background: rgba(255, 255, 255, .04); border-color: rgba(255, 255, 255, .08); color: var(--muted); }
+/* 다음에 플레이할 스테이지 — 지도에서도 어디를 눌러야 하는지 바로 보이게 */
+.level-node.next { border-color: rgba(255, 209, 102, .85); animation: nodeNext 2s ease-in-out infinite; }
+@keyframes nodeNext {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(61, 220, 132, .45), 0 0 12px rgba(61, 220, 132, .35); }
+  50% { box-shadow: 0 0 0 4px rgba(255, 209, 102, .75), 0 0 22px rgba(255, 209, 102, .55); }
+}
+@media (prefers-reduced-motion: reduce) { .level-node.next { animation: none; box-shadow: 0 0 0 3px rgba(255, 209, 102, .7); } }
 .level-node .crown { position: absolute; top: -7px; right: -3px; }
 
 .tasks { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
@@ -294,7 +367,7 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
   background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .09);
 }
 .goal.done { border-color: rgba(61, 220, 132, .5); background: rgba(61, 220, 132, .1); }
-.goal .gem-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; box-shadow: inset 0 0 0 2px rgba(255,255,255,.5); flex-shrink: 0; }
+.goal .gem-dot, .goal-row .gem-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; box-shadow: inset 0 0 0 2px rgba(255,255,255,.5); flex-shrink: 0; }
 .goal .gcount { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--gold); }
 
 .game-boosters { display: flex; gap: 6px; padding: 2px 12px calc(8px + var(--safe-b)); flex-shrink: 0; }
@@ -337,6 +410,16 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
 .modal-body { display: flex; flex-direction: column; gap: 10px; }
 .modal-foot { display: flex; gap: 8px; margin-top: 14px; }
 .modal-foot .btn { flex: 1; }
+.modal-foot.stacked { flex-direction: column; gap: 9px; }
+.modal-foot.stacked .btn { flex: 0 0 auto; width: 100%; }
+.modal-foot.stacked .btn-ghost:not(.btn-start) { min-height: 42px; font-size: 13.5px; }
+/* 출발 준비 — 내용이 길어도 게임 시작 버튼이 항상 화면에 보이도록 하단 고정 */
+.modal-overlay.prelevel-modal .modal-panel { padding-bottom: 0; }
+.modal-overlay.prelevel-modal .modal-foot {
+  position: sticky; bottom: 0; z-index: 2;
+  margin-top: 14px; padding: 10px 0 calc(16px + var(--safe-b));
+  background: linear-gradient(180deg, rgba(14, 30, 23, 0) 0%, rgba(14, 30, 23, .94) 22%, #0e1e17 65%);
+}
 .modal-close { width: 34px; height: 34px; color: var(--muted); }
 
 /* ── 사전/결과 모달 내용 ──────────────────────────────── */
@@ -346,6 +429,10 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
 .level-banner .lb-sub { font-size: 11.5px; color: var(--muted); }
 .goal-list { display: flex; flex-direction: column; gap: 6px; }
 .goal-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 7px 10px; border-radius: 10px; background: rgba(255,255,255,.045); }
+.goal-row .gic { width: 20px; flex-shrink: 0; display: grid; place-items: center; line-height: 0; }
+.goal-row .gic .ic { width: 18px; height: 18px; }
+.goal-row .gtx { flex: 1; min-width: 0; line-height: 1.35; }
+.goal-row > .ic { flex-shrink: 0; }
 .goal-row .gcount { margin-left: auto; color: var(--gold); font-weight: 800; }
 .stars-row { display: flex; justify-content: center; gap: 10px; padding: 6px 0; }
 .star-slot { position: relative; width: 40px; height: 40px; }

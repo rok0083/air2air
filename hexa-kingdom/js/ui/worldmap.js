@@ -4,7 +4,7 @@
 import { CFG } from '../config.js';
 import { WORLDS, districtIndexForLevel, isBossLevel } from '../meta/worldmap.js';
 import { levelId } from '../meta/profile.js';
-import { $, el, esc, fmt, toast, openModal, ICONS, timeLeft } from './dom.js';
+import { $, el, esc, fmt, toast, openModal, ICONS, timeLeft, PLAY_BADGE } from './dom.js';
 import { lukeSvg, pipiSvg, worldSceneSvg, buildSvg } from './art.js';
 import { openPreLevel } from './prelevel.js';
 
@@ -42,7 +42,7 @@ export function renderHome(app) {
             <span>복구 ${restored}/20</span>
             <div class="bar"><i style="width:${(restored / 20) * 100}%"></i></div>
           </div>
-          ${locked ? '' : `<button class="btn btn-green btn-sm" id="quick-play" style="margin-top:8px">${ICONS.play} 이어서 하기 · W${next.world}-${next.level}</button>`}
+          ${locked ? '' : `<button class="btn btn-start btn-sm" id="quick-play" aria-label="이어서 하기 — 월드 ${next.world} 스테이지 ${next.level} 시작">${PLAY_BADGE}<span class="start-lbl">이어서 하기</span><span class="qp-chip">W${next.world}-${next.level}</span></button>`}
         </div>
         <div class="hero-art">
           ${lukeSvg(96, { cheer: true })}
@@ -143,6 +143,7 @@ export function renderHome(app) {
 function districtHtml(app, world, d, worldLocked) {
   const p = app.profile;
   const open = !worldLocked && p.districtOpen(world.id, d.index);
+  const nxt = p.nextLevel();
   const levels = [];
   for (let i = 0; i < CFG.progression.levelsPerDistrict; i++) {
     const lv = (d.index - 1) * CFG.progression.levelsPerDistrict + i + 1;
@@ -150,8 +151,9 @@ function districtHtml(app, world, d, worldLocked) {
     const cleared = p.isCleared(world.id, lv);
     const stars = p.starsOf(world.id, lv);
     const boss = isBossLevel(world.id, lv);
+    const isNext = unlocked && !cleared && nxt.world === world.id && nxt.level === lv;
     levels.push(`
-      <button class="level-node ${cleared ? 'done' : ''} ${unlocked ? '' : 'locked'} ${boss ? 'boss' : ''}"
+      <button class="level-node ${cleared ? 'done' : ''} ${unlocked ? '' : 'locked'} ${boss ? 'boss' : ''} ${isNext ? 'next' : ''}"
               data-level="${lv}" data-world="${world.id}" ${unlocked ? '' : 'aria-disabled="true"'}>
         ${boss ? `<span class="crown">${ICONS.crown}</span>` : ''}
         <span class="ln">${cleared ? (boss ? '★' : lv) : (unlocked ? lv : ICONS.lock)}</span>

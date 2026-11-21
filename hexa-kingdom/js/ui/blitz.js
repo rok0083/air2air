@@ -2,7 +2,7 @@
    주간 블리츠 — 60초 동안 최고 점수에 도전
    ========================================================================= */
 import { CFG } from '../config.js';
-import { openModal, toast, fmt, ICONS } from './dom.js';
+import { openModal, toast, fmt, ICONS, PLAY_BADGE } from './dom.js';
 import { weekIdOf } from '../meta/profile.js';
 import { GameSession } from './gameplay.js';
 import { fetchRanking } from '../firebase/rankings.js';
@@ -35,7 +35,7 @@ export async function openBlitz(app) {
     actions: [
       { label: '닫기', class: 'btn-ghost' },
       { label: '랭킹', class: 'btn-ghost', onClick: (close) => { close(); app.openRanking('blitz'); } },
-      { label: `${ICONS.play} 시작`, class: 'btn-green', onClick: (close) => { close(); startBlitz(app); } },
+      { label: '시작', html: `${PLAY_BADGE}<span class="start-lbl">시작</span>`, ariaLabel: '블리츠 시작', class: 'btn-start btn-compact', onClick: (close) => { close(); startBlitz(app); } },
     ],
   });
 

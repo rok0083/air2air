@@ -15,7 +15,7 @@ import { openSettings } from './ui/settings.js';
 import { openBlitz } from './ui/blitz.js';
 import { openPreLevel } from './ui/prelevel.js';
 import { GameSession } from './ui/gameplay.js';
-import { toast, $, el, closeAllModals } from './ui/dom.js';
+import { toast, $, el, closeAllModals, PLAY_BADGE } from './ui/dom.js';
 
 class App {
   constructor() {
@@ -82,7 +82,7 @@ class App {
         </div>
         <input class="input" id="name-input" maxlength="${CFG.ui.nicknameMax}" placeholder="닉네임 (2~12자)" autocomplete="off" />
         <div class="err" id="name-err"></div>
-        <button class="btn btn-green wide" id="name-start">${'모험 시작'}</button>
+        <button class="btn btn-start wide" id="name-start">${PLAY_BADGE}<span class="start-lbl">모험 시작</span></button>
         <div class="tiny muted center">익명 로그인으로 시작합니다 · 개인정보를 묻지 않아요</div>
       </div>
     `;
