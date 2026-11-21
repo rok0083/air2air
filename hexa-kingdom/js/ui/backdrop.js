@@ -1594,15 +1594,15 @@ export class Backdrop {
   scrim(ctx, W, H) {
     if (!this._scrim) {
       const top = ctx.createLinearGradient(0, 0, 0, H * 0.24);
-      top.addColorStop(0, 'rgba(5,12,9,0.62)');
-      top.addColorStop(0.55, 'rgba(5,12,9,0.22)');
+      top.addColorStop(0, 'rgba(5,12,9,0.58)');
+      top.addColorStop(0.55, 'rgba(5,12,9,0.20)');
       top.addColorStop(1, 'rgba(5,12,9,0)');
       const bottom = ctx.createLinearGradient(0, H * 0.62, 0, H);
       bottom.addColorStop(0, 'rgba(5,12,9,0)');
-      bottom.addColorStop(0.55, 'rgba(5,12,9,0.42)');
-      bottom.addColorStop(1, 'rgba(5,12,9,0.82)');
+      bottom.addColorStop(0.55, 'rgba(5,12,9,0.34)');
+      bottom.addColorStop(1, 'rgba(5,12,9,0.76)');
       const mid = ctx.createRadialGradient(W / 2, H * 0.5, Math.min(W, H) * 0.30, W / 2, H * 0.5, Math.min(W, H) * 0.78);
-      mid.addColorStop(0, 'rgba(3,9,7,0.30)');
+      mid.addColorStop(0, 'rgba(3,9,7,0.24)');
       mid.addColorStop(1, 'rgba(3,9,7,0)');
       const vig = ctx.createRadialGradient(W / 2, H * 0.46, Math.min(W, H) * 0.72, W / 2, H * 0.46, Math.max(W, H) * 0.98);
       vig.addColorStop(0, 'rgba(0,0,0,0)');

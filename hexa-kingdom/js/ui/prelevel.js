@@ -70,7 +70,7 @@ export async function openPreLevel(app, world, level) {
   const actions = [];
   if (lives.count <= 0) {
     actions.push({
-      label: `코인 ${fmt(CFG.lives.refillCoinCost)}로 목숨 가득 충전`,
+      label: `코인 ${fmt(CFG.lives.refillCoinCost)}으로 목숨 가득 충전`,
       class: 'btn btn-sm',
       full: true,
       onClick: (close) => {

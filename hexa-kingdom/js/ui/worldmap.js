@@ -230,7 +230,7 @@ function showLivesInfo(app) {
   const actions = [{ label: '닫기', class: 'btn-ghost' }];
   if (info.count < info.max) {
     actions.unshift({
-      label: canRefill ? `코인 ${fmt(CFG.lives.refillCoinCost)}로 가득 충전` : `코인 ${fmt(CFG.lives.refillCoinCost)} 필요`,
+      label: canRefill ? `코인 ${fmt(CFG.lives.refillCoinCost)}으로 가득 충전` : `코인 ${fmt(CFG.lives.refillCoinCost)} 필요`,
       class: canRefill ? 'btn-green' : 'btn-ghost',
       disabled: !canRefill,
       onClick: (close) => {
