@@ -9,9 +9,17 @@ import { loadLevel, difficultyOf } from '../meta/levels.js';
 import { Audio } from '../audio/audio.js';
 import { FX } from '../anim/fx.js';
 import { Ease, wait } from '../anim/tween.js';
-import { drawGem, drawKing, drawPowerOverlay, drawObstacle, drawDrop, drawIcon, rr, TAU, drawCoin, drawStar } from '../art/art.js';
+import { drawGem, drawGemGlint, drawKing, drawPowerOverlay, drawObstacle, drawDrop, drawIcon, rr, TAU, drawCoin, drawStar } from '../art/art.js';
 import { gemSprite, obstacleSprite, dropSprite, iconSprite, blit } from '../art/sprites.js';
 import { modal, toast, fmt, curtainTransition, showScreen } from './dom.js';
+
+/* 스프라이트를 가로·세로 다른 배율로 찍는다 (낙하 늘어남 · 착지 스쿼시) */
+function drawSprite(ctx, sprite, x, y, w, h, alpha = 1) {
+  if (!sprite || alpha <= 0.004) return;
+  ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+  ctx.drawImage(sprite, x - w / 2, y - h / 2, w, h);
+  ctx.globalAlpha = 1;
+}
 
 export class GameScreen {
   constructor(opts = {}) {
@@ -24,7 +32,8 @@ export class GameScreen {
     this.boardCtx = this.boardCanvas.getContext('2d');
     this.fx = new FX(this.fxCanvas);
     this.anims = new Map();      // gemId -> {x,y,tx,ty,t0,dur,...}
-    this.fades = [];             // 사라지는 조각
+    this.fades = [];             // (구) 사라지는 조각
+    this.clears = [];            // 팝 애니메이션(부풀어 터짐)
     this.pops = [];              // 팝업 텍스트(점수 등)
     this.board = null;
     this.level = null;
@@ -65,6 +74,7 @@ export class GameScreen {
     this.finaleDone = false;
     this.anims.clear();
     this.fades = [];
+    this.clears = [];
     this.pops = [];
     this.fx.pool.items.forEach(p => { p.alive = false; });
     this.selected = null;
@@ -89,6 +99,7 @@ export class GameScreen {
 
     showScreen('screen-game');
     this.layout();
+    this.goalSeen = this.board.goals.map(g => g.done);
     this.fx.reduce = Profile.settings.reduceEffects;
     this.renderGoals();
     this.renderTray();
@@ -178,14 +189,14 @@ export class GameScreen {
     const W = stage.clientWidth, H = stage.clientHeight;
     const pad = 8;
     const cols = this.board.cols, rows = this.board.rows;
-    const cw = Math.min((W - pad * 2) / cols, (H - pad * 2) / rows);
+    const cw = Math.min((W - 30) / cols, (H - 30) / rows);
     const bw = cw * cols, bh = cw * rows;
     this.cw = cw;
     this.gemSize = cw * CFG.board.gemScale;
     this.boardW = bw;
     this.boardH = bh;
     this.originX = (W - bw) / 2;
-    this.originY = (H - bh) * 0.58;
+    this.originY = (H - bh) * 0.52;
     this.stageW = W;
     this.stageH = H;
 
@@ -259,6 +270,7 @@ export class GameScreen {
     }
     for (const [id, a] of this.anims) if (a.done) this.anims.delete(id);
     this.fades = this.fades.filter(f => (ts - f.t0) < f.dur);
+    this.clears = this.clears.filter(f => (ts - f.t0) < (f.delay || 0) + f.dur);
     this.pops = this.pops.filter(p => (ts - p.t0) < p.dur);
 
     // 힌트: 5초 무입력
@@ -292,46 +304,80 @@ export class GameScreen {
     ctx.clearRect(0, 0, W, H);
     const { originX, originY, cw } = this;
 
-    // 보드 바탕
-    const pad = 7;
-    const bg = ctx.createLinearGradient(0, originY, 0, originY + this.boardH);
-    bg.addColorStop(0, CFG.board.boardColorTop);
-    bg.addColorStop(1, CFG.board.boardColorBottom);
+    // 보드 바탕 — 금색 이중 베젤 + 라벤더 우물
+    const pad = 10;
+    const bx0 = originX - pad, by0 = originY - pad;
+    const bw2 = this.boardW + pad * 2, bh2 = this.boardH + pad * 2;
+    const rad = CFG.board.boardRadius;
     ctx.save();
-    ctx.shadowColor = 'rgba(30,50,110,.25)';
-    ctx.shadowBlur = 16;
-    ctx.shadowOffsetY = 6;
-    ctx.fillStyle = bg;
-    rr(ctx, originX - pad, originY - pad, this.boardW + pad * 2, this.boardH + pad * 2, CFG.board.boardRadius);
+    ctx.shadowColor = 'rgba(24,44,110,.30)';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetY = 9;
+    const frame = ctx.createLinearGradient(0, by0, 0, by0 + bh2);
+    frame.addColorStop(0, '#ffeeb2');
+    frame.addColorStop(0.30, '#f2c94c');
+    frame.addColorStop(0.72, '#dcae33');
+    frame.addColorStop(1, '#b8871a');
+    ctx.fillStyle = frame;
+    rr(ctx, bx0, by0, bw2, bh2, rad + 4);
     ctx.fill();
     ctx.restore();
-    // 금색 테두리
-    ctx.strokeStyle = '#e2c477';
-    ctx.lineWidth = 3;
-    rr(ctx, originX - pad, originY - pad, this.boardW + pad * 2, this.boardH + pad * 2, CFG.board.boardRadius);
+    // 금 프레임 안쪽 어두운 홈 + 하이라이트
+    ctx.strokeStyle = 'rgba(120,80,6,.55)';
+    ctx.lineWidth = 2;
+    rr(ctx, bx0 + 2.5, by0 + 2.5, bw2 - 5, bh2 - 5, rad + 2);
     ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,.65)';
-    ctx.lineWidth = 1.5;
-    rr(ctx, originX - pad + 3, originY - pad + 3, this.boardW + pad * 2 - 6, this.boardH + pad * 2 - 6, CFG.board.boardRadius - 3);
+    ctx.strokeStyle = 'rgba(255,255,255,.75)';
+    ctx.lineWidth = 1.6;
+    rr(ctx, bx0 + 5, by0 + 5, bw2 - 10, bh2 - 10, rad);
     ctx.stroke();
+    // 라벤더 보드 우물
+    const bg = ctx.createLinearGradient(0, originY, 0, originY + this.boardH);
+    bg.addColorStop(0, '#e6ebff');
+    bg.addColorStop(0.5, CFG.board.boardColorTop);
+    bg.addColorStop(1, CFG.board.boardColorBottom);
+    ctx.fillStyle = bg;
+    rr(ctx, originX - 3, originY - 3, this.boardW + 6, this.boardH + 6, rad);
+    ctx.fill();
+    // 우물 안쪽 그림자(위) — 깊이감
+    ctx.save();
+    rr(ctx, originX - 3, originY - 3, this.boardW + 6, this.boardH + 6, rad);
+    ctx.clip();
+    const inner = ctx.createLinearGradient(0, originY - 3, 0, originY + this.cw * 0.7);
+    inner.addColorStop(0, 'rgba(40,60,130,.22)');
+    inner.addColorStop(1, 'rgba(40,60,130,0)');
+    ctx.fillStyle = inner;
+    ctx.fillRect(originX - 3, originY - 3, this.boardW + 6, this.cw);
+    ctx.restore();
 
-    // 격자
-    ctx.strokeStyle = CFG.board.gridLine;
-    ctx.lineWidth = 1;
-    for (let x = 0; x <= this.board.cols; x++) {
-      ctx.beginPath();
-      ctx.moveTo(originX + x * cw, originY + 2);
-      ctx.lineTo(originX + x * cw, originY + this.boardH - 2);
-      ctx.stroke();
+    // 칸 우물 — 체커 톤 + 안쪽 음영으로 조각이 떠 보이게
+    for (let y = 0; y < this.board.rows; y++) {
+      for (let x = 0; x < this.board.cols; x++) {
+        const cell = this.board.cell(x, y);
+        if (!cell || cell.hole) continue;
+        const cx0 = originX + x * cw, cy0 = originY + y * cw;
+        const inset = cw * 0.05;
+        rr(ctx, cx0 + inset, cy0 + inset, cw - inset * 2, cw - inset * 2, cw * 0.20);
+        ctx.fillStyle = (x + y) % 2 ? 'rgba(255,255,255,.34)' : 'rgba(160,178,235,.20)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,.42)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx0 + inset + cw * 0.12, cy0 + inset + 0.5);
+        ctx.lineTo(cx0 + cw - inset - cw * 0.12, cy0 + inset + 0.5);
+        ctx.stroke();
+      }
     }
-    for (let y = 0; y <= this.board.rows; y++) {
-      ctx.beginPath();
-      ctx.moveTo(originX + 2, originY + y * cw);
-      ctx.lineTo(originX + this.boardW - 2, originY + y * cw);
-      ctx.stroke();
+    // 모서리 장식 (프레임 안쪽에 박힌 금 장식)
+    const so = Math.max(8, this.cw * 0.22);
+    for (const [cx2, cy2] of [[bx0 + so, by0 + so], [bx0 + bw2 - so, by0 + so], [bx0 + so, by0 + bh2 - so], [bx0 + bw2 - so, by0 + bh2 - so]]) {
+      drawCornerStud(ctx, cx2, cy2, this.cw * 0.20);
     }
 
-    // 셀 내용
+    // 셀 내용 — 보드 안쪽으로 클립해서 위에서 떨어지는 조각이 하늘에 뜨지 않게
+    ctx.save();
+    rr(ctx, originX - 2, originY - 2, this.boardW + 4, this.boardH + 4, rad - 2);
+    ctx.clip();
     for (let y = 0; y < this.board.rows; y++) {
       for (let x = 0; x < this.board.cols; x++) {
         const cell = this.board.cell(x, y);
@@ -346,29 +392,32 @@ export class GameScreen {
         }
         if (cell.gem) {
           const a = this.anims.get(cell.gem.id);
-          let gx = x, gy = y, scale = 1, alpha = 1;
-          if (a) {
-            const e = a.ease(a.p);
-            gx = a.x + (a.tx - a.x) * e;
-            gy = a.y + (a.ty - a.y) * e;
-            if (a.kind === 'spawn') alpha = 0.4 + 0.6 * e;
-            if (a.squash) scale = 1 + Math.sin(a.p * Math.PI) * 0.12;
-          }
+          const st = a ? this.animState(a, ts) : null;
+          const gx = st ? st.x : x;
+          const gy = st ? st.y : y;
+          const sx2 = st ? st.sx : 1;
+          const sy2 = st ? st.sy : 1;
+          const alpha = st ? st.a : 1;
           const p = { x: this.originX + (gx + 0.5) * cw, y: this.originY + (gy + 0.5) * cw };
-          // 대기 중 광택
-          const sparkle = (ts + (x * 7 + y * 13) * 260) % CFG.speeds.idleSparkle < 260;
-          if (sparkle && !a) {
-            ctx.save();
-            ctx.globalAlpha = 0.5;
-            ctx.fillStyle = '#fff';
-            ctx.beginPath();
-            ctx.arc(p.x - this.gemSize * 0.16, p.y - this.gemSize * 0.18, this.gemSize * 0.07, 0, TAU);
-            ctx.fill();
-            ctx.restore();
-          }
           const sprite = gemSprite(cell.gem.color, cell.gem.power, cell.gem.orient, this.gemSize);
-          const sz = this.gemSize * scale * (this.selected && this.selected.x === x && this.selected.y === y ? 1.08 : 1);
-          blit(ctx, sprite, p.x, p.y, sz, alpha);
+          const sel = this.selected && this.selected.x === x && this.selected.y === y ? 1.08 : 1;
+          // 낙하 잔상 — 떨어지는 궤적이 눈에 남도록 위쪽에 반투명 잔상을 겹친다
+          if (st && st.moving && (a.dist || 0) >= 2) {
+            const trail = Math.min(2, Math.round((a.dist || 2) / 2));
+            for (let k = trail; k >= 1; k--) {
+              drawSprite(ctx, sprite, p.x, p.y - this.gemSize * 0.30 * k,
+                this.gemSize * sel * sx2 * (1 - k * 0.05), this.gemSize * sel * sy2, alpha * (0.14 / k));
+            }
+          }
+          drawSprite(ctx, sprite, p.x, p.y, this.gemSize * sel * sx2, this.gemSize * sel * sy2, alpha);
+          // 대기 중 광택이 조각 위를 가로지른다
+          if (!st || !st.moving) {
+            const period = CFG.speeds.idleSparkle;
+            const phase = ((ts + (x * 7 + y * 13) * 97) % period) / period;
+            const win = CFG.speeds.glintMs / period;
+            const gp = phase / win;
+            if (gp <= 1) drawGemGlint(ctx, p.x, p.y + this.gemSize * 0.06, this.gemSize * 0.60, gp, 0.9);
+          }
           if (cell.gem.power) {
             // 파워업은 살짝 움직인다
             ctx.save();
@@ -386,6 +435,8 @@ export class GameScreen {
         }
       }
     }
+
+    ctx.restore();
 
     // 선택 / 힌트 테두리
     const drawOutline = (x, y, color, dash, pulse) => {
@@ -425,16 +476,32 @@ export class GameScreen {
       ctx.restore();
     }
 
-    // 사라지는 조각
-    for (const f of this.fades) {
-      const t = (ts - f.t0) / f.dur;
+    // 사라지는 조각 — 부풀어 터지는 팝
+    for (const f of this.clears) {
+      const t = Math.max(0, (ts - f.t0 - (f.delay || 0)) / f.dur);
       if (t >= 1) continue;
       const px = this.cellPx(f.x, f.y);
-      const sc = 1 + t * 0.5;
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, 1 - t);
-      drawGem(ctx, f.color, px.x, px.y, (this.gemSize * 0.42) * sc, { shadow: false });
-      ctx.restore();
+      const sprite = gemSprite(f.color, f.power, f.orient, this.gemSize);
+      if (t < 0.42) {
+        const u = t / 0.42;
+        const s = 1 + Ease.outQuad(u) * 0.30;
+        drawSprite(ctx, sprite, px.x, px.y, this.gemSize * s, this.gemSize * s, 1);
+        // 하얀 번쩍임
+        ctx.save();
+        const g = ctx.createRadialGradient(px.x, px.y, 0, px.x, px.y, this.gemSize * (0.35 + u * 0.5));
+        g.addColorStop(0, `rgba(255,255,255,${0.75 * (1 - u)})`);
+        g.addColorStop(0.55, `rgba(255,255,255,${0.32 * (1 - u)})`);
+        g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(px.x, px.y, this.gemSize * (0.35 + u * 0.5), 0, TAU);
+        ctx.fill();
+        ctx.restore();
+      } else {
+        const u = (t - 0.42) / 0.58;
+        const s = 1.30 * (1 - Ease.inQuad(u));
+        drawSprite(ctx, sprite, px.x, px.y, this.gemSize * s, this.gemSize * s, 1 - u);
+      }
     }
 
     // 점수 팝업
@@ -538,6 +605,7 @@ export class GameScreen {
       card.querySelector('.goal-num').textContent = Math.max(0, g.need - g.done);
       if (g.done >= g.need) card.classList.add('done');
     });
+    this.goalSeen = this.board.goals.map(g => g.done);
     if (info?.goalDone?.length) Audio.play('collect');
   }
 
@@ -816,11 +884,11 @@ export class GameScreen {
         await wait(CFG.speeds.swapBack);
       },
       clear: async (info, ms) => {
-        this.onClear(info);
+        this.onClear(info, ms);
         await wait(ms);
       },
       fall: async (plan, ms) => {
-        this.onFall(plan);
+        this.onFall(plan, ms);
         await wait(ms);
       },
       combo: async (effect, ax, ay, bx, by) => {
@@ -847,40 +915,90 @@ export class GameScreen {
 
   animateSwap(gem, from, to) {
     if (!gem) return;
-    this.anims.set(gem.id, { x: from.x, y: from.y, tx: to.x, ty: to.y, t0: performance.now(), dur: CFG.speeds.swap, ease: Ease.outQuad, kind: 'swap', squash: true });
+    this.anims.set(gem.id, { x: from.x, y: from.y, tx: to.x, ty: to.y, t0: performance.now(), dur: CFG.speeds.swap, ease: Ease.outCubic, kind: 'swap' });
   }
 
-  onFall(plan) {
+  /* 애니메이션 상태 계산 — 위치 · 가로세로 배율 · 투명도 */
+  animState(a, now) {
+    const t = Math.max(0, Math.min(1, (now - (a.t0 || 0)) / Math.max(1, a.dur)));
+    if (a.kind === 'fall' || a.kind === 'spawn') {
+      const p1 = a.posShare ?? 0.74;
+      if (t < p1) {
+        const u = t / p1;
+        const e = u * u;                        // 중력 가속: 처음엔 느리게, 곸에 빠르게
+        const stretch = Math.sin(u * Math.PI);
+        const alpha = a.kind === 'spawn' ? Math.min(1, 0.15 + u * 3) : 1;
+        return {
+          x: a.x + (a.tx - a.x) * e,
+          y: a.y + (a.ty - a.y) * e,
+          sx: 1 - 0.11 * stretch,
+          sy: 1 + 0.20 * stretch,
+          a: alpha,
+          moving: true,
+        };
+      }
+      // 착지 — 스쿼시 후 되튀는 바운스
+      const q = (t - p1) / Math.max(0.0001, 1 - p1);
+      const damp = Math.pow(1 - q, 1.7);
+      const sq = Math.sin(q * Math.PI * 1.7) * damp * 0.32;
+      return { x: a.tx, y: a.ty, sx: 1 + sq, sy: 1 - sq, a: 1, moving: false };
+    }
+    const e = (a.ease || Ease.outCubic)(t);
+    return { x: a.x + (a.tx - a.x) * e, y: a.y + (a.ty - a.y) * e, sx: 1, sy: 1, a: 1, moving: t < 0.999 };
+  }
+
+  onFall(plan, budget) {
+    if (!plan) return;
     const now = performance.now();
-    let maxDist = 0;
+    const land = CFG.speeds.landingBounce;
+    const perCell = CFG.speeds.fallPerCell;
+    const base = Math.max(200, (budget || 400) - land);
+    let maxDrop = 0;
     for (const mv of plan.moves) {
-      maxDist = Math.max(maxDist, Math.abs(mv.toY - mv.fromY));
+      const d = Math.max(1, Math.abs(mv.toY - mv.fromY));
+      const drop = Math.max(120, Math.min(base, d * perCell));
+      maxDrop = Math.max(maxDrop, drop);
+      const dur = drop + land;
       this.anims.set(mv.gem.id, {
-        x: mv.diag ? mv.fromX : mv.toX, y: mv.fromY,
-        tx: mv.toX, ty: mv.toY,
-        t0: now + Math.random() * 30, dur: Math.max(90, 60 * Math.max(1, Math.abs(mv.toY - mv.fromY))),
-        ease: Ease.outQuad, kind: 'fall',
+        kind: 'fall',
+        x: mv.fromX, y: mv.fromY, tx: mv.toX, ty: mv.toY,
+        t0: now + ((mv.toX * 37) % 26), dur,
+        posShare: drop / dur, dist: d,
       });
     }
-    for (const sp of plan.spawns) {
+    for (const sp of plan.spawns || []) {
       if (!sp.gem) continue;
+      const d = Math.max(1, sp.y - sp.fromY);
+      const drop = Math.max(150, Math.min(520, d * perCell));
+      maxDrop = Math.max(maxDrop, drop);
+      const dur = drop + land;
       this.anims.set(sp.gem.id, {
+        kind: 'spawn',
         x: sp.x, y: sp.fromY, tx: sp.x, ty: sp.y,
-        t0: now, dur: 260, ease: Ease.outBack, kind: 'spawn',
+        t0: now + ((sp.x * 37) % 26), dur,
+        posShare: drop / dur, dist: d,
       });
     }
-    if (plan.moves.length) Audio.play('land');
+    // 착지음은 발끝이 닿는 순간에
+    if (maxDrop > 0) setTimeout(() => { if (this.running) Audio.play('land'); }, maxDrop);
   }
 
-  onClear(info) {
+  onClear(info, ms = CFG.speeds.clear) {
     const now = performance.now();
-    for (const [x, y] of info.cells) {
-      this.fades.push({ x, y, color: 0, t0: now, dur: CFG.speeds.clear });
-      const p = this.cellPx(x, y);
-      this.fx.burst(p.x, p.y, '#ffffff', 4, { speed: 110, size: 4, life: 420 });
-    }
-    const chain = info.cascade || 0;
-    Audio.play('match', { chain });
+    const dur = Math.max(170, Math.min(ms + 50, 330));
+    const list = info.pops && info.pops.length ? info.pops : info.cells.map(([x, y]) => ({ x, y, color: 0 }));
+    list.forEach((cp, i) => {
+      this.clears.push({
+        x: cp.x, y: cp.y, color: cp.color ?? 0, power: cp.power || null, orient: cp.orient || null,
+        t0: now, dur, delay: (i % 6) * 7,
+      });
+      const p = this.cellPx(cp.x, cp.y);
+      const col = CFG.colors[(cp.color || 0) % CFG.colors.length];
+      this.fx.burst(p.x, p.y, col.main, 5, { shape: 'square', speed: 220, size: this.cw * 0.11, life: 500, grav: 820 });
+      this.fx.burst(p.x, p.y, '#ffffff', 3, { shape: 'star', speed: 170, size: this.cw * 0.12, life: 360, grav: 400 });
+      this.fx.ring(p.x, p.y, col.light, this.cw * 0.66, { max: 300, width: 3.5 });
+    });
+    Audio.play('match', { chain: info.cascade || 0 });
     // 장애물 파괴
     for (const d of info.destroyed || []) {
       const p = this.cellPx(d.x, d.y);
@@ -901,22 +1019,30 @@ export class GameScreen {
   }
 
   flyGoals(info) {
-    if (!info?.destroyed?.length && !info?.goalDone?.length && !info?.drops?.length) return;
+    if (!info) return;
     const cards = document.querySelectorAll('#hud-goals .goal-card');
+    const stageRect = this.boardCanvas.getBoundingClientRect();
+    const prev = this.goalSeen || [];
+    const srcs = (info.destroyed || []).map(d => ({ x: d.x, y: d.y, type: d.type }));
+    const gemSrcs = (info.pops || []).slice(0, 8);
     cards.forEach((card, i) => {
       const g = this.board.goals[i];
       if (!g) return;
-      const before = g.done;
-      if (before <= 0) return;
+      const gained = g.done - (prev[i] ?? g.done);
+      if (gained <= 0) return;
+      let src = null;
+      if (g.obstacle) src = srcs.find(s => s.type === g.obstacle);
+      else if (gemSrcs.length) src = gemSrcs[Math.min(gemSrcs.length - 1, i)];
+      if (!src) src = { x: (this.board.cols - 1) / 2, y: (this.board.rows - 1) / 2 };
       const rect = card.getBoundingClientRect();
-      const stageRect = this.boardCanvas.getBoundingClientRect();
       const to = { x: rect.left + rect.width / 2 - stageRect.left, y: rect.top + rect.height / 2 - stageRect.top };
-      // 목표 진행이 늘었으면 아이콘이 날아간다
-      if (info.destroyed?.some(d => d.type === g.obstacle)) {
-        const src = info.destroyed.find(d => d.type === g.obstacle);
-        const from = this.cellPx(src.x, src.y);
-        this.fx.fly(from, to, ctx => drawIcon(ctx, g.type === 'letter' ? 'letter' : (g.obstacle || 'box'), 0, 0, this.cw * 0.6, { colorKey: g.colorKey }), { dur: 460, curve: -60 });
-      }
+      const from = this.cellPx(src.x, src.y);
+      const kind = g.type === 'collect' ? 'gem' : (g.obstacle || 'box');
+      this.fx.fly(from, to, ctx => drawIcon(ctx, kind, 0, 0, this.cw * 0.55, { colorKey: g.colorKey }), { dur: 520, curve: -80, color: '#ffe066' });
+      this.fx.ring(from.x, from.y, '#ffe9a3', this.cw * 0.7, { max: 320 });
+      card.classList.remove('gain');
+      void card.offsetWidth;
+      card.classList.add('gain');
     });
     if (info.drops?.length) {
       const coinPill = document.querySelector('.pill.coins');
@@ -925,7 +1051,7 @@ export class GameScreen {
         const sr = this.boardCanvas.getBoundingClientRect();
         for (const dr of info.drops.filter(d => d.type === 'coin')) {
           const from = this.cellPx(dr.x, dr.y);
-          this.fx.fly(from, { x: r.left + 18 - sr.left, y: r.top + 16 - sr.top }, ctx => drawCoin(ctx, 0, 0, this.cw * 0.22), { dur: 420, curve: -40 });
+          this.fx.fly(from, { x: r.left + 18 - sr.left, y: r.top + 16 - sr.top }, ctx => drawCoin(ctx, 0, 0, this.cw * 0.22), { dur: 460, curve: -50, color: '#ffd23f' });
         }
       }
     }
@@ -1122,7 +1248,7 @@ export class GameScreen {
   showWinModal(coins, movesLeft, chest = null) {
     const body = document.createElement('div');
     body.innerHTML = `
-      <div class="result-stars" style="color:#ffd23f;-webkit-text-stroke:7px #c9971f;paint-order:stroke fill;text-shadow:0 4px 0 #a87b0c">★</div>
+      <div class="result-stars"><span class="on">★</span><span>★</span><span>★</span></div>
       <div class="result-coins">🪙 <b>+${fmt(coins)}</b></div>
       <p>남은 이동 ${movesLeft}발이 로켓과 TNT로 터졌어요.</p>
       <div class="result-goals">${this.board.goals.map(g => `<span class="result-goal">${goalRibbon(g)} ${g.done}/${g.need}</span>`).join('')}</div>
@@ -1264,6 +1390,27 @@ export class GameScreen {
     this.ended = false;
     await this.start(id, {});
   }
+}
+
+function drawCornerStud(ctx, x, y, r) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(Math.PI / 4);
+  const g = ctx.createLinearGradient(-r, -r, r, r);
+  g.addColorStop(0, '#fff7d6');
+  g.addColorStop(0.45, '#f2c94c');
+  g.addColorStop(1, '#b8871a');
+  ctx.fillStyle = g;
+  ctx.strokeStyle = '#8a6209';
+  ctx.lineWidth = 1.6;
+  rr(ctx, -r * 0.60, -r * 0.60, r * 1.20, r * 1.20, r * 0.20);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,.9)';
+  ctx.beginPath();
+  ctx.arc(-r * 0.16, -r * 0.18, r * 0.15, 0, TAU);
+  ctx.fill();
+  ctx.restore();
 }
 
 function goalRibbon(g) {

@@ -360,7 +360,7 @@ export class Board {
       for (const c of creations) this.placePowerup(c);
       if (creations.length) hooks.powerupCreated?.(creations);
       this.chain = cascade + 1;
-      await hooks.clear?.(info, Math.max(70, CFG.speeds.clear - cascade * 10));
+      await hooks.clear?.(info, Math.max(130, CFG.speeds.clear - cascade * 12));
       if (this.goalComplete()) break;
       const plan = planGravity(this);
       await hooks.fall?.(plan, this.fallDuration(plan, cascade));
@@ -384,7 +384,8 @@ export class Board {
   fallDuration(plan, cascade) {
     const per = CFG.speeds.fallPerCell * Math.max(CFG.speeds.cascadeSpeedUpCap, Math.pow(CFG.speeds.cascadeSpeedUp, cascade));
     const maxDist = plan.moves.reduce((m, mv) => Math.max(m, Math.abs(mv.toY - mv.fromY)), 1);
-    return Math.min(CFG.speeds.fallMax, Math.max(CFG.speeds.fallMin, per * maxDist));
+    const drop = Math.min(CFG.speeds.fallMax, Math.max(CFG.speeds.fallMin, per * maxDist));
+    return drop + (plan.moves.length ? CFG.speeds.landingBounce : 0);
   }
 
   placePowerup(creation) {
@@ -398,7 +399,7 @@ export class Board {
   applyClears(keys, ctx = {}) {
     const list = keys instanceof Set ? [...keys] : (keys || []).map(k => Array.isArray(k) ? k : parseKey(k));
     const coords = list.map(c => Array.isArray(c) ? c : parseKey(c));
-    const info = { cells: [], cascade: ctx.cascade || 0, goalDone: [], drops: [], destroyed: [], combos: this.chain, byPower: ctx.source === 'powerup' };
+    const info = { cells: [], pops: [], cascade: ctx.cascade || 0, goalDone: [], drops: [], destroyed: [], combos: this.chain, byPower: ctx.source === 'powerup' };
     const damageDone = new Set();
     const queue = [...coords];
     const seen = new Set(coords.map(([x, y]) => key(x, y)));
@@ -429,8 +430,11 @@ export class Board {
       let color = -1;
       if (c.gem) {
         color = c.gem.color;
+        const pw = c.gem.power || null;
+        const orient = c.gem.orient || null;
         c.gem = null;
         info.cells.push([x, y]);
+        info.pops.push({ x, y, color, power: pw, orient });
         if (this.recordColor(color)) info.goalDone.push('collect');
         if (c.drop) {
           info.drops.push({ type: c.drop, x, y });

@@ -51,7 +51,7 @@ export class FX {
     this.fliers.push({
       x: from.x, y: from.y, x0: from.x, y0: from.y, x1: to.x, y1: to.y,
       life: 0, max: opts.dur ?? 480, curve: opts.curve ?? -70, draw: drawFn, onDone: opts.onDone,
-      scale: opts.scale ?? 1,
+      scale: opts.scale ?? 1, color: opts.color ?? '#ffe9a3', trail: 0, lastTrail: -999,
     });
   }
 
@@ -80,6 +80,16 @@ export class FX {
       const e = Ease.outQuad(p);
       f.x = f.x0 + (f.x1 - f.x0) * e;
       f.y = f.y0 + (f.y1 - f.y0) * e + Math.sin(p * Math.PI) * f.curve;
+      // 빛 꼬리 — 지나간 자리에 반짝이가 남는다
+      if (!this.reduce && f.life - f.lastTrail > 26) {
+        f.lastTrail = f.life;
+        this.pool.spawn({
+          x: f.x + (Math.random() - 0.5) * 8, y: f.y + (Math.random() - 0.5) * 8,
+          vx: (Math.random() - 0.5) * 50, vy: 26 + Math.random() * 50,
+          size: 2.4 + Math.random() * 3.4, color: f.color, shape: 'star',
+          max: 300 + Math.random() * 180, grav: 60, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 6,
+        });
+      }
       if (p >= 1) { f.onDone?.(); f.dead = true; }
     }
     this.fliers = this.fliers.filter(f => !f.dead);
@@ -120,8 +130,10 @@ export class FX {
       const p = r.life / r.max;
       const rad = r.r0 + (r.r1 - r.r0) * Ease.outCubic(p);
       ctx.save();
-      ctx.globalAlpha = (1 - p) * 0.85;
+      ctx.globalAlpha = (1 - p) * 0.9;
       ctx.strokeStyle = r.color;
+      ctx.shadowColor = r.color;
+      ctx.shadowBlur = 16 * (1 - p);
       ctx.lineWidth = r.width * (1 - p * 0.7);
       ctx.beginPath();
       ctx.arc(r.x, r.y, rad, 0, Math.PI * 2);
@@ -135,6 +147,15 @@ export class FX {
       ctx.translate(f.x, f.y);
       const s = f.scale;
       ctx.scale(s, s);
+      // 뒤에 따라오는 빛무리
+      const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, 26);
+      glow.addColorStop(0, 'rgba(255,246,190,0.85)');
+      glow.addColorStop(0.5, 'rgba(255,220,110,0.35)');
+      glow.addColorStop(1, 'rgba(255,220,110,0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath(); ctx.arc(0, 0, 26, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowColor = f.color;
+      ctx.shadowBlur = 14;
       f.draw(ctx);
       ctx.restore();
     }

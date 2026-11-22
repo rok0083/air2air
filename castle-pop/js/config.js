@@ -42,16 +42,16 @@ export const CFG = {
      속도 — 조작감 (14번 항목)
      --------------------------------------------------------------------- */
   speeds: {
-    swap: 110,                // 교환 110ms
-    swapBack: 110,            // 무효 교환 되돌림
-    clear: 130,               // 제거 130ms
-    fallPerCell: 60,          // 낙하 칸당 60ms(가속도 기반)
-    fallMin: 90,
-    fallMax: 420,
-    spawnDrop: 140,           // 새 조각이 솟아날 때
-    cascadeSpeedUp: 0.88,     // 연쇄가 길어질수록 간격을 조금씩 줄인다
-    cascadeSpeedUpCap: 0.55,
-    landingBounce: 90,
+    swap: 130,                // 교환 130ms
+    swapBack: 140,            // 무효 교환 되돌림
+    clear: 230,               // 제거(팝) 230ms — 부풀었다 터지는 연출
+    fallPerCell: 96,          // 낙하 칸당 96ms(가속도 기반)
+    fallMin: 190,
+    fallMax: 620,
+    spawnDrop: 190,           // 새 조각이 위에서 떨어질 때
+    cascadeSpeedUp: 0.93,     // 연쇄가 길어질수록 간격을 조금씩 줄인다
+    cascadeSpeedUpCap: 0.72,
+    landingBounce: 130,       // 착지 스쿼시 시간
     powerupBeam: 260,
     comboSlowMo: 220,         // 조합 발동 슬로모션
     screenTransition: 520,    // 금색 커튼
@@ -60,7 +60,8 @@ export const CFG = {
     swipeThreshold: 0.25,     // 칸 크기의 25%만 움직여도 인식
     tapThreshold: 0.18,       // 탭 판정
     finaleStep: 190,          // 피날레 로켓/TNT 한 발 간격
-    idleSparkle: 3200,        // 대기 중 광택이 스치는 주기
+    idleSparkle: 2600,        // 대기 중 광택이 지나가는 주기
+    glintMs: 620,             // 광택이 조각을 가로지르는 시간
   },
 
   /* ---------------------------------------------------------------------

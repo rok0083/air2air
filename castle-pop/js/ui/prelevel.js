@@ -15,10 +15,13 @@ export function openPreLevel(level, { onStart }) {
   body.innerHTML = `
     <div class="lvl-badge">${level.area}구역 · 레벨 ${level.level}</div>
     ${diffTag}
+    <div class="panel-divider"><i></i></div>
+    <div class="pre-label">목표</div>
     <div class="pre-goals" id="pre-goals"></div>
-    <div style="font-size:13px;color:#8a93ad">시작 부스터 (보유 ${Object.values(Profile.state.preBoosters).reduce((a, b) => a + b, 0)}개)</div>
+    <div class="panel-divider"><i></i></div>
+    <div class="pre-label">시작 부스터 · 보유 ${Object.values(Profile.state.preBoosters).reduce((a, b) => a + b, 0)}개</div>
     <div class="pre-start" id="pre-start"></div>
-    <div style="font-size:12px;color:#8a93ad;margin-top:6px">🪙 ${fmt(Profile.state.coins)} · ⭐ ${Profile.state.stars}</div>
+    <div class="pre-wallet">🪙 ${fmt(Profile.state.coins)} · ⭐ ${Profile.state.stars}</div>
   `;
   const picked = {};
   const m = modal({
