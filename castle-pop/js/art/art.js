@@ -960,9 +960,10 @@ export function drawCastle(ctx, W, H, area, tasksDone = [], t = 0) {
   }
 
   // 깃발 (항상 흔들림)
-  drawFlag(ctx, cx, baseY - H * 0.71, W * 0.055, t, a.flag, done.has('flag') || done.has('banner'));
-  drawFlag(ctx, cx - W * 0.24, baseY - H * 0.475, W * 0.04, t + 1, a.accent, true);
-  drawFlag(ctx, cx + W * 0.24, baseY - H * 0.475, W * 0.04, t + 2, a.accent, true);
+  // 깃대는 지붕 꼭대기(apex)에서 시작한다
+  drawFlag(ctx, cx, baseY - H * 0.629, W * 0.05, t, a.flag, done.has('flag') || done.has('banner'));
+  drawFlag(ctx, cx - W * 0.24, baseY - H * 0.412, W * 0.038, t + 1, a.accent, true);
+  drawFlag(ctx, cx + W * 0.24, baseY - H * 0.412, W * 0.038, t + 2, a.accent, true);
 
   // 분수
   drawFountain(ctx, cx - W * 0.30, baseY + H * 0.09, W * 0.11, t, done.has('fountain') || done.has('iceFountain'));
