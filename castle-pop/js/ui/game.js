@@ -1326,28 +1326,32 @@ export class GameScreen {
       <p style="font-size:15px">${remaining || '이동 수를 다 썼어요'}</p>
       <div class="result-goals">${this.board.goals.map(g => `<span class="result-goal">${goalRibbon(g)} ${Math.max(0, g.need - g.done)} 남음</span>`).join('')}</div>
       <div class="result-coins">🪙 ${fmt(Profile.state.coins)}</div>
-      <p style="font-size:12px;color:#8a93ad">이어하기는 한 번만 가능해요</p>
+      <p style="font-size:12px;color:#8a93ad">${canContinue ? '이어하기는 한 번만 가능해요' : '이 판은 여기까지 — 다시 하면 새로 시작해요'}</p>
     `;
+    const failButtons = [];
+    // 이어하기는 한 번만 — 이미 쓴 판에서는 누를 수 없는 버튼을 남기지 않는다
+    if (canContinue) {
+      failButtons.push({ label: `+${CFG.economy.continueMoves} 이동 (🪙<span style="display:inline-block;width:5px"></span>${fmt(CFG.economy.continueCost)})`, cls: 'gold', close: false, onClick: () => {
+        if (!Profile.spendCoins(CFG.economy.continueCost)) { toast('코인이 부족해요'); return false; }
+        this.continued = true;
+        this.ended = false;
+        this.board.moves = CFG.economy.continueMoves;
+        this.updateMoves();
+        Audio.startMusic('level');
+        this.setKing('tense');
+        this.resumeFromFail();
+        return true;
+      } });
+    }
+    failButtons.push(
+      { label: '다시 하기', cls: 'blue small', close: false, onClick: () => { this.loseLife(); this.restart(); } },
+      { label: '나가기', cls: 'ghost small', close: false, onClick: () => { this.loseLife(); this.finish(); this.onHome(); } },
+    );
     modal({
       title: '아깝다!',
       body,
       closable: false,
-      buttons: [
-        { label: `+${CFG.economy.continueMoves} 이동 (🪙<span style="display:inline-block;width:5px"></span>${fmt(CFG.economy.continueCost)})`, cls: 'gold', close: false, onClick: () => {
-          if (!canContinue) { toast('이미 이어하기를 사용했어요'); return false; }
-          if (!Profile.spendCoins(CFG.economy.continueCost)) { toast('코인이 부족해요'); return false; }
-          this.continued = true;
-          this.ended = false;
-          this.board.moves = CFG.economy.continueMoves;
-          this.updateMoves();
-          Audio.startMusic('level');
-          this.setKing('tense');
-          this.resumeFromFail();
-          return true;
-        } },
-        { label: '다시 하기', cls: 'blue small', close: false, onClick: () => { this.loseLife(); this.restart(); } },
-        { label: '나가기', cls: 'ghost small', close: false, onClick: () => { this.loseLife(); this.finish(); this.onHome(); } },
-      ],
+      buttons: failButtons,
     });
   }
 
