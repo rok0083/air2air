@@ -960,10 +960,11 @@ export function drawCastle(ctx, W, H, area, tasksDone = [], t = 0) {
   }
 
   // 깃발 (항상 흔들림)
-  // 깃대는 지붕 꼭대기(apex)에서 시작한다
-  drawFlag(ctx, cx, baseY - H * 0.629, W * 0.05, t, a.flag, done.has('flag') || done.has('banner'));
-  drawFlag(ctx, cx - W * 0.24, baseY - H * 0.412, W * 0.038, t + 1, a.accent, true);
-  drawFlag(ctx, cx + W * 0.24, baseY - H * 0.412, W * 0.038, t + 2, a.accent, true);
+  // 깃대는 지붕 꼭대기(apex)에 세우고, 깃발은 깃대 위쪽에 단다
+  const fMain = W * 0.05, fSide = W * 0.038;
+  drawFlag(ctx, cx, baseY - H * 0.629 - fMain * 1.5, fMain, t, a.flag, done.has('flag') || done.has('banner'));
+  drawFlag(ctx, cx - W * 0.24, baseY - H * 0.412 - fSide * 1.5, fSide, t + 1, a.accent, true);
+  drawFlag(ctx, cx + W * 0.24, baseY - H * 0.412 - fSide * 1.5, fSide, t + 2, a.accent, true);
 
   // 분수
   drawFountain(ctx, cx - W * 0.30, baseY + H * 0.09, W * 0.11, t, done.has('fountain') || done.has('iceFountain'));
