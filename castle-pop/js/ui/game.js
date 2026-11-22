@@ -303,6 +303,8 @@ export class GameScreen {
     const W = this.stageW, H = this.stageH;
     ctx.clearRect(0, 0, W, H);
     const { originX, originY, cw } = this;
+    // HUD 아래 왕실 깃발 장식 — 보드 위 빈 하늘을 채운다
+    if (originY > 56) drawBunting(ctx, W, 4, ts);
 
     // 보드 바탕 — 금색 이중 베젤 + 라벤더 우물
     const pad = 10;
@@ -1390,6 +1392,54 @@ export class GameScreen {
     this.ended = false;
     await this.start(id, {});
   }
+}
+
+
+/* HUD 아래로 늘어지는 왕실 깃발(번팅) */
+function drawBunting(ctx, W, y0, ts) {
+  const x0 = 6, x1 = W - 6, sag = 16, n = 9;
+  const cord = t => y0 + 2 * t * (1 - t) * sag * 1.6;
+  ctx.save();
+  // 줄
+  ctx.strokeStyle = 'rgba(150,112,26,.9)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x0, cord(0));
+  ctx.quadraticCurveTo(W / 2, y0 + sag * 1.9, x1, cord(1));
+  ctx.stroke();
+  const cols = [['#5b93ff', '#1f4fd8'], ['#ffe9a3', '#f2c94c'], ['#ff8fa3', '#e63e5c']];
+  for (let i = 0; i < n; i++) {
+    const t = (i + 0.5) / n;
+    const x = x0 + t * (x1 - x0);
+    const y = cord(t);
+    const sway = Math.sin(ts * 0.0016 + i * 1.1) * 1.6;
+    const c = cols[i % 3];
+    const w = Math.min(20, (W / n) * 0.52);
+    ctx.save();
+    ctx.translate(x + sway, y);
+    const g = ctx.createLinearGradient(0, 0, 0, 26);
+    g.addColorStop(0, c[0]);
+    g.addColorStop(1, c[1]);
+    ctx.fillStyle = g;
+    ctx.strokeStyle = 'rgba(120,86,14,.5)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(-w / 2, 0);
+    ctx.lineTo(w / 2, 0);
+    ctx.lineTo(0, 24);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.35)';
+    ctx.beginPath();
+    ctx.moveTo(-w / 2 + 2, 1);
+    ctx.lineTo(-w / 6, 1);
+    ctx.lineTo(-w / 2 + 2, 22);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.restore();
 }
 
 function drawCornerStud(ctx, x, y, r) {
