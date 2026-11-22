@@ -832,9 +832,9 @@ export function drawCastle(ctx, W, H, area, tasksDone = [], t = 0) {
   ctx.beginPath();
   ctx.ellipse(cx, baseY + H * 0.115, W * 0.44, H * 0.030, 0, 0, TAU);
   ctx.fill();
-  drawTower(ctx, cx - W * 0.24, baseY - H * 0.06, W * 0.13, H * 0.30, stone, a, t, 0);
-  drawTower(ctx, cx + W * 0.24, baseY - H * 0.06, W * 0.13, H * 0.30, stone, a, t, 1.4);
-  drawTower(ctx, cx, baseY - H * 0.16, W * 0.17, H * 0.40, stone, a, t, 0.7);
+  drawTower(ctx, cx - W * 0.24, baseY + H * 0.02, W * 0.13, H * 0.38, stone, a, t, 0);
+  drawTower(ctx, cx + W * 0.24, baseY + H * 0.02, W * 0.13, H * 0.38, stone, a, t, 1.4);
+  drawTower(ctx, cx, baseY + H * 0.02, W * 0.17, H * 0.58, stone, a, t, 0.7);
   // 성벽 — 위에서 내려오는 빛
   const wallG = ctx.createLinearGradient(0, baseY - H * 0.10, 0, baseY + H * 0.06);
   wallG.addColorStop(0, shade(stone, 18));
@@ -960,9 +960,9 @@ export function drawCastle(ctx, W, H, area, tasksDone = [], t = 0) {
   }
 
   // 깃발 (항상 흔들림)
-  drawFlag(ctx, cx, baseY - H * 0.42, W * 0.055, t, a.flag, done.has('flag') || done.has('banner'));
-  drawFlag(ctx, cx - W * 0.24, baseY - H * 0.20, W * 0.04, t + 1, a.accent, true);
-  drawFlag(ctx, cx + W * 0.24, baseY - H * 0.20, W * 0.04, t + 2, a.accent, true);
+  drawFlag(ctx, cx, baseY - H * 0.71, W * 0.055, t, a.flag, done.has('flag') || done.has('banner'));
+  drawFlag(ctx, cx - W * 0.24, baseY - H * 0.475, W * 0.04, t + 1, a.accent, true);
+  drawFlag(ctx, cx + W * 0.24, baseY - H * 0.475, W * 0.04, t + 2, a.accent, true);
 
   // 분수
   drawFountain(ctx, cx - W * 0.30, baseY + H * 0.09, W * 0.11, t, done.has('fountain') || done.has('iceFountain'));
