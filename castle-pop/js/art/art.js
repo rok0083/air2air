@@ -962,7 +962,10 @@ export function drawCastle(ctx, W, H, area, tasksDone = [], t = 0) {
   // 깃발 (항상 흔들림)
   // 깃대는 지붕 꼭대기(apex)에 세우고, 깃발은 깃대 위쪽에 단다
   const fMain = W * 0.05, fSide = W * 0.038;
-  drawFlag(ctx, cx, baseY - H * 0.629 - fMain * 1.5, fMain, t, a.flag, done.has('flag') || done.has('banner'));
+  // 과제를 마치기 전에는 깃대도 세우지 않는다 (빈 깃대가 지붕에 떠 보이지 않게)
+  if (done.has('flag') || done.has('banner')) {
+    drawFlag(ctx, cx, baseY - H * 0.629 - fMain * 1.5, fMain, t, a.flag, true);
+  }
   drawFlag(ctx, cx - W * 0.24, baseY - H * 0.412 - fSide * 1.5, fSide, t + 1, a.accent, true);
   drawFlag(ctx, cx + W * 0.24, baseY - H * 0.412 - fSide * 1.5, fSide, t + 2, a.accent, true);
 
