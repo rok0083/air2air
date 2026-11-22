@@ -1001,6 +1001,12 @@ export class GameScreen {
       this.fx.ring(p.x, p.y, col.light, this.cw * 0.66, { max: 300, width: 3.5 });
     });
     Audio.play('match', { chain: info.cascade || 0 });
+    // 연쇄가 이어지면 콜아웃이 단계별로 올라간다
+    const casc = info.cascade || 0;
+    if (casc >= 2) {
+      const co = CFG.ui.callouts.filter(c => casc >= c.at).pop();
+      if (co) this.callout(co.text);
+    }
     // 장애물 파괴
     for (const d of info.destroyed || []) {
       const p = this.cellPx(d.x, d.y);
