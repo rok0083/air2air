@@ -44,7 +44,10 @@ export function modal(opts = {}) {
   if (opts.body instanceof HTMLElement) panel.appendChild(opts.body);
   else if (typeof opts.body === 'string') panel.insertAdjacentHTML('beforeend', opts.body);
 
+  let closed = false;
   const close = () => {
+    if (closed) return;          // onClose 가 두 번 불리지 않게
+    closed = true;
     overlay.remove();
     Audio.play('close');
     opts.onClose?.();
@@ -54,9 +57,16 @@ export function modal(opts = {}) {
     const btn = el('button', `btn ${b.cls || 'green'}${b.small ? ' small' : ''}`, b.label);
     btn.type = 'button';
     btn.addEventListener('click', async () => {
+      if (btn.disabled) return;   // 연타로 두 번 처리되지 않게
+      btn.disabled = true;
       Audio.play('button');
-      const keep = await b.onClick?.();
-      if (b.close !== false && keep !== false) close();
+      let keep;
+      try { keep = await b.onClick?.(); } catch (e) { console.error('[castle-pop] 팝업 버튼 처리 실패', e); }
+      // onClick 이 false 를 돌려주면 팝업 유지, true 는 닫기 요청
+      // (close:false 인 버튼도 true 를 돌려주면 닫힌다 — 이어하기가 overlay 에 갇히던 원인)
+      if (keep === false) { btn.disabled = false; return; }
+      if (keep === true || b.close !== false) close();
+      else btn.disabled = false;
     });
     btnRow.appendChild(btn);
   }

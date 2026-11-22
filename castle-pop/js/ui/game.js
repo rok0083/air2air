@@ -84,6 +84,13 @@ export class GameScreen {
     this.skipFinale = false;
     this.lastInput = performance.now();
     this.kingExpr = 'smile';
+    // 판마다 초기화해야 하는 상태 — 이전 판의 실패/이어하기 흔적을 남기지 않는다
+    this.resolving = 0;
+    this.continued = false;
+    this.busy.clear();
+    this.stats = { cleared: 0, combos: 0, boosters: 0, powerups: 0 };
+    this.tutorialHint = null;
+    clearTimeout(this._kingTimer);
 
     const seed = (level.seed || 1) + Math.floor(Math.random() * 100000);
     this.board = new Board(level, { seed });
@@ -112,6 +119,7 @@ export class GameScreen {
 
     Audio.startMusic('level');
     Audio.setTempo(1);
+    this.bind();            // finish() 가 입력을 떼어냈어도 새 판은 항상 조작 가능해야 한다
     this.running = true;
     this.startLoop();
 
@@ -792,9 +800,11 @@ export class GameScreen {
     cv.addEventListener('pointerdown', onDown);
     cv.addEventListener('pointermove', onMove);
     cv.addEventListener('pointerup', onUp);
-    cv.addEventListener('pointercancel', () => { down = null; });
-    this._handlers = { onDown, onMove, onUp };
-    document.getElementById('hud-close').addEventListener('click', () => this.openSettings());
+    const onCancel = () => { down = null; };
+    cv.addEventListener('pointercancel', onCancel);
+    this._handlers = { onDown, onMove, onUp, onCancel };
+    this._hudCloseHandler = () => this.openSettings();
+    document.getElementById('hud-close').addEventListener('click', this._hudCloseHandler);
   }
 
   unbind() {
@@ -803,6 +813,12 @@ export class GameScreen {
     cv.removeEventListener('pointerdown', this._handlers.onDown);
     cv.removeEventListener('pointermove', this._handlers.onMove);
     cv.removeEventListener('pointerup', this._handlers.onUp);
+    cv.removeEventListener('pointercancel', this._handlers.onCancel);
+    if (this._hudCloseHandler) {
+      document.getElementById('hud-close').removeEventListener('click', this._hudCloseHandler);
+      this._hudCloseHandler = null;
+    }
+    this._handlers = null;
     this._bound = false;
   }
 
@@ -1181,7 +1197,7 @@ export class GameScreen {
       closable: false,
       buttons: [
         { label: '홈', cls: 'blue small', onClick: () => { this.finish(); this.onHome(); }, close: false },
-        { label: '한 번 더', cls: 'green', onClick: () => { this.finish(); this.start(this.level, { ...this.opts }); }, close: false },
+        { label: '한 번 더', cls: 'green', onClick: () => { this.restart(); }, close: false },
       ],
     });
   }
@@ -1202,7 +1218,7 @@ export class GameScreen {
         closable: false,
         buttons: [
           { label: '홈', cls: 'blue small', onClick: () => { this.finish(); this.onHome(); }, close: false },
-          { label: '다시 도전', cls: 'green', onClick: () => { this.finish(); this.start(this.level, { ...this.opts }); }, close: false },
+          { label: '다시 도전', cls: 'green', onClick: () => { this.restart(); }, close: false },
         ],
       });
       return;
@@ -1214,7 +1230,7 @@ export class GameScreen {
       closable: false,
       buttons: [
         { label: '홈', cls: 'blue small', onClick: () => { this.finish(); this.onHome(); }, close: false },
-        { label: '다시 도전', cls: 'green', onClick: () => { this.finish(); this.start(this.level, { ...this.opts }); }, close: false },
+        { label: '다시 도전', cls: 'green', onClick: () => { this.restart(); }, close: false },
       ],
     });
   }
@@ -1290,7 +1306,7 @@ export class GameScreen {
         closable: false,
         buttons: [
           { label: '홈', cls: 'blue small', onClick: () => { this.finish(); this.onHome(); }, close: false },
-          { label: '다시 도전', cls: 'green', onClick: () => { this.finish(); this.start(this.level, { ...this.opts }); }, close: false },
+          { label: '다시 도전', cls: 'green', onClick: () => { this.restart(); }, close: false },
         ],
       });
       return;
@@ -1317,7 +1333,7 @@ export class GameScreen {
       body,
       closable: false,
       buttons: [
-        { label: `+${CFG.economy.continueMoves} 이동 (🪙${fmt(CFG.economy.continueCost)})`, cls: 'gold', close: false, onClick: () => {
+        { label: `+${CFG.economy.continueMoves} 이동 (🪙<span style="display:inline-block;width:5px"></span>${fmt(CFG.economy.continueCost)})`, cls: 'gold', close: false, onClick: () => {
           if (!canContinue) { toast('이미 이어하기를 사용했어요'); return false; }
           if (!Profile.spendCoins(CFG.economy.continueCost)) { toast('코인이 부족해요'); return false; }
           this.continued = true;
@@ -1329,7 +1345,7 @@ export class GameScreen {
           this.resumeFromFail();
           return true;
         } },
-        { label: '다시 하기', cls: 'blue small', close: false, onClick: () => { this.loseLife(); this.finish(); this.restart(); } },
+        { label: '다시 하기', cls: 'blue small', close: false, onClick: () => { this.loseLife(); this.restart(); } },
         { label: '나가기', cls: 'ghost small', close: false, onClick: () => { this.loseLife(); this.finish(); this.onHome(); } },
       ],
     });
@@ -1337,6 +1353,7 @@ export class GameScreen {
 
   resumeFromFail() {
     this.resolving = 0;
+    this.bind();            // 이어하기 직후에는 보드 입력이 반드시 살아 있어야 한다
     this.afterResolve();
   }
 
@@ -1391,12 +1408,15 @@ export class GameScreen {
     this.ended = true;
   }
 
+  /* 같은 레벨을 처음부터 다시 — 루프·입력·음악·팝업을 모두 정리하고 새 판을 연다 */
   async restart() {
-    const id = this.levelId;
-    this.running = false;
-    this.stopLoop();
+    const target = (this.opts?.custom && this.level) ? { ...this.level } : this.levelId;
+    // 시작 부스터는 레벨 시작 때 이미 차감됐으므로 다시 주지 않는다(모드 설정만 유지)
+    const opts = { ...(this.opts || {}), preBoosters: {} };
+    this.finish();
     this.ended = false;
-    await this.start(id, {});
+    await this.start(target, opts);
+    this.bind();
   }
 }
 
